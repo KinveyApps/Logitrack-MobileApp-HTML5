@@ -35,8 +35,11 @@
       return Kinvey.User.create();
     }
   }).then(function(){
-	$.when([$.Mustache.load('templates/search.html')]).then(function(){
-		debugger;
+	$.when([
+		$.Mustache.load('templates/search.html'),
+		$.Mustache.load('templates/checkins.html')
+	
+	]).then(function(){
 		$.mobile.initializePage();// Render page.	
 	});
   }, function(){alert('cant connect to server');});
@@ -67,7 +70,6 @@
     	return this.type == "select";
     },
     isCheckbox : function(){
-    	debugger;
     	return this.type == 'checkbox';
     }
   };
@@ -83,7 +85,6 @@
     pageinit: function() {
       
       home.on('click', '#save', function() {
-      	debugger;
         var button = $(this).addClass('ui-disabled');
         //TODO: data search
 		$.mobile.changePage(route);
@@ -108,17 +109,14 @@
     				response[i].values = array;
     			}
     		}
-    		home.find('.search_form').mustache('search', $.extend({ searchOptions: window.searchOptions }, mustacheData)).listview('refresh');
+    		home.find('.search_form').mustache('search', $.extend({ searchOptions: window.searchOptions }, mustacheData), {method : 'html'}).listview('refresh');
     		home.find("select").each(function(){
     			if($(this).data('role') == 'slider'){
     				$(this).slider().slider('refresh');
     			} else {
-    				$(this).selectmenu().selectmenu('refresh')
+    				$(this).selectmenu().selectmenu('refresh');
     			}
     		});
-    	},
-    	fail: function(){
-    		debugger;
     	}
       });
       
@@ -131,7 +129,6 @@
   var route   = $('#route');
   route.on({
   	pageinit : function(){
-  		debugger;
   		$('#map_canvas').gmap({'center': mobileDemo.center, 'zoom': mobileDemo.zoom, 'disableDefaultUI':true, 'callback': function() {
 			var self = this;
 			self.addMarker({'position': this.get('map').getCenter() }).click(function() {
@@ -161,25 +158,41 @@
 		});
 		
 		route.on("click", "#checkin_btn", function(){
-			$.mobile.changePage(checkins);
+			var button = $(this).addClass('ui-disabled');
+			if (!checkins.kinveyData){
+				Kinvey.DataStore.find('checkins', null, {
+			    	success : function(response) {
+			    		checkins.kinveyData = response;
+			    		$.mobile.changePage(checkins);	
+			    	}
+			      });
+			}else {
+				$.mobile.changePage(checkins);	
+			}
+			
+			var button = $(this).removeClass('ui-disabled');
 			
 		});
 		
   	},
   	pageshow : function() {
-  		debugger;
   		$('#map_canvas').gmap('refresh'); 
   		var the_height = ($(window).height() - $(this).find('[data-role="header"]').height() - $(this).find('[data-role="footer"]').height());
   		route.contentHeight = the_height;
 		
     	$(this).height($(window).height()).find('[data-role="content"]').height(the_height);
     	
-    	
-    	
   	}
   });
   
   var checkins   = $('#checkins');
+  checkins.on ({
+  	pageshow : function(){
+  		checkins.find('.data').mustache('checkins', $.extend({ checkins: checkins.kinveyData }, mustacheData, {method : 'html'})).listview('refresh');
+  	}
+  });
+  
+  
   
 
   
