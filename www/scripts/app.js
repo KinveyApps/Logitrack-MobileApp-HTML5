@@ -138,14 +138,8 @@
 		
 		
   		
-		route.on('click',"#sliderOpen", function(){
-			if (route.sliderOpened){
-				$("#sliderOpen").text("Slide up to pause route");
-				route.sliderOpened = false;
-				$("#pauseRoute").animate({
-					height: 0
-				});
-			} else {
+		route.on('swipeup',"#sliderOpen", function(){
+			if(!route.sliderOpened){
 				$("#pauseRoute").show().height(0);
 				$("#pauseRoute").animate({
 					height: route.contentHeight
@@ -153,8 +147,16 @@
 				$("#sliderOpen").text("Slide down to resume route");
 				route.sliderOpened = true;
 			}
-			
-			
+		});
+		
+		route.on('swipedown', "#sliderOpen", function(){
+			if (route.sliderOpened){
+				$("#sliderOpen").text("Slide up to pause route");
+				route.sliderOpened = false;
+				$("#pauseRoute").animate({
+					height: 0
+				});
+			}
 		});
 		
 		route.on("click", "#checkin_btn", function(){
