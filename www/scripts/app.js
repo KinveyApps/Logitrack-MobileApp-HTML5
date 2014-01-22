@@ -188,7 +188,7 @@
   var checkins   = $('#checkins');
   checkins.on ({
   	pageshow : function(){
-  		checkins.find('.data').mustache('checkins', $.extend({ checkins: checkins.kinveyData }, mustacheData, {method : 'html'})).listview('refresh');
+  		checkins.find('.data').mustache('checkins', $.extend({ checkins: checkins.kinveyData }, mustacheData),{method : 'html'}).listview('refresh');
   	}
   });
   
