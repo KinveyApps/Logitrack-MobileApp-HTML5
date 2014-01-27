@@ -1,0 +1,23 @@
+<script id="search" type="text/html">
+	
+	{{#searchOptions}}
+	<li class="ui-field-contain">
+		<label for="{{ shipment-field }}">{{ title }}</label>
+		{{#isCheckbox}}
+			<select name="{{ shipment-field }}" data-role="slider">
+			    <option value="off">Off</option>
+			    <option value="on">On</option>
+			</select>
+		{{/isCheckbox}}
+		{{#isSelect}}
+			<select name="{{ shipment-field }}" id="{{ shipment-field }}" data-native-menu="false">
+			    <option></option>
+			    {{#values}}
+			    	<option value="{{ value }}">{{ name }}</option>
+			    {{/values}}
+			    
+			</select>
+		{{/isSelect}}
+	</li>
+	{{/searchOptions}}
+</script>
