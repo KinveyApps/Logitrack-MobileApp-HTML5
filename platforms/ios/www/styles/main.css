@@ -55,3 +55,7 @@
 	background:url(../images/myl_normal.png) no-repeat; 
 	background-size: 64px 64px; 
 }
+
+.ui-page-theme-a .ui-body-inherit.selected {
+	color : #0000ff;
+}

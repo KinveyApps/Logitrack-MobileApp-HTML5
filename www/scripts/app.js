@@ -19,6 +19,19 @@
 
   // Setup.
   // ------
+  
+  var currentShipment = null;
+  var lastUserPosition = null;
+  //shipment saving function
+  function saveShipment(shipment, cb){
+	Kinvey.DataStore.save('shipment', currentShipment ,{
+		relations : {'checkins' : 'shipment-checkins', 'route' : 'route'},
+		
+		success : function(response){
+			cb(response);
+		}
+	});
+  }
 
   // Initialize Kinvey.
   var promise = Kinvey.init({
@@ -87,12 +100,13 @@
       home.on('click', '#save', function() {
         var button = $(this).addClass('ui-disabled');
         //TODO: data search
-		Kinvey.DataStore.find('route', null,{
+		Kinvey.DataStore.find('shipment', null,{
+			relations : {'checkins' : 'shipment-checkins', 'route' : 'route'},
 			success : function(data){
 				if (data.length == 0){
 					alert("No route found");
 				} else {
-					route.userRoute = data[0];
+					currentShipment = data[0];
 					button.removeClass('ui-disabled');
 					$.mobile.changePage(route);
 					
@@ -140,7 +154,29 @@
   var route   = $('#route');
   route.on({
   	pageinit : function(){
-  		
+  		/*debugger;
+		Kinvey.DataStore.save('shipment', {
+			'on-desk' : true,
+			"pulped" : "yes",
+			"status" : 'in_progress',
+			'user_status' : null,
+			'checkins' : [],
+			'route' : {start:{
+				lat:30.265146,
+				lon: -97.747185
+			}, finish:{
+				lat: 30.246359,
+				lon: -97.76918
+			}}
+			
+		},{
+			relations : {'checkins' : 'checkins', 'route' : 'route'},
+			
+			success : function(response){
+				debugger;
+			}
+		});*/
+		
 		route.on('swipeup',"#sliderOpen", function(){
 			if(!route.sliderOpened){
 				$("#pauseRoute").show().height(0);
@@ -167,12 +203,20 @@
 			if (!checkins.kinveyData){
 				Kinvey.DataStore.find('checkins', null, {
 			    	success : function(response) {
-			    		checkins.kinveyData = response;
-			    		$.mobile.changePage(checkins);	
+						if (lastUserPosition){
+				    		checkins.kinveyData = response;
+							checkins.checkinPosition = lastUserPosition;
+				    		$.mobile.changePage(checkins);
+						} else {
+							navigator.notification.alert("Can't get your location. Please make sure that location services are enabled on your device.",
+							function(){}, "Location missing","OK");
+						}
 			    	}
 			      });
 			}else {
+				checkins.checkinPosition = lastUserPosition;
 				$.mobile.changePage(checkins);	
+				
 			}
 			
 			var button = $(this).removeClass('ui-disabled');
@@ -185,8 +229,38 @@
 			
 				//$(this).css("background-image", route.followUser ? "url:(../images/myl_normal.png)": "url:(../images/myl_disabled.png)")
 			
-		})
+		});
 		
+		route.on("click",".ui-icon-ok", function(){
+			navigator.notification.confirm("Do you really want to mark route as \"Done\"",
+			function(button){
+				if (button == 1){
+					currentShipment.user_status = "done"; 
+					saveShipment(currentShipment, function(data){
+						currentShipment = data;
+						history.back();
+					});
+				}
+			},
+			"Change route status",
+			["OK","Cancel"])
+		});
+		
+		route.on("click",".ui-icon-remove", function(){
+			navigator.notification.confirm("Do you really want to reject route",
+			function(button){
+				if (button == 1){
+					currentShipment.user_status = "rejected"; 
+					saveShipment(currentShipment, function(data){
+						currentShipment = data;
+						history.back();
+					});
+				}
+			},
+			"Change route status",
+			["OK","Cancel"])
+		});
+		$('#map_canvas').gmap({ 'zoom': 10, 'disableDefaultUI':true, 'callback': function() {}})
   	},
   	pageshow : function() {
 		var the_height = ($(window).height() - $(this).find('[data-role="header"]').height() - $(this).find('[data-role="footer"]').height()) - 36;
@@ -195,52 +269,60 @@
     	$(this).find('[data-role="content"]').height(the_height);
 		$(this).find('#map_canvas').height(the_height+32);
 		
-		var userRoute = route.userRoute;
+		var userRoute = currentShipment.route;
 		
 		var bounds =  new google.maps.LatLngBounds();
 		
-		var start = new google.maps.LatLng(userRoute.start_lat, userRoute.start_lon);
-		var finish = new google.maps.LatLng(userRoute.end_lat, userRoute.end_lon);
+		var start = new google.maps.LatLng(userRoute.start.lat, userRoute.start.lon);
+		var finish = new google.maps.LatLng(userRoute.finish.lat, userRoute.finish.lon);
 		
 		bounds.extend(start);
 		bounds.extend(finish);
 		
-		$('#map_canvas').gmap({'center': bounds.getCenter(), 'zoom': 10, 'disableDefaultUI':true, 'callback': function() {
-			var self = this;
-			
-			
-			
-			navigator.geolocation.watchPosition(function(position){
-				var marker = self.get('markers > current');
-				if (marker){
-					marker.setPosition(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
-				} else {
-					self.addMarker({'id': 'current','position':new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
-					'icon' : 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'});
-				}
-				if (route.followUser){
-					self.option('center',new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
-				}
-		}, function(error){
-			console.log('code: '    + error.code    + '\n' +
-          'message: ' + error.message + '\n');}, {timeout: 30000});
-		}}).bind('init', function(){
-			$('#map_canvas').gmap('displayDirections', 
-                { 'origin' : start, 
-                  'destination' : finish, 'travelMode' : google.maps.DirectionsTravelMode.DRIVING},
-                { },
-                      function (result, status) {
-                          if (status === 'OK') {
-                              var center = result.routes[0].bounds.getCenter();
-                              $('#map_canvas').gmap('option', 'center', center);
-                              $('#map_canvas').gmap('refresh');
-                          } else {
-                            alert('Unable to get route');
-                          }
-                      }
-                   ); 
-		});
-  		$('#map_canvas').gmap('refresh'); 
+		$('#map_canvas').gmap('displayDirections', 
+          { 
+			'origin' : start, 
+            'destination' : finish, 'travelMode' : google.maps.DirectionsTravelMode.DRIVING},
+          { },
+          function (result, status) {
+              if (status === 'OK') {
+                  var center = result.routes[0].bounds.getCenter();
+                  $('#map_canvas').gmap('option', 'center', center);
+                  $('#map_canvas').gmap('refresh');
+              } else {
+                alert('Unable to get route');
+              }
+          }
+       );
+	   
+	 //tracking user position  
+	navigator.geolocation.watchPosition(function(position){
+		lastUserPosition = position;
+		var marker = $('#map_canvas').gmap('get','markers > current');
+		if (marker){
+			marker.setPosition(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+		} else {
+			$('#map_canvas').gmap('addMarker',{'id': 'current','position':new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
+			'icon' : 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'});
+		}
+		if (route.followUser){
+			$('#map_canvas').gmap('option',{'center':new google.maps.LatLng(position.coords.latitude, position.coords.longitude)});
+		}
+	}, function(error){
+		console.log('code: '    + error.code    + '\n' +
+         'message: ' + error.message + '\n');}, {timeout: 30000}
+	 );
+	 //display checkins
+	   var checkins = currentShipment.checkins;
+	   for (var i = 0 ;i < checkins.length; i++){
+		   if (checkins[i].position){
+			   var position = checkins[i].position;
+		   	 $('#map_canvas').gmap('addMarker', {position: new google.maps.LatLng(position.lat, position.lon), 
+			 	'icon' : 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'});
+		   }
+	   }
+		
+  	   $('#map_canvas').gmap('refresh'); 
   		
 		
     	
@@ -249,12 +331,45 @@
   
   var checkins   = $('#checkins');
   checkins.on ({
+	  pageinit: function(){
+	  	checkins.find("#ok").click(function(){
+			if (checkins.find('.data li.selected').length > 0){
+		  		var id = checkins.find('.data li.selected').data('id');
+				var checkin;
+				for (var i = 0 ; i < checkins.kinveyData.length; i++){
+					if (checkins.kinveyData[i]._id == id){
+						checkin = checkins.kinveyData[i];
+						break;
+					}
+				}
+				currentShipment.checkins.push({
+		  			position: {lat: checkins.checkinPosition.coords.latitude, lon: checkins.checkinPosition.coords.longitude},
+					checkin : checkin
+		  		});
+				saveShipment(currentShipment, function(data){
+					currentShipment = data;
+					history.back();
+				});
+			} else {
+				history.back();
+			}
+	  	});
+	  },
   	pageshow : function(){
   		checkins.find('.data').mustache('checkins', $.extend({ checkins: checkins.kinveyData }, mustacheData),{method : 'html'}).listview('refresh');
+		checkins.find('.data li').click(function(){
+			if (!$(this).hasClass("selected")){
+				checkins.find('.data li').removeClass("selected");
+				$(this).addClass("selected");
+			}
+		});
+		
+		
   	}
   });
   
   $(document).delegate("#route","scrollstart",false);
+  
   
   
 

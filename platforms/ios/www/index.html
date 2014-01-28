@@ -9,6 +9,9 @@
     <meta name="MobileOptimized" content="320">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+	<!-- Cordova -->
+	<script src="cordova.js"></script>
+
     <!-- jQuery. -->
     <script src="scripts/jquery.js"></script>
 
@@ -22,6 +25,8 @@
     <!-- jquery google map -->
     <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&libraries=places"></script> 
     <script src="scripts/jquery.ui.map.full.min.js"></script>
+	
+	<link href="icons/fontawesome.css" rel="stylesheet" />
     
     <!-- Application styles. -->
     <link href="styles/main.css" rel="stylesheet" />
@@ -56,6 +61,10 @@
       <div data-role="content" style="position: relative">
 		  <div id="map_canvas" style="position:absolute; top:0px; left: 0px; right: 0px; bottom: 0px"></div>
 		  <div id="my_loc">&nbsp;</div>
+		  <div style="height:64px; position:absolute; bottom:0px; right:0px; left:0px; background: rgba(255,255,255,0.8); border: 1px solid #202020">
+			  <div style="width:49.9%; border-right:1px solid #202020; float:left; line-height:64px; text-align: center; font-size:48px" class="ui-icon-ok"> &nbsp;</div>
+			  <div style="width:49.9%; float: right; line-height: 64px; text-align: center; font-size:48px" class="ui-icon-remove"> &nbsp;</div>
+		  </div>
       </div>
       <div data-role="footer" data-position="fixed">
         <div style="width:auto; padding: 12px; font-weight: bold; text-align: center; background: #ececec; color: #808080" id="sliderOpen">Slide up to pause route</div>
@@ -73,7 +82,7 @@
 			<ul class="data" data-role="listview" data-inset="true"></ul>
 		</div>
 		<div data-role="footer" style="padding: 0">
-		<a data-rel="back" style="display: block; margin: 0" class="ui-btn">Ok</a>
+		<a id="ok" style="display: block; margin: 0" class="ui-btn">Ok</a>
 		</div>
     </div>
 
