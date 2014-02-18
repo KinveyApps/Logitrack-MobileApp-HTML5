@@ -19,18 +19,22 @@
 
   // Setup.
   // ------
-  
+	var loadingHide = function(){
+		$.mobile.loading("hide");
+	}
+	var locationWatchId = null;
   var currentShipment = null;
   var lastUserPosition = null;
   //shipment saving function
   function saveShipment(shipment, cb){
+	  $.mobile.loading("show");
 	Kinvey.DataStore.save('shipment', currentShipment ,{
 		relations : {'checkins' : 'shipment-checkins', 'route' : 'route'},
 		
 		success : function(response){
 			cb(response);
 		}
-	});
+	}).then(loadingHide, loadingHide);
   }
 
   // Initialize Kinvey.
@@ -100,6 +104,7 @@
       home.on('click', '#save', function() {
         var button = $(this).addClass('ui-disabled');
         //TODO: data search
+		$.mobile.loading("show");
 		Kinvey.DataStore.find('shipment', null,{
 			relations : {'checkins' : 'shipment-checkins', 'route' : 'route'},
 			success : function(data){
@@ -108,11 +113,11 @@
 				} else {
 					currentShipment = data[0];
 					button.removeClass('ui-disabled');
-					$.mobile.changePage(route);
+					$.mobile.changePage(routeSettings);
 					
 				}
 			}
-		});
+		}).then(loadingHide,loadingHide);
 		
         
       });
@@ -122,9 +127,11 @@
      * Before show hook.
      */
     pagebeforeshow: function() {
+		
+		$.mobile.loading("show");
       Kinvey.DataStore.find('search-options', null, {
     	success : function(response) {
-    		window.searchOptions = response;
+			window.searchOptions = response;
     		for (var i in response){
     			if (response[i].values){
     				var values = response[i].values;
@@ -143,8 +150,9 @@
     				$(this).selectmenu().selectmenu('refresh');
     			}
     		});
+			
     	}
-      });
+      }).then(loadingHide,loadingHide);
       
     }
   });
@@ -177,51 +185,12 @@
 			}
 		});*/
 		
-		route.on('swipeup',"#sliderOpen", function(){
-			if(!route.sliderOpened){
-				$("#pauseRoute").show().height(0);
-				$("#pauseRoute").animate({
-					height: route.contentHeight
-				});
-				$("#sliderOpen").text("Slide down to resume route");
-				route.sliderOpened = true;
-			}
-		});
 		
-		route.on('swipedown', "#sliderOpen", function(){
-			if (route.sliderOpened){
-				$("#sliderOpen").text("Slide up to pause route");
-				route.sliderOpened = false;
-				$("#pauseRoute").animate({
-					height: 0
-				});
-			}
-		});
 		
-		route.on("click", "#checkin_btn", function(){
-			var button = $(this).addClass('ui-disabled');
-			if (!checkins.kinveyData){
-				Kinvey.DataStore.find('checkins', null, {
-			    	success : function(response) {
-						if (lastUserPosition){
-				    		checkins.kinveyData = response;
-							checkins.checkinPosition = lastUserPosition;
-				    		$.mobile.changePage(checkins);
-						} else {
-							navigator.notification.alert("Can't get your location. Please make sure that location services are enabled on your device.",
-							function(){}, "Location missing","OK");
-						}
-			    	}
-			      });
-			}else {
-				checkins.checkinPosition = lastUserPosition;
-				$.mobile.changePage(checkins);	
-				
-			}
-			
-			var button = $(this).removeClass('ui-disabled');
-			
-		});
+		
+		
+		
+		
 		
 		route.on("click", "#my_loc", function(){
 			$(this).toggleClass("enabled");
@@ -238,7 +207,7 @@
 					currentShipment.user_status = "done"; 
 					saveShipment(currentShipment, function(data){
 						currentShipment = data;
-						history.back();
+						$.mobile.back();
 					});
 				}
 			},
@@ -295,23 +264,7 @@
           }
        );
 	   
-	 //tracking user position  
-	navigator.geolocation.watchPosition(function(position){
-		lastUserPosition = position;
-		var marker = $('#map_canvas').gmap('get','markers > current');
-		if (marker){
-			marker.setPosition(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
-		} else {
-			$('#map_canvas').gmap('addMarker',{'id': 'current','position':new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
-			'icon' : 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'});
-		}
-		if (route.followUser){
-			$('#map_canvas').gmap('option',{'center':new google.maps.LatLng(position.coords.latitude, position.coords.longitude)});
-		}
-	}, function(error){
-		console.log('code: '    + error.code    + '\n' +
-         'message: ' + error.message + '\n');}, {timeout: 30000}
-	 );
+	 
 	 //display checkins
 	   var checkins = currentShipment.checkins;
 	   for (var i = 0 ;i < checkins.length; i++){
@@ -324,7 +277,27 @@
 		
   	   $('#map_canvas').gmap('refresh'); 
   		
-		
+  	 //tracking user position  
+   	 //tracking user position  
+	 if(locationWatchId){
+	 	navigator.geolocation.clearWatch(locationWatchId);
+	 }
+   	locationWatchId = navigator.geolocation.watchPosition(function(position){
+  		lastUserPosition = position;
+  		var marker = $('#map_canvas').gmap('get','markers > current');
+  		if (marker){
+  			marker.setPosition(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+  		} else {
+  			$('#map_canvas').gmap('addMarker',{'id': 'current','position':new google.maps.LatLng(position.coords.latitude, position.coords.longitude), 
+  			'icon' : 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'});
+  		}
+  		if (route.followUser){
+  			$('#map_canvas').gmap('option',{'center':new google.maps.LatLng(position.coords.latitude, position.coords.longitude)});
+  		}
+  	}, function(error){
+  		console.log('code: '    + error.code    + '\n' +
+           'message: ' + error.message + '\n');}, {timeout: 30000}
+  	 );
     	
   	}
   });
@@ -348,7 +321,7 @@
 		  		});
 				saveShipment(currentShipment, function(data){
 					currentShipment = data;
-					history.back();
+					window.history.go(-1);
 				});
 			} else {
 				history.back();
@@ -363,6 +336,75 @@
 				$(this).addClass("selected");
 			}
 		});
+		
+		
+  	}
+  });
+  
+  var routeSettings   = $('#route_settings');
+  routeSettings.on ({
+	  pageinit: function(){
+		  debugger;
+		  routeSettings.on("click", "#control i", function(){
+			  debugger;
+			  if ($(this).hasClass("fa-play")){
+				  $(this).removeClass("fa-play").addClass("fa-pause");
+			  } else {
+				  $(this).removeClass("fa-pause").addClass("fa-play");
+			  }
+			  
+			  currentShipment.user_status = $(this).hasClass("fa-play") ? "in progress" : "paused";
+			  saveShipment(currentShipment); 
+			  
+		  });
+		  
+    		routeSettings.on("click", "#checkin_btn", function(){
+    			var button = $(this).addClass('ui-disabled');
+    			if (!checkins.kinveyData){
+    				$.mobile.loading("show");
+    				Kinvey.DataStore.find('checkins', null, {
+    			    	success : function(response) {
+    						if (lastUserPosition){
+    				    		checkins.kinveyData = response;
+    							checkins.checkinPosition = lastUserPosition;
+    				    		$.mobile.changePage(checkins);
+    						} else {
+    							navigator.notification.alert("Can't get your location. Please make sure that location services are enabled on your device.",
+    							function(){}, "Location missing","OK");
+    						}
+    			    	}
+    			      }).then(loadingHide,loadingHide);
+    			}else {
+    				checkins.checkinPosition = lastUserPosition;
+    				$.mobile.changePage(checkins);	
+				
+    			}
+			
+    			var button = $(this).removeClass('ui-disabled');
+			
+    		});
+		  	
+			routeSettings.on("click", "#map_btn", function(){
+				$.mobile.changePage(route);
+			})
+	  },
+  	pageshow : function(){
+		var the_height = ($(window).height() - $(this).find('[data-role="header"]').height() - $(this).find('[data-role="footer"]').height()) - 36;
+  		
+ 		$("#control").css({
+			'margin-top' : (the_height - $("#control").height())/2+'px'
+  		});
+		
+   	 //tracking user position  
+	 if(locationWatchId){
+	 	navigator.geolocation.clearWatch(locationWatchId);
+	 }
+   	locationWatchId = navigator.geolocation.watchPosition(function(position){
+   		lastUserPosition = position;
+   	}, function(error){
+   		console.log('code: '    + error.code    + '\n' +
+            'message: ' + error.message + '\n');}, {timeout: 30000}
+   	 );
 		
 		
   	}

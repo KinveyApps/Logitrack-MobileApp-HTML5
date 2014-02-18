@@ -59,3 +59,43 @@
 .ui-page-theme-a .ui-body-inherit.selected {
 	color : #0000ff;
 }
+
+#control {
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	background : #404040;
+	margin : 0 auto;
+	text-align: center;
+}
+
+#control i {
+	color : white;
+	line-height: 100px;
+	line-height: 100px;
+}
+
+.subcontrol{
+	margin: 0px;
+	list-style-type : none;
+	padding: 0px;
+}
+.subcontrol li {
+	float:left;
+	width: 105px;
+	border: 1px solid white;
+	text-align : center;
+	background : #cecece;
+}
+
+.subcontrol li:last-child {
+	width: 104px;
+}
+
+.subcontrol li i {
+	line-height: 60px ;
+}
+
+.lh50 {
+	line-height: 50px;
+}
