@@ -90,6 +90,44 @@
     	return this.type == 'checkbox';
     }
   };
+ 
+ 
+ // Login.
+ // -----
+  var login = $('#login');
+ login.on({
+          pageinit: function() {
+          
+          login.on('click', '#login-label', function() {
+                   console.log("user creds : " + $('#username-input').val() + "   " + $('#password-input').val());
+                   $.mobile.loading("show");
+                   var promise = Kinvey.User.login({
+                                                   username : $('#username-input').val(),
+                                                   password : $('#password-input').val(),
+                                                   });
+                   
+                   promise.then(function(response) {
+                                $.mobile.changePage(new_page)
+                                }, function(error) {
+                                console.log("login error " + JSON.stringify(error));
+                                alert(error.description);
+                                }).then(loadingHide,loadingHide);
+                   });
+          }
+          });
+//
+ var new_page = $('#new-page');
+ new_page.on({
+             pageinit: function() {
+             new_page.on('click','#title',function(){
+                         console.log("click title");
+                         });
+             }
+             ,
+             pageshow: function(){
+             console.log("page show");
+             }
+             });
 
   
   // Home.
@@ -100,7 +138,8 @@
      * Init hook.
      */
     pageinit: function() {
-      
+          console.log("home pageinit");
+          
       home.on('click', '#save', function() {
         var button = $(this).addClass('ui-disabled');
         //TODO: data search
@@ -127,7 +166,7 @@
      * Before show hook.
      */
     pagebeforeshow: function() {
-		
+		   console.log("home pagebeforeshow");
 		$.mobile.loading("show");
       Kinvey.DataStore.find('search-options', null, {
     	success : function(response) {
@@ -162,6 +201,7 @@
   var route   = $('#route');
   route.on({
   	pageinit : function(){
+              console.log("route page init");
   		/*debugger;
 		Kinvey.DataStore.save('shipment', {
 			'on-desk' : true,
@@ -232,6 +272,7 @@
 		$('#map_canvas').gmap({ 'zoom': 10, 'disableDefaultUI':true, 'callback': function() {}})
   	},
   	pageshow : function() {
+                         console.log("route pageshow");
 		var the_height = ($(window).height() - $(this).find('[data-role="header"]').height() - $(this).find('[data-role="footer"]').height()) - 36;
   		route.contentHeight = the_height;
 		

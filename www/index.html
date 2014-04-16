@@ -30,10 +30,46 @@
     
     <!-- Application styles. -->
     <link href="styles/main.css" rel="stylesheet" />
+        <link href="styles/login.css" rel="stylesheet">
   </head>
   <body>
+      
+      
+            
+   
 
+      <!-- Login. -->
+    
+      <div data-role="page" data-title="Login" id="login" align="center" position:relative >
+          
+          <div data-role="content" id="login-content">
+              <h1>LOGITRACK</h1>
+              <input id="username-input" class="login-input" placeholder="username"></input>
+              <input id="password-input" class="login-input" placeholder="password"></input>
+              <h3 id="login-label" style="margin-top:20px;margin-bottom:30px;">Log in</h3>
+              
+              <div id="separator-line">
+              </div>
+              <h4 id="registration-label" style ="margin-top:30px">New to Logitrack?<br/>Register.</h4>
+          </div>
+      </div>
+      
+      
+      <!-- Temp Page-->
+      <div data-role="page" id="new-page">
+          <div data-role="content">
+              <h1 id="title">New page</h1>
+              <a href="#login">Back to login</a>
+          </div>
+          
+      </div>
 
+      
+      
+      
+      
+      
+    
     <!-- Home. -->
     <div data-role="page" data-title="Logitrack - Search" id="home">
       <div data-role="header" data-position="fixed">

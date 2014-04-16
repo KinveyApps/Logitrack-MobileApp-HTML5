@@ -1,0 +1,30 @@
+@charset "utf-8";
+
+#login-content{
+    width: 90%;
+    height: 70%;
+    overflow: auto;
+    margin: auto;
+    position: absolute;
+    top: 10%; left: 0; bottom: 0; right: 0;
+}
+
+.login-input{
+    margin-left:5%;
+    padding-right:5%;
+}
+
+#separator-line{
+    margin-left:7%;
+    margin-right:7%;
+    height:1px;
+    background-color:gray;,
+}
+
+#login-label{
+    color:#4095FB
+}
+
+#registration-label{
+    color:#4095FB
+}
