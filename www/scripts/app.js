@@ -99,6 +99,7 @@
           pageinit: function() {
           
           login.on('click', '#login-label', function() {
+                   $.mobile.changePage(pickup)
                    console.log("user creds : " + $('#username-input').val() + "   " + $('#password-input').val());
                    $.mobile.loading("show");
                    var promise = Kinvey.User.login({
@@ -107,7 +108,7 @@
                                                    });
                    
                    promise.then(function(response) {
-                                $.mobile.changePage(new_page)
+                                $.mobile.changePage(pickup)
                                 }, function(error) {
                                 console.log("login error " + JSON.stringify(error));
                                 alert(error.description);
@@ -116,6 +117,14 @@
           }
           });
 //
+ 
+ var pickup = $('#pickup-route');
+ pickup.on({
+           pageinit: function() {
+           $('#map_canvas').gmap({ 'zoom': 10, 'disableDefaultUI':true, 'callback': function() {}});
+           }
+ });
+ 
  var new_page = $('#new-page');
  new_page.on({
              pageinit: function() {

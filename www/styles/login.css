@@ -21,6 +21,10 @@
     background-color:gray;,
 }
 
+#title{
+    font-family:"Walkway"
+}
+
 #login-label{
     color:#4095FB
 }

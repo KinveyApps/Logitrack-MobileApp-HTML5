@@ -104,6 +104,7 @@
       home.on('click', '#save', function() {
         var button = $(this).addClass('ui-disabled');
         //TODO: data search
+        console.log("Click save");
 		$.mobile.loading("show");
 		Kinvey.DataStore.find('shipment', null,{
 			relations : {'checkins' : 'shipment-checkins', 'route' : 'route'},

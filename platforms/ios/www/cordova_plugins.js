@@ -78,5 +78,16 @@ module.exports = [
             "window.open"
         ]
     }
-]
+];
+module.exports.metadata = 
+// TOP OF METADATA
+{
+    "org.apache.cordova.console": "0.2.6",
+    "org.apache.cordova.dialogs": "0.2.5",
+    "org.apache.cordova.geolocation": "0.3.5",
+    "org.apache.cordova.network-information": "0.2.6",
+    "org.apache.cordova.splashscreen": "0.2.6",
+    "org.apache.cordova.inappbrowser": "0.3.0"
+}
+// BOTTOM OF METADATA
 });

@@ -100,3 +100,75 @@
 	line-height: 50px;
 }
 
+
+
+#menu-btn{
+    background:url(../images/profile.png) no-repeat;
+	width: 45px;
+	height: 45px;
+    left:15px;
+	background-size: 35px 35px;
+    position:absolute;
+}
+
+#locate-btn{
+    background:url(../images/locate.png) no-repeat;
+	width: 21px;
+	height: 21px;
+    left:15px;
+    position:absolute;
+	background-size:21px 21px;
+    margin-top:15px;
+}
+
+#next-btn{
+    background:url(../images/next.png) no-repeat;
+	width: 21px;
+	height: 21px;
+    right:15px;
+    position:absolute;
+	background-size: 21px 21px;
+    margin-top:12px
+}
+
+.header-label{
+    line-height:20px;
+    margin:0 auto;
+}
+
+.upper-header-label{
+    line-height:20px;
+    margin:0 auto;
+    color:#4095FB
+}
+
+.circle {
+    width: 16px;
+    height: 16px;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    background:rgba(204,204,204,1);
+    position:absolute;
+    top:40px;
+}
+
+.green-circle{
+    width: 32px;
+    height: 32px;
+    -webkit-border-radius: 16px;
+    -moz-border-radius: 16px;
+    border-radius: 16px;
+    background:rgba(69,191,69,0.8);
+}
+
+.red-circle{
+    width: 32px;
+    height: 32px;
+    -webkit-border-radius: 16px;
+    -moz-border-radius: 16px;
+    border-radius: 16px;
+    background:rgba(248,35,35,0.8);
+}
+
+
