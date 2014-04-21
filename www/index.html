@@ -25,27 +25,30 @@
     <!-- jquery google map -->
     <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false&libraries=places"></script> 
     <script src="scripts/jquery.ui.map.full.min.js"></script>
-	<script type="text/javascript" charset="utf-8">
-        document.addEventListener("deviceready", onDeviceReady, false);
-        
-        // device APIs are available
-        //
-        function onDeviceReady() {
-            console.log("device ready calback");
-        }
-    </script>
         
 	<link href="styles/fontawesome/css/font-awesome.css" rel="stylesheet" />
     
     <!-- Application styles. -->
         <link href="styles/main.css" rel="stylesheet" />
         <link href="styles/login.css" rel="stylesheet"/>
+        <script type="text/javascript" charset="utf-8">
+            document.addEventListener("deviceready", onDeviceReady, false);
+            
+            // device APIs are available
+            //
+            function onDeviceReady() {
+                console.log("device ready calback");
+            }
+            </script>
     </head>
   <body>
       
       
-            
-   
+      <!-- Splash Screen -->
+      <div data-role="page" data-title="Splash" id="splash" >
+          <div data-role="content" id="splash-content" style="background:white">
+                        </div>
+      </div>
 
       <!-- Login. -->
     
@@ -103,8 +106,7 @@
               </div>
           </div>
       </div>
-      
-      
+
       
       
     
@@ -143,6 +145,7 @@
 	  </div>
   	</div>
 	
+      
     <!-- Route. -->
     <div data-role="page" data-title="Logitrack - Route Settings" id="route_settings">
       <div data-role="header" data-position="fixed">
@@ -182,13 +185,6 @@
     
 
     <!-- Libraries. -->
-    <script src="scripts/jquery.mustache.js"></script>
-    <script src="scripts/mustache.js"></script>
-    <script src="scripts/kinvey-html5-1.1.4.min.js"></script>
-    
-    <script src="scripts/app.js"></script>
-  </body>
-</html><!-- Libraries. -->
     <script src="scripts/jquery.mustache.js"></script>
     <script src="scripts/mustache.js"></script>
     <script src="scripts/kinvey-html5-1.1.4.min.js"></script>

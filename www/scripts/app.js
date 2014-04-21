@@ -17,6 +17,7 @@
 (function () {
     'use strict';
 
+    var active_user;
     // Setup.
     // ------
     var loadingHide = function () {
@@ -39,7 +40,6 @@
             }
         }).then(loadingHide, loadingHide);
     }
-
     // Initialize Kinvey.
     var promise = Kinvey.init({
         appKey: 'kid_VTpS9qbe7q',
@@ -51,9 +51,12 @@
     });
     promise.then(function (activeUser) {
         // Preload templates.
-        if (null === activeUser) {
-            return Kinvey.User.create();
-        }
+        active_user = activeUser;
+        //        if (null !== activeUser) {
+        //                 loadShipment();
+        //                    $.mobile.loading("show");
+        //                 $.mobile.changePage(pickup);
+        //        }
     }).then(function () {
         $.when([
             $.Mustache.load('templates/search.html'),
@@ -95,16 +98,53 @@
             return this.type == 'checkbox';
         }
     };
+    //Load route
+    function loadShipment() {
+        $.mobile.loading("show");
+        Kinvey.DataStore.find('shipment', null, {
+            relations: {
+                'checkins': 'shipment-checkins',
+                'route': 'route'
+            },
+            success: function (data) {
+                if (data.length == 0) {
+                    alert("No route found");
+                } else {
+                    currentShipment = data[0];
+                }
+                $.mobile.changePage(pickup);
+            }
+        }).then(loadingHide, loadingHide);
+    }
+
+    var splash = $('#splash');
+    splash.on({
+
+        pageinit: function () {
+            if (null !== active_user) {
+                loadShipment();
+
+            } else {
+                $.mobile.changePage(login);
+            }
+        }
+    });
 
 
     // Login.
     // -----
     var login = $('#login');
     login.on({
+        pagebeforeshow: function () {
+
+            //             if (null !== active_user) {
+            //              loadShipment();
+            //
+            //             }
+        },
         pageinit: function () {
 
             login.on('click', '#login-label', function () {
-                $.mobile.changePage(pickup);
                 console.log("user creds : " + $('#username-input').val() + "   " + $('#password-input').val());
                 $.mobile.loading("show");
                 var promise = Kinvey.User.login({
@@ -113,30 +153,12 @@
                 });
 
                 promise.then(function (response) {
-                    $.mobile.changePage(pickup)
+                    loadShipment();
                 }, function (error) {
                     console.log("login error " + JSON.stringify(error));
                     alert(error.description);
                 }).then(loadingHide, loadingHide);
             });
-             //TODO add search routes
-            $.mobile.loading("show");
-            Kinvey.DataStore.find('shipment', null, {
-                relations: {
-                    'checkins': 'shipment-checkins',
-                    'route': 'route'
-                },
-                success: function (data) {
-                    if (data.length == 0) {
-                        alert("No route found");
-                    } else {
-                        currentShipment = data[0];
-                        button.removeClass('ui-disabled');
-                        $.mobile.changePage(routeSettings);
-
-                    }
-                }
-            }).then(loadingHide, loadingHide);
 
         }
     });
@@ -163,6 +185,13 @@
 
             pickup.on('click', '#next-btn', function () {
                 console.log("click next button");
+                var userRoute = currentShipment.route;
+                console.log("markers " + userRoute.start.lat + " " + userRoute.start.lon);
+                $('#map_canvas').gmap('addMarker', {
+                    position: new google.maps.LatLng(userRoute.start.lat, userRoute.start.lon),
+                    icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
+                });
+                $('#map_canvas').gmap('refresh');
             });
         },
         pageshow: function () {
@@ -179,25 +208,52 @@
 
             var start = new google.maps.LatLng(userRoute.start.lat, userRoute.start.lon);
             var finish = new google.maps.LatLng(userRoute.finish.lat, userRoute.finish.lon);
-
+            var center = new google.maps.LatLng((userRoute.start.lat + userRoute.finish.lat) / 2.0, (userRoute.start.lon + userRoute.finish.lat) / 2.0);
             bounds.extend(start);
             bounds.extend(finish);
+            bounds.extend(center);
 
-            $('#map_canvas').gmap('displayDirections', {
-                    'origin': start,
-                    'destination': finish,
-                    'travelMode': google.maps.DirectionsTravelMode.DRIVING
-                }, {},
-                function (result, status) {
-                    if (status === 'OK') {
-                        var center = result.routes[0].bounds.getCenter();
-                        $('#map_canvas').gmap('option', 'center', center);
-                        $('#map_canvas').gmap('refresh');
-                    } else {
-                        alert('Unable to get route');
-                    }
-                }
-            );
+            var mapOptions = {
+                center: start,
+                zoom: 14,
+            };
+            var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+
+            var start_marker = new google.maps.Marker({
+                position: start,
+                icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png',
+                map: map
+            });
+            var finish_marker = new google.maps.Marker({
+                position: finish,
+                map: map
+            });
+
+            //            $('#map_canvas').gmap('displayDirections', {
+            //                    'origin': start,
+            //                    'destination': finish,
+            //                    'travelMode': google.maps.DirectionsTravelMode.DRIVING
+            //                }, {},
+            //                function (result, status) {
+            //                    if (status === 'OK') {
+            //                        var center = result.routes[0].bounds.getCenter();
+            //                                  console.log(center);
+            //                        $('#map_canvas').gmap('option', 'center', center);
+            //                        $('#map_canvas').gmap('refresh');
+            //                    } else {
+            //                        alert('Unable to get route');
+            //                    }
+            //                }
+            //            );
+
+            $('#map_canvas').gmap('addMarker', {
+                position: start,
+                icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
+            });
+            $('#map_canvas').gmap('addMarker', {
+                position: finish,
+                icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
+            });
 
 
             //display checkins
@@ -243,7 +299,7 @@
                 timeout: 30000
             });
         }
-            
+
     });
 
 
