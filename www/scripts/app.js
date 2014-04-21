@@ -135,13 +135,6 @@
     // -----
     var login = $('#login');
     login.on({
-        pagebeforeshow: function () {
-
-            //             if (null !== active_user) {
-            //              loadShipment();
-            //
-            //             }
-        },
         pageinit: function () {
 
             login.on('click', '#login-label', function () {
@@ -163,10 +156,15 @@
         }
     });
     //
+ 
+ var confirmAlert = $('#modal-backdrop');
 
     var pickup = $('#pickup-route');
     pickup.on({
-        pageinit: function () {
+              pagebeforeshow: function(){
+                                  },
+              
+        pageinit: function (ui) {
             $('#map_canvas').gmap({
                 'zoom': 10,
                 'disableDefaultUI': true,
@@ -185,14 +183,25 @@
 
             pickup.on('click', '#next-btn', function () {
                 console.log("click next button");
-                var userRoute = currentShipment.route;
-                console.log("markers " + userRoute.start.lat + " " + userRoute.start.lon);
-                $('#map_canvas').gmap('addMarker', {
-                    position: new google.maps.LatLng(userRoute.start.lat, userRoute.start.lon),
-                    icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
-                });
-                $('#map_canvas').gmap('refresh');
-            });
+                                 });
+              pickup.on('click', '#dismiss-btn', function () {
+                        $("#alertcontainer").css("display", "none");
+                        $("#messagefg").css("display", "none");
+                        });
+              pickup.on('click', '#view-btn', function () {
+                        $("#messagefg").css("display", "none");
+                        $("#message-confirm").css("display","block");
+                        });
+              pickup.on('click', '#cancel-btn', function () {
+                        $("#alertcontainer").css("display", "none");
+                        $("#message-confirm").css("display", "none");
+                        });
+              pickup.on('click', '#confirm-btn', function () {
+                        $("#alertcontainer").css("display", "none");
+                        $("#message-confirm").css("display", "none");
+                        //TODO add some confirm action
+                        });
+              
         },
         pageshow: function () {
             console.log("route pageshow");
@@ -298,6 +307,10 @@
             }, {
                 timeout: 30000
             });
+              //TODO
+              //show dialog
+              $("#alertcontainer").css("display", "block");
+              $("#messagefg").css("display", "block");
         }
 
     });
