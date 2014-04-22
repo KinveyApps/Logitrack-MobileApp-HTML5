@@ -170,17 +170,7 @@
                 'disableDefaultUI': true,
                 'callback': function () {}
             });
-            navigator.notification.confirm(
-                'You have a new pickup',
-                function (button) {
-                    if (button == 2) {
-                        //TODO add view open
-                        console.log("View button clicked");
-                    }
-                },
-                'Alert', ['Ok', 'View']
-            );
-
+        
             pickup.on('click', '#next-btn', function () {
                 console.log("click next button");
                                  });
@@ -230,12 +220,13 @@
 
             var start_marker = new google.maps.Marker({
                 position: start,
-                icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png',
+                'icon': 'images/start_marker.png',
                 map: map
             });
             var finish_marker = new google.maps.Marker({
                 position: finish,
-                map: map
+                map: map,
+                icon: 'images/finish_marker.png'
             });
 
             //            $('#map_canvas').gmap('displayDirections', {
