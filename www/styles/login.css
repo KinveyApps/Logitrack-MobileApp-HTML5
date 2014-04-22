@@ -26,9 +26,12 @@
 }
 
 #login-label{
-    color:#4095FB
+    color:#4095FB;
+    margin-top:20px;
+    margin-bottom:30px;
 }
 
 #registration-label{
-    color:#4095FB
+    color:#4095FB;
+    margin-top:30px;
 }

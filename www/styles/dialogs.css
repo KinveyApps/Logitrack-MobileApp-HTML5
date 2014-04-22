@@ -1,0 +1,94 @@
+.ui-dialog-background {
+	opacity: 0.5;
+	display: block !important;
+	-webkit-transition: opacity 0.5s ease-in;
+}
+
+#alertcontainer { display: none;}
+
+#alertbg {
+    position: fixed;
+    z-index: 10000;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: black;
+    opacity: 0.50;
+    
+}
+
+.dialog-message{
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 50000;
+    display: none;
+}
+
+.dialog-content {
+    width: 70%;
+    position: fixed;
+    top: 30%;
+    left: 15%;
+    right:15%;
+    border-radius: 5px;
+    text-align: left;
+    font-size: 15px;
+    color: #505050;
+    box-shadow: 2px 2px 5px #888;
+    background: rgba(227,230,230,1);
+    
+}
+
+.dialog-content h4{
+    margin-top:10px;
+    text-align:center;
+}
+
+.dialog-content p{
+    text-align:center;
+    font-size: 13px;
+}
+
+.dialog-btn-div{
+   border-top:1px solid rgba(169,169,169,1);
+}
+
+.dialog-btn, .first-dialog-btn{
+    height:40px;
+    text-align:center;
+    vertical-align:middle;
+    line-height:40px;
+    color:#4095FB;
+    font-size:12px;
+}
+
+.first-dialog-btn{
+    width:50%;
+    float:left;
+    border-right:1px solid rgba(169,169,169,1);
+}
+
+#dialog-start-marker,#dialog-finish-marker{
+    height:30px;
+    width:30px;
+    display:inline-block;
+}
+
+#dialog-start-marker{
+    background:url(../images/start_marker.png) no-repeat;
+}
+#dialog-finish-marker{
+    background:url(../images/finish_marker.png) no-repeat;
+}
+
+.p-info-a{
+    margin-top:-16px
+}
+
+.p-info-b{
+    margin-top:-8px
+}

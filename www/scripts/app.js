@@ -158,7 +158,9 @@
     //
  
  var confirmAlert = $('#modal-backdrop');
-
+ var map;
+ var start_marker;
+ var infobox;
     var pickup = $('#pickup-route');
     pickup.on({
               pagebeforeshow: function(){
@@ -189,6 +191,8 @@
               pickup.on('click', '#confirm-btn', function () {
                         $("#alertcontainer").css("display", "none");
                         $("#message-confirm").css("display", "none");
+                        $("#step-name-label").text("En Route to Pickup");
+                        infobox.open(map,start_marker);
                         //TODO add some confirm action
                         });
               
@@ -207,18 +211,20 @@
 
             var start = new google.maps.LatLng(userRoute.start.lat, userRoute.start.lon);
             var finish = new google.maps.LatLng(userRoute.finish.lat, userRoute.finish.lon);
-            var center = new google.maps.LatLng((userRoute.start.lat + userRoute.finish.lat) / 2.0, (userRoute.start.lon + userRoute.finish.lat) / 2.0);
+            var center_lat = (userRoute.start.lat + userRoute.finish.lat)/ 2.0;
+            var center_lon = (userRoute.start.lon + userRoute.finish.lon) / 2.0;
+            var user = new google.maps.LatLng(center_lat,center_lon);
             bounds.extend(start);
             bounds.extend(finish);
-            bounds.extend(center);
-
+            bounds.extend(user);
+//TODO change user to user location
             var mapOptions = {
-                center: start,
+                center: user,
                 zoom: 14,
             };
-            var map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+            map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
 
-            var start_marker = new google.maps.Marker({
+            start_marker = new google.maps.Marker({
                 position: start,
                 'icon': 'images/start_marker.png',
                 map: map
@@ -228,7 +234,31 @@
                 map: map,
                 icon: 'images/finish_marker.png'
             });
-
+            var user_marker = new google.maps.Marker({
+                                                         position: user,
+                                                         map: map,
+                                                         icon: 'images/user_marker.png'
+                                                         });
+              
+              infobox = new InfoBox({
+                                    content: document.getElementById("infobox"),
+                                    disableAutoPan: false,
+                                    maxWidth: 150,
+                                    pixelOffset: new google.maps.Size(-70, -85),
+                                    zIndex: null,
+                                    boxStyle: {
+                                    background: "url('http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobox/examples/tipbox.gif') no-repeat",
+                                    width: "140px",
+                                    },
+                                    closeBoxURL: "",
+                                    infoBoxClearance: new google.maps.Size(1, 1)
+                                    });
+              
+              google.maps.event.addListener(start_marker, 'click', function() {
+                                            infobox.open(map, this);
+                                            
+                                            });
+              
             //            $('#map_canvas').gmap('displayDirections', {
             //                    'origin': start,
             //                    'destination': finish,
@@ -246,15 +276,7 @@
             //                }
             //            );
 
-            $('#map_canvas').gmap('addMarker', {
-                position: start,
-                icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
-            });
-            $('#map_canvas').gmap('addMarker', {
-                position: finish,
-                icon: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
-            });
-
+           
 
             //display checkins
             var checkins = currentShipment.checkins;
