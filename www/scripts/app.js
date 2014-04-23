@@ -25,6 +25,10 @@
     }
     var locationWatchId = null;
     var currentShipment = null;
+    var shipments = null;
+    var start_markers = [];
+    var finish_markers = [];
+    var selectedMarker = null;
     var lastUserPosition = null;
     //shipment saving function
     function saveShipment(shipment, cb) {
@@ -110,6 +114,7 @@
                 if (data.length == 0) {
                     alert("No route found");
                 } else {
+                    shipments = data;
                     currentShipment = data[0];
                 }
                 $.mobile.changePage(pickup);
@@ -154,17 +159,24 @@
 
         }
     });
-    //
 
-    var confirmAlert = $('#modal-backdrop');
     var map;
     var start_marker;
     var infobox;
     var pickup = $('#pickup-route');
     pickup.on({
-        pagebeforeshow: function () {},
-
-        pageinit: function (ui) {
+        pagebeforeshow: function (event, data) {
+            if (isCancelClicked) {
+                $("#step-name-label").text("Tap to Browse Different Pickups");
+                $("#step-number-label").text("Waiting for Delivery");
+                $("#next-label").css("visibility", "hidden");
+                showMarkers();
+                isStartMarkerSelected = false;
+                isCancelClicked = false;
+                infobox.close();
+            }
+        },
+        pageinit: function () {
             $('#map_canvas').gmap({
                 'zoom': 10,
                 'disableDefaultUI': true,
@@ -173,7 +185,11 @@
 
             pickup.on('click', '#next-btn', function () {
                 console.log("click next button");
-                $.mobile.changePage(delivery_details);
+                if (isStartMarkerSelected) {
+                    $.mobile.changePage(delivery_details, {
+                        transition: "slide"
+                    });
+                }
             });
             pickup.on('click', '#dismiss-btn', function () {
                 $("#alertcontainer").css("display", "none");
@@ -186,59 +202,18 @@
             pickup.on('click', '#cancel-btn', function () {
                 $("#alertcontainer").css("display", "none");
                 $("#message-confirm").css("display", "none");
+                showMarkers(map);
+                isStartMarkerSelected = false;
             });
             pickup.on('click', '#confirm-btn', function () {
                 $("#alertcontainer").css("display", "none");
                 $("#message-confirm").css("display", "none");
                 $("#step-name-label").text("En Route to Pickup");
-                infobox.open(map, start_marker);
-                //TODO add some confirm action
+                $("#next-label").css("visibility", "visible");
+                infobox.open(map, selectedMarker);
             });
-
-        },
-        pageshow: function () {
-            console.log("route pageshow");
-            var the_height = ($(window).height() - $(this).find('[data-role="header"]').height() - $(this).find('[data-role="footer"]').height()) - 36;
-            route.contentHeight = the_height;
-
-            $(this).find('[data-role="content"]').height(the_height);
-            $(this).find('#map_canvas').height(the_height + 32);
-
-            var userRoute = currentShipment.route;
-
-            var bounds = new google.maps.LatLngBounds();
-
-            var start = new google.maps.LatLng(userRoute.start.lat, userRoute.start.lon);
-            var finish = new google.maps.LatLng(userRoute.finish.lat, userRoute.finish.lon);
-            var center_lat = (userRoute.start.lat + userRoute.finish.lat) / 2.0;
-            var center_lon = (userRoute.start.lon + userRoute.finish.lon) / 2.0;
-            var user = new google.maps.LatLng(center_lat, center_lon);
-            bounds.extend(start);
-            bounds.extend(finish);
-            bounds.extend(user);
-            //TODO change user to user location
-            var mapOptions = {
-                center: user,
-                zoom: 14,
-            };
-            map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
-
-            start_marker = new google.maps.Marker({
-                position: start,
-                'icon': 'images/start_marker.png',
-                map: map
-            });
-            var finish_marker = new google.maps.Marker({
-                position: finish,
-                map: map,
-                icon: 'images/finish_marker.png'
-            });
-            var user_marker = new google.maps.Marker({
-                position: user,
-                map: map,
-                icon: 'images/user_marker.png'
-            });
-
+            //              $("#alertcontainer").css("display", "block");
+            //              $("#messagefg").css("display", "block");
             infobox = new InfoBox({
                 content: document.getElementById("infobox"),
                 pane: "floatPane",
@@ -253,45 +228,50 @@
                 closeBoxURL: "",
                 infoBoxClearance: new google.maps.Size(1, 1)
             });
-            google.maps.event.addListener(start_marker, 'click', function () {
-                infobox.open(map, this);
-
+            google.maps.event.addListener(infobox, 'domready', function (e) {
+                $('#infobox-arrow-btn').click(function (e) {
+                    $.mobile.changePage(delivery_details, {
+                        transition: "slide"
+                    });
+                })
             });
 
-            //            $('#map_canvas').gmap('displayDirections', {
-            //                    'origin': start,
-            //                    'destination': finish,
-            //                    'travelMode': google.maps.DirectionsTravelMode.DRIVING
-            //                }, {},
-            //                function (result, status) {
-            //                    if (status === 'OK') {
-            //                        var center = result.routes[0].bounds.getCenter();
-            //                                  console.log(center);
-            //                        $('#map_canvas').gmap('option', 'center', center);
-            //                        $('#map_canvas').gmap('refresh');
-            //                    } else {
-            //                        alert('Unable to get route');
-            //                    }
-            //                }
-            //            );
+            var userRoute = currentShipment.route;
+
+            var bounds = new google.maps.LatLngBounds();
+            var center_lat = (userRoute.start.lat + userRoute.finish.lat) / 2.0;
+            var center_lon = (userRoute.start.lon + userRoute.finish.lon) / 2.0;
+            var user = new google.maps.LatLng(center_lat, center_lon);
+
+            bounds.extend(user);
+            //TODO change user to user location
+            var mapOptions = {
+                center: user,
+                zoom: 14,
+            };
+            map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+            var user_marker = new google.maps.Marker({
+                position: user,
+                map: map,
+                icon: 'images/user_marker.png'
+            });
+            addAllStartMarkers(map);
 
 
-
-            //display checkins
-            var checkins = currentShipment.checkins;
-            for (var i = 0; i < checkins.length; i++) {
-                if (checkins[i].position) {
-                    var position = checkins[i].position;
-                    $('#map_canvas').gmap('addMarker', {
-                        position: new google.maps.LatLng(position.lat, position.lon),
-                        'icon': 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
-                    });
-                }
-            }
+            //              //display checkins
+            //              var checkins = currentShipment.checkins;
+            //              for (var i = 0; i < checkins.length; i++) {
+            //              if (checkins[i].position) {
+            //              var position = checkins[i].position;
+            //              $('#map_canvas').gmap('addMarker', {
+            //                                    position: new google.maps.LatLng(position.lat, position.lon),
+            //                                    'icon': 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
+            //                                    });
+            //              }
+            //              }
 
             $('#map_canvas').gmap('refresh');
 
-            //tracking user position
             //tracking user position
             if (locationWatchId) {
                 navigator.geolocation.clearWatch(locationWatchId);
@@ -319,15 +299,104 @@
             }, {
                 timeout: 30000
             });
-            //TODO
-            //show dialog
-            $("#alertcontainer").css("display", "block");
-            $("#messagefg").css("display", "block");
-        }
+        },
+        pageshow: function () {
+            var the_height = ($(window).height() - $(this).find('[data-role="header"]').height() - $(this).find('[data-role="footer"]').height()) - 36;
+            pickup.contentHeight = the_height;
 
+            $(this).find('[data-role="content"]').height(the_height);
+            $(this).find('#map_canvas').height(the_height + 32);
+        }
     });
 
+    var isStartMarkerSelected = false;
+    var isCancelClicked = false;
+
+    function addAllStartMarkers(map) {
+        var start_marker;
+        var finish_marker;
+        for (var i in shipments) {
+            if ( !! shipments[i].route) {
+                start_marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(shipments[i].route.start.lat, shipments[i].route.start.lon),
+                    map: map,
+                    icon: 'images/start_marker.png'
+                });
+                start_markers.push(start_marker);
+                finish_marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(shipments[i].route.finish.lat, shipments[i].route.finish.lon),
+                    map: map,
+                    icon: 'images/finish_marker.png'
+                });
+                finish_marker.setMap(null);
+                finish_markers.push(finish_marker);
+                google.maps.event.addListener(start_marker, 'click', function () {
+                    if (!isStartMarkerSelected) {
+                        $("#alertcontainer").css("display", "block");
+                        $("#message-confirm").css("display", "block");
+                        $("#step-number-label").text("Step 1");
+                        $("#step-name-label").text("Pickup");
+                        selectedMarker = this;
+                        hideMarkers(map);
+                        isStartMarkerSelected = true;
+                    }
+                });
+
+            }
+        }
+    }
+
+    function hideMarkers(map) {
+        clearMarkers();
+        selectedMarker.setMap(map);
+        finish_markers[start_markers.indexOf(selectedMarker)].setMap(map);
+    }
+
+    function clearMarkers() {
+        setAllMap(null);
+        clearFinishMarkers();
+    }
+
+    function clearFinishMarkers() {
+        for (var i = 0; i < finish_markers.length; i++) {
+            finish_markers[i].setMap(null);
+        }
+    }
+
+    function showMarkers() {
+        setAllMap(map);
+        clearFinishMarkers();
+    }
+
+    function setAllMap(map) {
+        for (var i = 0; i < start_markers.length; i++) {
+            start_markers[i].setMap(map);
+        }
+    }
+
     var delivery_details = $('#delivery-details');
+    delivery_details.on({
+        pageinit: function () {
+            delivery_details.on('click', '#delivery-details-back', function () {
+                $.mobile.back({
+                    transition: "slide",
+                    dataUrl: "pickup-route.html?param=123",
+                    data: {
+                        param: 'value1'
+                    }
+                });
+            });
+            delivery_details.on('click', '#cancel-pickup-btn', function () {
+                $.mobile.back({
+                    transition: "slide",
+                    data: {
+                        param: 'value1'
+                    }
+                });
+                isCancelClicked = true;
+            });
+        }
+    });
 
     // Home.
     // -----

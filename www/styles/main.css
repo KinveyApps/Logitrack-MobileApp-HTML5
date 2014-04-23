@@ -152,6 +152,7 @@
     font-size:12px;
     margin-top:2px;
     margin-right:5px;
+    visibility:hidden;
 }
 
 #step-name-label{
@@ -240,6 +241,7 @@
     display:inline-block;
     width:15px;
     height:25px;
+    background-size:15px 25px;
     background:url(../images/arrow_right.png) no-repeat;
 }
 
