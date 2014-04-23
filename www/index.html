@@ -33,16 +33,16 @@
                         <link href="styles/main.css" rel="stylesheet" />
                         <link href="styles/login.css" rel="stylesheet"/>
                         <link href="styles/dialogs.css" rel="stylesheet">
-                        <script type="text/javascript" charset="utf-8">
-                            document.addEventListener("deviceready", onDeviceReady, false);
-                            
-                            // device APIs are available
-                            //
-                            function onDeviceReady() {
-                                console.log("device ready calback");
-                            }
-                        </script>
-                        </head>
+                            <script type="text/javascript" charset="utf-8">
+                                document.addEventListener("deviceready", onDeviceReady, false);
+                                
+                                // device APIs are available
+                                //
+                                function onDeviceReady() {
+                                    console.log("device ready calback");
+                                }
+                            </script>
+                            </head>
     <body>
         
         
@@ -51,6 +51,7 @@
             <div data-role="content" id="splash-content" style="background:white">
             </div>
         </div>
+        
         
         <!-- Login. -->
         
@@ -166,8 +167,57 @@
             </div>
         </div>
         
+        <!-- Delivery Details-->
         
-        
+        <div data-role="page" data-title="Delivery_Details" id="delivery-details">
+            <div data-role="header" data-position="fixed" id="delivery-header">
+                <div style="">
+                    <p>DELIVERY DETAILS</p>
+                    <div id="delivery-details-back"></div>
+                </div>
+            </div>
+            <div data-role="content" id="delivery-details-content">
+                <div style="margin-left:10px;margin-top:10px">
+                    <p class="p-info-b">PICKUP LOCATION:</p>
+                    <p class="p-info-a">84 Tremont Street</p>
+                    <p class="p-info-a">Boston, MA 02101</p>
+                    <p class="p-info-b">DELIVERY LOCATION:</p>
+                    <p class="p-info-a">33 Kneeland Street</p>
+                    <p class="p-info-a">Boston, MA 02110</p>
+                    <p class="p-info-b">DELIVERY AGENT: Joe Noone</p>
+                </div>
+                <div style="background:white;margin-top:30px">
+                    <div>
+                        <p class="delivery-listitem-title">1. Picked Up</p>
+                        <div class="delivery-icon-yes-circle"></div>
+                        <div class="delivery-list-separator"></div>
+                    </div>
+                    <div>
+                        <p class="delivery-listitem-title">2. Delivered</p>
+                        <div class="delivery-icon-empty-circle"></div>
+                        <div class="delivery-list-separator"></div>
+                    </div>
+                    <div>
+                        <p class="delivery-listitem-title">3. Signature Confirmation</p>
+                        <div class="delivery-icon-arrow"></div>
+                        <div class="delivery-list-separator"></div>
+                    </div>
+                </div>
+                
+                <div class="delivery-buttons-div">
+                    <div id="cancel-pickup-btn">Cancel Pickup</div>
+                    <div id="begin-tracking-btn">Begin Tracking</div>
+                </div>
+                
+            </div>
+            <div data-role="footer" data-position="fixed" >
+                <div style="background:rgb(249,249,249);height:70px">
+                </div>
+                
+            </div>
+            
+        </div>
+
         
         <!-- Home. -->
         <div data-role="page" data-title="Logitrack - Search" id="home">

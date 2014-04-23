@@ -123,7 +123,6 @@
         pageinit: function () {
             if (null !== active_user) {
                 loadShipment();
-
             } else {
                 $.mobile.changePage(login);
             }
@@ -156,46 +155,46 @@
         }
     });
     //
- 
- var confirmAlert = $('#modal-backdrop');
- var map;
- var start_marker;
- var infobox;
+
+    var confirmAlert = $('#modal-backdrop');
+    var map;
+    var start_marker;
+    var infobox;
     var pickup = $('#pickup-route');
     pickup.on({
-              pagebeforeshow: function(){
-                                  },
-              
+        pagebeforeshow: function () {},
+
         pageinit: function (ui) {
             $('#map_canvas').gmap({
                 'zoom': 10,
                 'disableDefaultUI': true,
                 'callback': function () {}
             });
-        
+
             pickup.on('click', '#next-btn', function () {
                 console.log("click next button");
-                                 });
-              pickup.on('click', '#dismiss-btn', function () {
-                        $("#alertcontainer").css("display", "none");
-                        $("#messagefg").css("display", "none");
-                        });
-              pickup.on('click', '#view-btn', function () {
-                        $("#messagefg").css("display", "none");
-                        $("#message-confirm").css("display","block");
-                        });
-              pickup.on('click', '#cancel-btn', function () {
-                        $("#alertcontainer").css("display", "none");
-                        $("#message-confirm").css("display", "none");
-                        });
-              pickup.on('click', '#confirm-btn', function () {
-                        $("#alertcontainer").css("display", "none");
-                        $("#message-confirm").css("display", "none");
-                        $("#step-name-label").text("En Route to Pickup");
-                        infobox.open(map,start_marker);
-                        //TODO add some confirm action
-                        });
-              
+                $.mobile.changePage(delivery_details);
+            });
+            pickup.on('click', '#dismiss-btn', function () {
+                $("#alertcontainer").css("display", "none");
+                $("#messagefg").css("display", "none");
+            });
+            pickup.on('click', '#view-btn', function () {
+                $("#messagefg").css("display", "none");
+                $("#message-confirm").css("display", "block");
+            });
+            pickup.on('click', '#cancel-btn', function () {
+                $("#alertcontainer").css("display", "none");
+                $("#message-confirm").css("display", "none");
+            });
+            pickup.on('click', '#confirm-btn', function () {
+                $("#alertcontainer").css("display", "none");
+                $("#message-confirm").css("display", "none");
+                $("#step-name-label").text("En Route to Pickup");
+                infobox.open(map, start_marker);
+                //TODO add some confirm action
+            });
+
         },
         pageshow: function () {
             console.log("route pageshow");
@@ -211,13 +210,13 @@
 
             var start = new google.maps.LatLng(userRoute.start.lat, userRoute.start.lon);
             var finish = new google.maps.LatLng(userRoute.finish.lat, userRoute.finish.lon);
-            var center_lat = (userRoute.start.lat + userRoute.finish.lat)/ 2.0;
+            var center_lat = (userRoute.start.lat + userRoute.finish.lat) / 2.0;
             var center_lon = (userRoute.start.lon + userRoute.finish.lon) / 2.0;
-            var user = new google.maps.LatLng(center_lat,center_lon);
+            var user = new google.maps.LatLng(center_lat, center_lon);
             bounds.extend(start);
             bounds.extend(finish);
             bounds.extend(user);
-//TODO change user to user location
+            //TODO change user to user location
             var mapOptions = {
                 center: user,
                 zoom: 14,
@@ -235,30 +234,30 @@
                 icon: 'images/finish_marker.png'
             });
             var user_marker = new google.maps.Marker({
-                                                         position: user,
-                                                         map: map,
-                                                         icon: 'images/user_marker.png'
-                                                         });
-              
-              infobox = new InfoBox({
-                                    content: document.getElementById("infobox"),
-                                    disableAutoPan: false,
-                                    maxWidth: 150,
-                                    pixelOffset: new google.maps.Size(-70, -85),
-                                    zIndex: null,
-                                    boxStyle: {
-                                    background: "url('http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobox/examples/tipbox.gif') no-repeat",
-                                    width: "140px",
-                                    },
-                                    closeBoxURL: "",
-                                    infoBoxClearance: new google.maps.Size(1, 1)
-                                    });
-              
-              google.maps.event.addListener(start_marker, 'click', function() {
-                                            infobox.open(map, this);
-                                            
-                                            });
-              
+                position: user,
+                map: map,
+                icon: 'images/user_marker.png'
+            });
+
+            infobox = new InfoBox({
+                content: document.getElementById("infobox"),
+                pane: "floatPane",
+                disableAutoPan: false,
+                maxWidth: 150,
+                pixelOffset: new google.maps.Size(-70, -85),
+                zIndex: null,
+                boxStyle: {
+                    background: "url('http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobox/examples/tipbox.gif') no-repeat",
+                    width: "140px",
+                },
+                closeBoxURL: "",
+                infoBoxClearance: new google.maps.Size(1, 1)
+            });
+            google.maps.event.addListener(start_marker, 'click', function () {
+                infobox.open(map, this);
+
+            });
+
             //            $('#map_canvas').gmap('displayDirections', {
             //                    'origin': start,
             //                    'destination': finish,
@@ -276,7 +275,7 @@
             //                }
             //            );
 
-           
+
 
             //display checkins
             var checkins = currentShipment.checkins;
@@ -320,14 +319,15 @@
             }, {
                 timeout: 30000
             });
-              //TODO
-              //show dialog
-              $("#alertcontainer").css("display", "block");
-              $("#messagefg").css("display", "block");
+            //TODO
+            //show dialog
+            $("#alertcontainer").css("display", "block");
+            $("#messagefg").css("display", "block");
         }
 
     });
 
+    var delivery_details = $('#delivery-details');
 
     // Home.
     // -----
