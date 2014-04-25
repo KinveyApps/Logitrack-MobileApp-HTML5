@@ -128,16 +128,14 @@
                                 <div id="dialog-start-marker"></div>
                                 <div class="p-info-a;"style="display:inline-block">
                                     <p class="p-info-b">Pickup:</p>
-                                    <p class="p-info-a">84 Tremont Street</p>
-                                    <p class="p-info-a">Boston, MA 02101</p>
+                                    <p id="confirm-start-address" class="p-info-a" style="line-height:12px;">84 Tremont Street</br> Boston, MA 02101</p>
                                 </div>
                             </div>
                             <div style="width:auto;text-align:center">
                                 <div id="dialog-finish-marker"></div>
                                 <div style="display:inline-block">
                                     <p class="p-info-b">Drop-off:</p>
-                                    <p class="p-info-a">33 Kneeland Street</p>
-                                    <p class="p-info-a">Boston, MA 02110</p>
+                                    <p id="confirm-finish-address" class="p-info-a" style="line-height:12px">33 Kneeland Street</br> Boston, MA 02110</p>
                                 </div>
                             </div>
                             <div class="dialog-btn-div">
@@ -179,10 +177,10 @@
             <div data-role="content" id="delivery-details-content">
                 <div style="margin-left:10px;margin-top:10px">
                     <p class="p-info-b">PICKUP LOCATION:</p>
-                    <p class="p-info-a">84 Tremont Street</p>
+                    <p class="p-info-a" id="delivery-start-address">84 Tremont Street</p>
                     <p class="p-info-a">Boston, MA 02101</p>
                     <p class="p-info-b">DELIVERY LOCATION:</p>
-                    <p class="p-info-a">33 Kneeland Street</p>
+                    <p class="p-info-a" id="delivery-finish-address">33 Kneeland Street</p>
                     <p class="p-info-a">Boston, MA 02110</p>
                     <p class="p-info-b">DELIVERY AGENT: Joe Noone</p>
                 </div>
@@ -217,7 +215,7 @@
             </div>
             
         </div>
-
+        
         
         <!-- Home. -->
         <div data-role="page" data-title="Logitrack - Search" id="home">

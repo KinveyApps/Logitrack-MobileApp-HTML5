@@ -28,8 +28,14 @@
     var shipments = null;
     var start_markers = [];
     var finish_markers = [];
-    var selectedMarker = null;
+    var addresses = [];
+    var selectedMarkerIndex = 0;
     var lastUserPosition = null;
+    var map;
+    var infobox;
+    var geocoder = new google.maps.Geocoder();
+    var isStartMarkerSelected = false;
+    var isCancelClicked = false;
     //shipment saving function
     function saveShipment(shipment, cb) {
         $.mobile.loading("show");
@@ -160,9 +166,7 @@
         }
     });
 
-    var map;
-    var start_marker;
-    var infobox;
+
     var pickup = $('#pickup-route');
     pickup.on({
         pagebeforeshow: function (event, data) {
@@ -210,7 +214,7 @@
                 $("#message-confirm").css("display", "none");
                 $("#step-name-label").text("En Route to Pickup");
                 $("#next-label").css("visibility", "visible");
-                infobox.open(map, selectedMarker);
+                infobox.open(map, start_markers[selectedMarkerIndex]);
             });
             //              $("#alertcontainer").css("display", "block");
             //              $("#messagefg").css("display", "block");
@@ -239,23 +243,33 @@
             var userRoute = currentShipment.route;
 
             var bounds = new google.maps.LatLngBounds();
-            var center_lat = (userRoute.start.lat + userRoute.finish.lat) / 2.0;
-            var center_lon = (userRoute.start.lon + userRoute.finish.lon) / 2.0;
-            var user = new google.maps.LatLng(center_lat, center_lon);
+            geocoder.geocode({
+                'address': "33, Summer Street, Boston, MA 02110"
+            }, function (results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    var user_coordinates = results[0].geometry.location;
+                    var center_lat = user_coordinates.k;
+                    var center_lon = user_coordinates.A;
+                    var user = new google.maps.LatLng(center_lat, center_lon);
 
-            bounds.extend(user);
-            //TODO change user to user location
-            var mapOptions = {
-                center: user,
-                zoom: 14,
-            };
-            map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
-            var user_marker = new google.maps.Marker({
-                position: user,
-                map: map,
-                icon: 'images/user_marker.png'
+                    bounds.extend(user);
+                    //TODO change user to user location
+                    var mapOptions = {
+                        center: user,
+                        zoom: 15,
+                    };
+                    map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+                    var user_marker = new google.maps.Marker({
+                        position: user,
+                        map: map,
+                        icon: 'images/user_marker.png'
+                    });
+                    addAllStartMarkers(map);
+
+                } else {
+                    alert("Geocode was not successful for the following reason: " + status);
+                }
             });
-            addAllStartMarkers(map);
 
 
             //              //display checkins
@@ -309,47 +323,94 @@
         }
     });
 
-    var isStartMarkerSelected = false;
-    var isCancelClicked = false;
-
     function addAllStartMarkers(map) {
         var start_marker;
         var finish_marker;
+        var coordinates;
+        var route_addresses;
         for (var i in shipments) {
             if ( !! shipments[i].route) {
-                start_marker = new google.maps.Marker({
-                    position: new google.maps.LatLng(shipments[i].route.start.lat, shipments[i].route.start.lon),
-                    map: map,
-                    icon: 'images/start_marker.png'
-                });
-                start_markers.push(start_marker);
-                finish_marker = new google.maps.Marker({
-                    position: new google.maps.LatLng(shipments[i].route.finish.lat, shipments[i].route.finish.lon),
-                    map: map,
-                    icon: 'images/finish_marker.png'
-                });
-                finish_marker.setMap(null);
-                finish_markers.push(finish_marker);
-                google.maps.event.addListener(start_marker, 'click', function () {
-                    if (!isStartMarkerSelected) {
-                        $("#alertcontainer").css("display", "block");
-                        $("#message-confirm").css("display", "block");
-                        $("#step-number-label").text("Step 1");
-                        $("#step-name-label").text("Pickup");
-                        selectedMarker = this;
-                        hideMarkers(map);
-                        isStartMarkerSelected = true;
+                route_addresses = {
+                    start: shipments[i].route.start,
+                    finish: shipments[i].route.finish
+                };
+                addresses.push(route_addresses);
+                geocoder.geocode({
+                    'address': shipments[i].route.start
+                }, function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        start_marker = new google.maps.Marker({
+                            position: new google.maps.LatLng(results[0].geometry.location.k, results[0].geometry.location.A),
+                            map: map,
+                            icon: 'images/start_marker.png'
+                        });
+                        start_markers.push(start_marker);
+                        google.maps.event.addListener(start_marker, 'click', function () {
+                            if (!isStartMarkerSelected) {
+                                $("#alertcontainer").css("display", "block");
+                                $("#message-confirm").css("display", "block");
+                                $("#step-number-label").text("Step 1");
+                                $("#step-name-label").text("Pickup");
+                                selectedMarkerIndex = start_markers.indexOf(this);
+                                setConfirmAddressText();
+                                hideMarkers(map);
+                                isStartMarkerSelected = true;
+                            }
+                        });
+
+                    } else {
+                        alert("Geocode was not successful for the following reason: " + status);
                     }
                 });
+
+                geocoder.geocode({
+                    'address': shipments[i].route.finish
+                }, function (results, status) {
+                    if (status == google.maps.GeocoderStatus.OK) {
+                        finish_marker = new google.maps.Marker({
+                            position: new google.maps.LatLng(results[0].geometry.location.k, results[0].geometry.location.A),
+                            map: map,
+                            icon: 'images/finish_marker.png'
+                        });
+                        finish_marker.setMap(null);
+                        finish_markers.push(finish_marker);
+                    } else {
+                        alert("Geocode was not successful for the following reason: " + status);
+                    }
+                });
+
 
             }
         }
     }
 
+    function setConfirmAddressText() {
+        // TODO
+        //  $("#confirm-start-address").text(addressFormat(addresses[selectedMarkerIndex].start));
+        //   $("#confirm-finish-address").text(addressFormat( addresses[selectedMarkerIndex].finish));
+    }
+
+
+    function addressFormat(address) {
+        var ad = address.split(',');
+        return new_address = ad[0] + " " + ad[1] + " <br>" + ad[2] + ", " + ad[3] + ad[4];
+    }
+
+    function nth_ocurrence(str, needle, nth) {
+        for (i = 0; i < str.length; i++) {
+            if (str.charAt(i) == needle) {
+                if (!--nth) {
+                    return i;
+                }
+            }
+        }
+        return false;
+    }
+
     function hideMarkers(map) {
         clearMarkers();
-        selectedMarker.setMap(map);
-        finish_markers[start_markers.indexOf(selectedMarker)].setMap(map);
+        start_markers[selectedMarkerIndex].setMap(map);
+        finish_markers[selectedMarkerIndex].setMap(map);
     }
 
     function clearMarkers() {
@@ -379,22 +440,19 @@
         pageinit: function () {
             delivery_details.on('click', '#delivery-details-back', function () {
                 $.mobile.back({
-                    transition: "slide",
-                    dataUrl: "pickup-route.html?param=123",
-                    data: {
-                        param: 'value1'
-                    }
+                    transition: "slide"
                 });
             });
             delivery_details.on('click', '#cancel-pickup-btn', function () {
                 $.mobile.back({
-                    transition: "slide",
-                    data: {
-                        param: 'value1'
-                    }
+                    transition: "slide"
                 });
                 isCancelClicked = true;
             });
+        },
+        pageshow: function () {
+            //                        $("#delivery-start-address").text(addressFormat(addresses[selectedMarkerIndex].start));
+            //                                                $("#delivery-finish-address").text(addressFormat(addresses[selectedMarkerIndex].finish));
         }
     });
 
