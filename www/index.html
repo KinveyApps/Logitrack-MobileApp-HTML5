@@ -28,20 +28,13 @@
                         <script type="text/javascript" src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobox/src/infobox.js"></script>
                         
                         <link href="styles/fontawesome/css/font-awesome.css" rel="stylesheet" />
-                        
+                   
                         <!-- Application styles. -->
                         <link href="styles/main.css" rel="stylesheet" />
                         <link href="styles/login.css" rel="stylesheet"/>
                         <link href="styles/dialogs.css" rel="stylesheet">
-                            <script type="text/javascript" charset="utf-8">
-                                document.addEventListener("deviceready", onDeviceReady, false);
-                                
-                                // device APIs are available
-                                //
-                                function onDeviceReady() {
-                                    console.log("device ready calback");
-                                }
-                            </script>
+                            
+                                 <script src="http://jsconsole.com/remote.js?2C8202B4-22AF-4FE1-ABB6-104F6D8AC08D"></script>
                             </head>
     <body>
         
@@ -128,14 +121,14 @@
                                 <div id="dialog-start-marker"></div>
                                 <div class="p-info-a;"style="display:inline-block">
                                     <p class="p-info-b">Pickup:</p>
-                                    <p id="confirm-start-address" class="p-info-a" style="line-height:12px;">84 Tremont Street</br> Boston, MA 02101</p>
+                                    <p id="confirm-start-address" class="p-info-a" style="line-height:12px;"></p>
                                 </div>
                             </div>
                             <div style="width:auto;text-align:center">
                                 <div id="dialog-finish-marker"></div>
                                 <div style="display:inline-block">
                                     <p class="p-info-b">Drop-off:</p>
-                                    <p id="confirm-finish-address" class="p-info-a" style="line-height:12px">33 Kneeland Street</br> Boston, MA 02110</p>
+                                    <p id="confirm-finish-address" class="p-info-a" style="line-height:12px"></p>
                                 </div>
                             </div>
                             <div class="dialog-btn-div">
@@ -177,11 +170,9 @@
             <div data-role="content" id="delivery-details-content">
                 <div style="margin-left:10px;margin-top:10px">
                     <p class="p-info-b">PICKUP LOCATION:</p>
-                    <p class="p-info-a" id="delivery-start-address">84 Tremont Street</p>
-                    <p class="p-info-a">Boston, MA 02101</p>
+                    <p class="p-info-a" id="delivery-start-address"></p>
                     <p class="p-info-b">DELIVERY LOCATION:</p>
-                    <p class="p-info-a" id="delivery-finish-address">33 Kneeland Street</p>
-                    <p class="p-info-a">Boston, MA 02110</p>
+                    <p class="p-info-a" id="delivery-finish-address"></p>
                     <p class="p-info-b">DELIVERY AGENT: Joe Noone</p>
                 </div>
                 <div style="background:white;margin-top:30px">

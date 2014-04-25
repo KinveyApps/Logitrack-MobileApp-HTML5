@@ -271,19 +271,6 @@
                 }
             });
 
-
-            //              //display checkins
-            //              var checkins = currentShipment.checkins;
-            //              for (var i = 0; i < checkins.length; i++) {
-            //              if (checkins[i].position) {
-            //              var position = checkins[i].position;
-            //              $('#map_canvas').gmap('addMarker', {
-            //                                    position: new google.maps.LatLng(position.lat, position.lon),
-            //                                    'icon': 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
-            //                                    });
-            //              }
-            //              }
-
             $('#map_canvas').gmap('refresh');
 
             //tracking user position
@@ -386,14 +373,15 @@
 
     function setConfirmAddressText() {
         // TODO
-        //  $("#confirm-start-address").text(addressFormat(addresses[selectedMarkerIndex].start));
-        //   $("#confirm-finish-address").text(addressFormat( addresses[selectedMarkerIndex].finish));
+ console.log("addresses: " + JSON.stringify(addresses));
+          $("#confirm-start-address").html(addressFormat(addresses[selectedMarkerIndex].start));
+           $("#confirm-finish-address").html(addressFormat( addresses[selectedMarkerIndex].finish));
     }
 
 
     function addressFormat(address) {
         var ad = address.split(',');
-        return new_address = ad[0] + " " + ad[1] + " <br>" + ad[2] + ", " + ad[3] + ad[4];
+        return ad[0] + " " + ad[1] + " </br>" + ad[2] + ", " + ad[3] + ad[4];
     }
 
     function nth_ocurrence(str, needle, nth) {
@@ -451,8 +439,8 @@
             });
         },
         pageshow: function () {
-            //                        $("#delivery-start-address").text(addressFormat(addresses[selectedMarkerIndex].start));
-            //                                                $("#delivery-finish-address").text(addressFormat(addresses[selectedMarkerIndex].finish));
+            $("#delivery-start-address").html(addressFormat(addresses[selectedMarkerIndex].start));
+            $("#delivery-finish-address").html(addressFormat(addresses[selectedMarkerIndex].finish));
         }
     });
 
