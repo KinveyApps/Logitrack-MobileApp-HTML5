@@ -117,6 +117,23 @@ br {
 #pickup-route-header div h3{
     line-height: 45px;
     margin:0 auto;
+    font-size:15px;
+}
+
+#timer{
+    font-size:10px;
+    line-height:10px;
+    margin-top:15px;
+    margin-right:5px;
+    visibility:hidden;
+}
+
+#tracking-state{
+    font-size:11px;
+    line-height:12px;
+    margin-top:-9px;
+    color:green;
+    visibility:hidden;
 }
 
 #menu-btn{
@@ -176,13 +193,13 @@ br {
     padding-top:5px;
 }
 
-.circle-line{
-   height:4px;
-   background:rgb(204,204,204);
-   margin-top:16px;
+#circle-line{
+    height:4px;
+    background:rgb(204,204,204);
+    margin-top:16px;
 }
 
-.circle-right,.circle-central,.circle-left {
+#circle-right,#circle-central,#circle-left {
     width: 16px;
     height: 16px;
     -webkit-border-radius: 8px;
@@ -193,22 +210,57 @@ br {
     top:40px;
 }
 
-.circle-central{
+#circle-central{
     right:40px;
 }
 
-.circle-left{
+#circle-left{
     left:50%;
     margin-left:-8px;
 }
 
-.green-circle{
+#green-circle-left, #green-circle-right, #green-circle-central{
     width: 32px;
     height: 32px;
     -webkit-border-radius: 16px;
     -moz-border-radius: 16px;
     border-radius: 16px;
     background:rgba(69,191,69,0.8);
+    position:absolute;
+    top:32px;
+    visibility: hidden;
+}
+
+#green-circle-central{
+    left:50%;
+    margin-left: -16px;
+}
+
+#green-circle-left{
+    margin-left:-8px
+}
+
+#green-circle-right{
+    right:32px
+}
+
+#pause-btn,#play-btn{
+    width: 32px;
+    height: 32px;
+    top:35.2px;
+    position:absolute;
+    left:50%;
+    margin-left: -13px;
+    background-size: 32px 32px;
+    visibility:hidden;
+}
+
+#pause-btn{
+    background:url(../images/pause-btn.png) no-repeat;
+}
+
+#play-btn{
+    background:url(../images/play-btn.png) no-repeat;
 }
 
 .red-circle{
@@ -225,7 +277,7 @@ br {
 .infobox-wrapper {
     display:none;
 }
-#infobox {
+#infobox, #confirm-infobox{
     background:white;
     color:rgba(136,136,136,1);
     font-size:12px;
@@ -234,14 +286,16 @@ br {
     border-radius: 6px;
 }
 
-#infobox-title{
+#infobox-title, #confirm-infobox-title{
     margin-left:10px;
-    width:90px;
     display:inline-block;
     line-height:12px;
 }
+#confirm-infobox-title{
+    width:150px
+}
 
-#infobox-arrow-btn{
+.infobox-arrow-btn, .confirm-infobox-arrow-btn{
     margin-left:15px;
     display:inline-block;
     width:15px;
@@ -271,12 +325,12 @@ br {
 }
 
 #delivery-details-back{
-   position:absolute;
-   left:5px;
-   top:8px;
-   height:30px;
-   width:20px;
-   background:url(../images/back_large.png) no-repeat;
+    position:absolute;
+    left:5px;
+    top:8px;
+    height:30px;
+    width:20px;
+    background:url(../images/back_large.png) no-repeat;
 }
 
 #delivery-details-content{
@@ -287,6 +341,17 @@ br {
     top: 40px;
     left: 0;
     bottom: 70px;
+    right: 0;
+}
+
+#signature-content{
+    background:rgb(236,236,236);
+    overflow: auto;
+    margin: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
     right: 0;
 }
 
@@ -301,7 +366,7 @@ br {
     margin-left:10px;
 }
 
-.delivery-icon-yes-circle, .delivery-icon-empty-circle, .delivery-icon-arrow{
+.delivery-icon-yes-circle, .delivery-icon-empty-circle, .delivery-icon-arrow,.delivery-icon-arrow-enable{
     float:right;
     height:30px;
     width:30px;
@@ -316,14 +381,22 @@ br {
 
 .delivery-icon-empty-circle{
     background:url(../images/empty_circle.png) no-repeat;
-       margin-right:1px;
+    margin-right:1px;
     background-size:23px 23px;
+}
+
+.delivery-icon-arrow,.delivery-icon-arrow-enable{
+    margin-right:-5px;
+    margin-top:4px;
 }
 
 .delivery-icon-arrow{
     background:url(../images/arrow_right_gray.png) no-repeat;
-    margin-right:-5px;
-        margin-top:4px;
+}
+
+
+.delivery-icon-arrow-enable{
+       background:url(../images/arrow_right.png) no-repeat;
 }
 
 .delivery-list-separator{
@@ -362,3 +435,52 @@ br {
     margin-left:5%;
 }
 
+
+
+#textarea-div{
+    background:rgb(229,229,229);
+    margin-top:70px;
+    padding-left:20px;
+    padding-right:20px;
+    padding-top:10px;
+    padding-bottom:10px;
+}
+
+#signature-back{
+    line-height: 12px;
+    left:15px;
+    margin-top:2px;
+    font-size:12px;
+    position:absolute;
+    color:blue
+}
+
+#signature-title{
+    line-height: 15px;
+    font-size: 15px;
+    text-align:center;
+}
+
+#signature-textarea{
+    max-height:80px;
+    border:none;
+    border-radius:0;
+}
+
+#email-div{
+    float:right;
+    padding-right:15%;
+    margin-top:90px
+}
+#email-icon{
+    width:25px;
+    height:17px;
+    background:url(../images/email.png) no-repeat;
+    background-size:25px 17px
+}
+
+#email-title{
+    font-size:12px;
+    line-height:14px;
+    margin-top:7px
+}
