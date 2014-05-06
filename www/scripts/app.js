@@ -26,6 +26,7 @@
     }
     var date = new Date();
     var last_call_time_function = date.getTime();
+    var current_call_time;
     var current_page = 1;
     var pickup_route_page = 1;
     var travel_page = 2;
@@ -297,7 +298,6 @@
         closeBoxURL: "",
         infoBoxClearance: new google.maps.Size(1, 1)
     });
-    var current_call_time;
     google.maps.event.addListener(infobox, 'domready', function (e) {
         $('.infobox-arrow-btn').click(function (e) {
             current_call_time = (new Date()).getTime();
@@ -338,7 +338,6 @@
         $("#step-name-label").text("Tap to Browse Different Pickups");
         $("#step-number-label").text("Waiting for Delivery");
         $("#next-label").css("visibility", "hidden");
-        console.log("check 1");
         showMarkers();
         isStartMarkerSelected = false;
         if (!isConfirmDeliveryPage) {
@@ -501,6 +500,7 @@
             }
         },
         pageinit: function () {
+            current_page = pickup_route_page;
             $('#green-circle-left').css('visibility', "visible");
             $('#map_canvas').gmap({
                 'zoom': 10,
@@ -534,18 +534,23 @@
                 currentShipment.user_status = "in progress";
                 saveShipment(currentShipment, function () {});
             });
-
+            var isTrackingEnd = false;
             pickup.on('click', '#next-btn', function () {
                 console.log("click next button");
                 if (isStartMarkerSelected) {
                     switch (current_page) {
                     case travel_page:
-                        console.log("changePage delivery details 3");
-                        current_page = delivery_details_confirm_delivery_page;
-                        $.mobile.changePage(delivery_details, {
-                            transition: "slide"
-                        });
-                        stopTrackingStartConfiming();
+                        if(isTrackingEnd) {
+                            console.log("changePage delivery details 3");
+                            current_page = delivery_details_confirm_delivery_page;
+                            $.mobile.changePage(delivery_details, {
+                                transition: "slide"
+                            });
+                            isTrackingEnd = false;
+                        }else{
+                            stopTrackingStartConfiming();
+                            isTrackingEnd = true;
+                        }
                         break;
                     case pickup_route_page:
                         console.log("changePage delivery details 1");
