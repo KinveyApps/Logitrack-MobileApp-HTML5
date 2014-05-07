@@ -1,4 +1,3 @@
--
 /**
  * Copyright 2013 Kinvey, Inc.
  *
@@ -24,14 +23,13 @@
     var loadingHide = function () {
         $.mobile.loading("hide");
     }
-    var date = new Date();
-    var last_call_time_function = date.getTime();
-    var current_call_time;
     var current_page = 1;
     var pickup_route_page = 1;
     var travel_page = 2;
     var delivery_details_begin_tracking_page = 3;
     var delivery_details_confirm_delivery_page = 4;
+    var login_page = 5;
+    var signature_page = 6;
     var locationWatchId = null;
     var currentShipment = null;
     var shipments = null;
@@ -41,6 +39,8 @@
     var selectedMarkerIndex = 0;
     var lastUserPosition = null;
     var map;
+    var directionsDisplay;
+    var directionsService = new google.maps.DirectionsService();
     var user_marker;
     var infobox;
     var confirm_infobox;
@@ -51,6 +51,8 @@
     var isStartMarkerSelected = false;
     var isConfirmDeliveryPage = false;
     var isDeliveryComplitedClicked = false;
+    var isBackPressed = false;
+    var isConfirmBoxOpen = false;
     //shipment saving function
     function saveShipment(shipment, cb) {
 
@@ -112,7 +114,6 @@
         }
     });
 
-
     // Default mustache data filters.
     var mustacheData = {
         self: function () {
@@ -161,6 +162,7 @@
                         addAllStartMarkers(map);
                         map.setCenter(user_marker.getPosition());
                     }
+                    current_page = pickup_route_page;
                     console.log("changePage pickup 1");
                     $.mobile.changePage(pickup);
                 }
@@ -176,6 +178,7 @@
                 loadShipment();
             } else {
                 console.log("changePage login");
+                current_page = login_page;
                 $.mobile.changePage(login);
             }
         }
@@ -185,7 +188,9 @@
     signature.on({
         pageinit: function () {
             signature.on('click', '#signature-back', function () {
-                $.mobile.back();
+                $.mobile.back({
+                    transition: "slide"
+                });
             });
         }
     });
@@ -233,10 +238,6 @@
         $("#timer").text(h + ':' + m + ':' + s);
     }
 
-
-    var directionsDisplay;
-    var directionsService = new google.maps.DirectionsService();
-
     function calcRoute() {
         console.log("calc route");
         var request = {
@@ -255,63 +256,62 @@
         });
     }
 
+    function getConfirmInfoBox(){
+        console.log("getConfirmInfobox");
+        var box =new InfoBox({
+            content: document.getElementById("confirm-infobox"),
+            maxWidth: 200,
+            pane: "floatPane",
+            disableAutoPan: false,
 
-    confirm_infobox = new InfoBox({
-        content: document.getElementById("confirm-infobox"),
-        maxWidth: 200,
-        pane: "floatPane",
-        disableAutoPan: false,
-
-        pixelOffset: new google.maps.Size(-100, -85),
-        zIndex: null,
-        boxStyle: {
-            background: "url('http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobox/examples/tipbox.gif') no-repeat",
-            width: "200px"
-        },
-        closeBoxURL: "",
-        infoBoxClearance: new google.maps.Size(1, 1)
-    });
-    google.maps.event.addListener(confirm_infobox, 'domready', function (e) {
-        $('.confirm-infobox-arrow-btn').click(function (e) {
-            console.log("changePage delivery details 3");
-            current_call_time = (new Date()).getTime();
-
-            if (current_call_time - last_call_time_function > 500) {
-                current_page = delivery_details_confirm_delivery_page;
-                $.mobile.changePage(delivery_details, {
-                    transition: "slide"
-                });
-            }
+            pixelOffset: new google.maps.Size(-100, -85),
+            zIndex: null,
+            boxStyle: {
+                background: "url('http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobox/examples/tipbox.gif') no-repeat",
+                width: "200px"
+            },
+            closeBoxURL: "",
+            infoBoxClearance: new google.maps.Size(1, 1)
         });
-    });
-    infobox = new InfoBox({
-        content: document.getElementById("infobox"),
-        pane: "floatPane",
-        disableAutoPan: false,
-        maxWidth: 150,
-        pixelOffset: new google.maps.Size(-70, -85),
-        zIndex: null,
-        boxStyle: {
-            background: "url('http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobox/examples/tipbox.gif') no-repeat",
-            width: "140px"
-        },
-        closeBoxURL: "",
-        infoBoxClearance: new google.maps.Size(1, 1)
-    });
-    google.maps.event.addListener(infobox, 'domready', function (e) {
-        $('.infobox-arrow-btn').click(function (e) {
-            current_call_time = (new Date()).getTime();
-
-            if (current_call_time - last_call_time_function > 500) {
-                console.log("changePage delivery details 2");
-                current_page = delivery_details_begin_tracking_page;
-                $.mobile.changePage(delivery_details, {
-                    transition: "slide"
-                });
-            }
-            last_call_time_function = current_call_time;
+        google.maps.event.addListener(box, 'domready', function (e) {
+            $('.confirm-infobox-arrow-btn').click(function (e) {
+                console.log("changePage delivery details 3");
+                    current_page = delivery_details_confirm_delivery_page;
+                    $.mobile.changePage(delivery_details, {
+                        transition: "slide"
+                    });
+            });
         });
-    });
+        return box;
+    }
+
+    function getInfoBox(){
+        console.log("getInfobox");
+        var box = new InfoBox({
+            content: document.getElementById("infobox"),
+            pane: "floatPane",
+            disableAutoPan: false,
+            maxWidth: 150,
+            pixelOffset: new google.maps.Size(-70, -85),
+            zIndex: null,
+            boxStyle: {
+                background: "url('http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobox/examples/tipbox.gif') no-repeat",
+                width: "140px"
+            },
+            closeBoxURL: "",
+            infoBoxClearance: new google.maps.Size(1, 1)
+        });
+        google.maps.event.addListener(box, 'domready', function (e) {
+            $('.infobox-arrow-btn').click(function (e) {
+                    console.log("changePage delivery details 2");
+                    current_page = delivery_details_begin_tracking_page;
+                    $.mobile.changePage(delivery_details, {
+                        transition: "slide"
+                    });
+            });
+        });
+        return box;
+    }
 
     function beginTrackingPagePreload() {
         console.log("begin tracking preload");
@@ -324,12 +324,15 @@
         $('#green-circle-left').css('visibility', "hidden");
         $('#green-circle-central').css('visibility', "visible");
         $('#pause-btn').css('visibility', "visible");
-        infobox.close();
+        if(infobox) {
+            infobox.close();
+        }
         isStartMarkerSelected = true;
         $("#step-name-label").text("Travel to Delivery Location");
         $("#step-number-label").text("Step 2");
         currentShipment.user_status = "in progress";
-        saveShipment(currentShipment, function () {});
+        saveShipment(currentShipment, function () {
+        });
         calcRoute();
     };
 
@@ -341,7 +344,9 @@
         showMarkers();
         isStartMarkerSelected = false;
         if (!isConfirmDeliveryPage) {
-            infobox.close();
+            if(infobox) {
+                infobox.close();
+            }
         }
         isConfirmDeliveryPage = false;
 
@@ -407,21 +412,50 @@
         addAllStartMarkers(map);
 
         $('#map_canvas').gmap('refresh');
-        //
-        // alert('Latitude: '          + position.coords.latitude          + '\n' +
-        //       'Longitude: '         + position.coords.longitude         + '\n' +
-        //       'Altitude: '          + position.coords.altitude          + '\n' +
-        //       'Accuracy: '          + position.coords.accuracy          + '\n' +
-        //       'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '\n' +
-        //       'Heading: '           + position.coords.heading           + '\n' +
-        //       'Speed: '             + position.coords.speed             + '\n' +
-        //       'Timestamp: '         + new Date(position.timestamp)      + '\n');
     };
 
     // onError Callback receives a PositionError object
     //
     function onErrorGetUserPosition(error) {
         console.log("on error getUser position " + error.message);
+    }
+
+    document.addEventListener("backbutton", onBackKeyDown, false);
+
+    function onBackKeyDown() {
+        switch (current_page) {
+            case travel_page:
+                $("#green-circle-central").css("visibility", "hidden");
+                $("#pause-btn").css("visibility", "hidden");
+                $("#play-btn").css("visibility", "hidden");
+                $("#timer").css("visibility", "hidden");
+                directionsDisplay.setMap(null);
+                rejectRoute();
+                break;
+            case pickup_route_page:
+                navigator.app.exitApp();
+                break;
+            case login_page:
+                navigator.app.exitApp();
+                break;
+            case delivery_details_begin_tracking_page:
+                $.mobile.back({
+                    transition: "slide"
+                });
+                isBackPressed = true;
+                break;
+            case delivery_details_confirm_delivery_page:
+                $.mobile.back({
+                    transition: "slide"
+                });
+                isBackPressed = true;
+                break;
+            case signature_page:
+                $.mobile.back({
+                    transition: "slide"
+                });
+                break;
+        }
     }
 
     function addAllStartMarkers(map) {
@@ -490,22 +524,35 @@
         pagebeforeshow: function (event, data) {
             console.log("page before show pickup");
             switch (current_page) {
-            case pickup_route_page:
-                pickupRoutePagePreload();
-                break;
-            case travel_page:
-                beginTrackingPagePreload();
-                startTrackingUserPosition();
-                break;
+                case pickup_route_page:
+                    pickupRoutePagePreload();
+                    break;
+                case travel_page:
+                    beginTrackingPagePreload();
+                    startTrackingUserPosition();
+                    break;
+            }
+            if(isBackPressed){
+                switch (current_page){
+                    case delivery_details_begin_tracking_page:
+                        current_page = pickup_route_page;
+                        break;
+                    case delivery_details_confirm_delivery_page:
+                        current_page = travel_page;
+                        break;
+                }
+                isBackPressed = false;
             }
         },
         pageinit: function () {
+            console.log("pickup page init");
             current_page = pickup_route_page;
             $('#green-circle-left').css('visibility', "visible");
             $('#map_canvas').gmap({
                 'zoom': 10,
                 'disableDefaultUI': true,
-                'callback': function () {}
+                'callback': function () {
+                }
             });
 
             pickup.on('click', '#pause-btn', function () {
@@ -517,7 +564,8 @@
                 $("#pause-btn").css("visibility", "hidden");
                 $("#green-circle-central").css("background", "red");
                 currentShipment.user_status = "paused";
-                saveShipment(currentShipment, function () {});
+                saveShipment(currentShipment, function () {
+                });
 
             });
 
@@ -532,33 +580,32 @@
                 $("#play-btn").css("visibility", "hidden");
                 $("#green-circle-central").css("background", "rgba(69,191,69,0.8)");
                 currentShipment.user_status = "in progress";
-                saveShipment(currentShipment, function () {});
+                saveShipment(currentShipment, function () {
+                });
             });
-            var isTrackingEnd = false;
             pickup.on('click', '#next-btn', function () {
-                console.log("click next button");
+                console.log("click next button " + current_page);
                 if (isStartMarkerSelected) {
                     switch (current_page) {
-                    case travel_page:
-                        if(isTrackingEnd) {
-                            console.log("changePage delivery details 3");
-                            current_page = delivery_details_confirm_delivery_page;
+                        case travel_page:
+                            if (isConfirmBoxOpen) {
+                                console.log("changePage delivery details 3");
+                                current_page = delivery_details_confirm_delivery_page;
+                                $.mobile.changePage(delivery_details, {
+                                    transition: "slide"
+                                });
+                            } else {
+                                console.log("stop tracking start confirming");
+                                stopTrackingStartConfiming();
+                            }
+                            break;
+                        case pickup_route_page:
+                            console.log("changePage delivery details 1");
+                            current_page = delivery_details_begin_tracking_page;
                             $.mobile.changePage(delivery_details, {
                                 transition: "slide"
                             });
-                            isTrackingEnd = false;
-                        }else{
-                            stopTrackingStartConfiming();
-                            isTrackingEnd = true;
-                        }
-                        break;
-                    case pickup_route_page:
-                        console.log("changePage delivery details 1");
-                        current_page = delivery_details_begin_tracking_page;
-                        $.mobile.changePage(delivery_details, {
-                            transition: "slide"
-                        });
-                        break;
+                            break;
                     }
                 }
             });
@@ -581,6 +628,7 @@
                 $("#message-confirm").css("display", "none");
                 $("#step-name-label").text("En Route to Pickup");
                 $("#next-label").css("visibility", "visible");
+                infobox = getInfoBox();
                 infobox.open(map, start_markers[selectedMarkerIndex]);
             });
             //              $("#alertcontainer").css("display", "block");
@@ -599,18 +647,21 @@
     });
 
     function stopTrackingStartConfiming() {
-        stopTrackingUserPosition();
+        console.log("stop user posit");
         isConfirmDeliveryPage = true;
         $("#step-name-label").text("Travel to Delivery Location");
-        $("#step-number-label").text("Step 3");
-        $("#green-circle-central").css("visibility", "hidden");
+        $("#step-number-label").text("b");
         $("#green-circle-right").css("visibility", "visible");
+        stopTrackingUserPosition();
+        $("#green-circle-central").css("visibility", "hidden");
         $("#pause-btn").css("visibility", "hidden");
         $("#play-btn").css("visibility", "hidden");
         $("#timer").css("visibility", "hidden");
         directionsDisplay.setMap(null);
         console.log("confirm infobox " + selectedMarkerIndex + "   " + JSON.stringify(selectedMarkerIndex));
+        confirm_infobox = getConfirmInfoBox();
         confirm_infobox.open(map, finish_markers[selectedMarkerIndex]);
+        isConfirmBoxOpen = true;
     };
 
 
@@ -666,6 +717,36 @@
         }
     }
 
+    function rejectRoute() {
+        //                                navigator.notification.confirm("Do you really want to reject route",
+        //                                                               function (button) {
+        //                                                               if (button == 1) {
+        //                                                               currentShipment.user_status = "rejected";
+        //                                                               saveShipment(currentShipment, function (data) {
+        //                                                                            currentShipment = data;
+        //                                                                            history.back();
+        //                                                                            });
+        //                                                               }
+        //                                                               },
+        //                                                               "Change route status", ["OK", "Cancel"])
+        if (confirm("Do you really want to reject route")) {
+            currentShipment.user_status = "rejected";
+            saveShipment(currentShipment, function (data) {
+                $("#tracking-state").css("visibility", "hidden");
+                $("#green-circle-right").css("visibility", "hidden");
+                $("#green-circle-left").css("visibility", "visible");
+                clearInterval(my_timer);
+                confirm_infobox.close();
+                isConfirmBoxOpen = false;
+                console.log("changePage pickup 3");
+                current_page = pickup_route_page;
+                $.mobile.changePage(pickup,{
+                    transition: "slide"
+                });
+                isConfirmDeliveryPage = false;
+            });
+        }
+    }
 
     var delivery_details = $('#delivery-details');
     delivery_details.on({
@@ -673,33 +754,37 @@
             $("#delivery-start-address").html(addressFormat(addresses[selectedMarkerIndex].start));
             $("#delivery-finish-address").html(addressFormat(addresses[selectedMarkerIndex].finish));
             switch (current_page) {
-            case delivery_details_confirm_delivery_page:
-                $("#delivered-state").removeClass("delivery-icon-empty-circle");
-                $("#delivered-state").addClass("delivery-icon-yes-circle");
-                $("#signature-arrow-btn").removeClass("delivery-icon-arrow");
-                $("#signature-arrow-btn").addClass("delivery-icon-arrow-enable");
-                $("#begin-tracking-btn").text("Delivery Complete");
-                break;
-            case delivery_details_begin_tracking_page:
-                $("#delivered-state").removeClass("delivery-icon-yes-circle");
-                $("#delivered-state").addClass("delivery-icon-empty-circle");
-                $("#begin-tracking-btn").text("Begin Tracking");
-                $("#signature-arrow-btn").removeClass("delivery-icon-arrow-enable");
-                $("#signature-arrow-btn").addClass("delivery-icon-arrow");
-                break
+                case delivery_details_confirm_delivery_page:
+                    $("#delivered-state").removeClass("delivery-icon-empty-circle");
+                    $("#delivered-state").addClass("delivery-icon-yes-circle");
+                    $("#signature-arrow-btn").removeClass("delivery-icon-arrow");
+                    $("#signature-arrow-btn").addClass("delivery-icon-arrow-enable");
+                    $("#begin-tracking-btn").text("Delivery Complete");
+                    break;
+                case delivery_details_begin_tracking_page:
+                    $("#delivered-state").removeClass("delivery-icon-yes-circle");
+                    $("#delivered-state").addClass("delivery-icon-empty-circle");
+                    $("#begin-tracking-btn").text("Begin Tracking");
+                    $("#signature-arrow-btn").removeClass("delivery-icon-arrow-enable");
+                    $("#signature-arrow-btn").addClass("delivery-icon-arrow");
+                    break;
+                case signature_page:
+                    current_page = delivery_details_confirm_delivery_page;
+                    break;
             }
         },
         pageinit: function () {
             delivery_details.on('click', '#delivery-details-back', function () {
+                isBackPressed = true;
                 console.log("changePage pickup 2 ");
-                history.back();
-                //                    $.mobile.changePage(pickup, {
-                //                        transition: "slide"
-                //                    });
+                $.mobile.back({
+                    transition: "slide"
+                });
             });
             delivery_details.on('click', '#signature-arrow-btn', function () {
                 if ($(this).hasClass("delivery-icon-arrow-enable")) {
                     console.log("changePage signature");
+                    current_page = signature_page;
                     $.mobile.changePage(signature, {
                         transition: "slide"
                     });
@@ -707,85 +792,59 @@
             });
             delivery_details.on('click', '#cancel-pickup-btn', function () {
                 switch (current_page) {
-                case delivery_details_confirm_delivery_page:
-                    //                                navigator.notification.confirm("Do you really want to reject route",
-                    //                                                               function (button) {
-                    //                                                               if (button == 1) {
-                    //                                                               currentShipment.user_status = "rejected";
-                    //                                                               saveShipment(currentShipment, function (data) {
-                    //                                                                            currentShipment = data;
-                    //                                                                            history.back();
-                    //                                                                            });
-                    //                                                               }
-                    //                                                               },
-                    //                                                               "Change route status", ["OK", "Cancel"])
-                    if (confirm("Do you really want to reject route")) {
-                        currentShipment.user_status = "rejected";
-                        saveShipment(currentShipment, function (data) {
-                            $("#tracking-state").css("visibility", "hidden");
-                            $("#green-circle-right").css("visibility", "hidden");
-                            $("#green-circle-left").css("visibility", "visible");
-                            clearInterval(my_timer);
-                            confirm_infobox.close();
-                            console.log("changePage pickup 3");
-                            current_page = pickup_route_page;
-                            $.mobile.back({
-                                transition: "slide"
-                            });
-                            isConfirmDeliveryPage = false;
+                    case delivery_details_confirm_delivery_page:
+                        rejectRoute();
+                        break;
+                    case delivery_details_begin_tracking_page:
+                        current_page = pickup_route_page;
+                        console.log("changePage pickup 4");
+                        $.mobile.back({
+                            transition: "slide"
                         });
-                    }
-
-                    break;
-                case delivery_details_begin_tracking_page:
-                    current_page = pickup_route_page;
-                    console.log("changePage pickup 4");
-                    $.mobile.back({
-                        transition: "slide"
-                    });
-
-                    break;
+                        break;
                 }
             });
             delivery_details.on('click', '#begin-tracking-btn', function () {
                 switch ($('#begin-tracking-btn').text()) {
-                case "Begin Tracking":
-                    current_page = travel_page;
-                    console.log("changePage pickup 5");
-                    $.mobile.changePage(pickup);
-                    break;
-                case "Delivery Complete":
-                    if (confirm("Do you really want to mark route as \"Done\"")) {
-                        current_page = pickup_route_page;
-                        currentShipment.user_status = "done";
-                        saveShipment(currentShipment, function (data) {
-                            $("#tracking-state").css("visibility", "hidden");
-                            $("#green-circle-right").css("visibility", "hidden");
-                            $("#green-circle-left").css("visibility", "visible");
-                            clearInterval(my_timer);
-                            confirm_infobox.close();
-                            loadShipment();
-                            isDeliveryComplitedClicked = true;
-                        });
+                    case "Begin Tracking":
+                        current_page = travel_page;
+                        console.log("changePage pickup 5");
+                        $.mobile.changePage(pickup);
+                        break;
+                    case "Delivery Complete":
+                        if (confirm("Do you really want to mark route as \"Done\"")) {
+                            current_page = pickup_route_page;
+                            currentShipment.user_status = "done";
+                            saveShipment(currentShipment, function (data) {
+                                $("#tracking-state").css("visibility", "hidden");
+                                $("#green-circle-right").css("visibility", "hidden");
+                                $("#green-circle-left").css("visibility", "visible");
+                                clearInterval(my_timer);
+                                confirm_infobox.close();
+                                isConfirmBoxOpen = false;
+                                loadShipment();
+                                isDeliveryComplitedClicked = true;
+                            });
 
-                    }
-                    //                                navigator.notification.confirm("Do you really want to mark route as \"Done\"",
-                    //                                                               function (button) {
-                    //                                                               if (button == 1) {
-                    //                                                               currentShipment.user_status = "done";
-                    //                                                               saveShipment(currentShipment, function (data) {
-                    //                                                                            currentShipment = data;
-                    //                                                                            $.mobile.back();
-                    //                                                                            });
-                    //                                                               }
-                    //                                                               },
-                    //                                                               "Change route status", ["OK", "Cancel"])
-                    break;
+                        }
+                        //                                navigator.notification.confirm("Do you really want to mark route as \"Done\"",
+                        //                                                               function (button) {
+                        //                                                               if (button == 1) {
+                        //                                                               currentShipment.user_status = "done";
+                        //                                                               saveShipment(currentShipment, function (data) {
+                        //                                                                            currentShipment = data;
+                        //                                                                            $.mobile.back();
+                        //                                                                            });
+                        //                                                               }
+                        //                                                               },
+                        //                                                               "Change route status", ["OK", "Cancel"])
+                        break;
                 }
 
             });
         },
-        pageshow: function () {}
+        pageshow: function () {
+        }
     });
 
 
@@ -873,27 +932,27 @@
         pageinit: function () {
             console.log("route page init");
             /*debugger;
-                 Kinvey.DataStore.save('shipment', {
-                 'on-desk' : true,
-                 "pulped" : "yes",
-                 "status" : 'in_progress',
-                 'user_status' : null,
-                 'checkins' : [],
-                 'route' : {start:{
-                 lat:30.265146,
-                 lon: -97.747185
-                 }, finish:{
-                 lat: 30.246359,
-                 lon: -97.76918
-                 }}
+             Kinvey.DataStore.save('shipment', {
+             'on-desk' : true,
+             "pulped" : "yes",
+             "status" : 'in_progress',
+             'user_status' : null,
+             'checkins' : [],
+             'route' : {start:{
+             lat:30.265146,
+             lon: -97.747185
+             }, finish:{
+             lat: 30.246359,
+             lon: -97.76918
+             }}
 
-                 },{
-                 relations : {'checkins' : 'checkins', 'route' : 'route'},
+             },{
+             relations : {'checkins' : 'checkins', 'route' : 'route'},
 
-                 success : function(response){
-                 debugger;
-                 }
-                 });*/
+             success : function(response){
+             debugger;
+             }
+             });*/
 
 
             route.on("click", "#my_loc", function () {
@@ -934,7 +993,8 @@
             $('#map_canvas').gmap({
                 'zoom': 10,
                 'disableDefaultUI': true,
-                'callback': function () {}
+                'callback': function () {
+                }
             })
         },
         pageshow: function () {
@@ -1077,7 +1137,8 @@
                 }
 
                 currentShipment.user_status = $(this).hasClass("fa-play") ? "in progress" : "paused";
-                saveShipment(currentShipment, function () {});
+                saveShipment(currentShipment, function () {
+                });
 
             });
 
@@ -1094,7 +1155,8 @@
                                 $.mobile.changePage(checkins);
                             } else {
                                 navigator.notification.alert("Can't get your location. Please make sure that location services are enabled on your device.",
-                                    function () {}, "Location missing", "OK");
+                                    function () {
+                                    }, "Location missing", "OK");
                             }
                         }
                     }).then(loadingHide, loadingHide);

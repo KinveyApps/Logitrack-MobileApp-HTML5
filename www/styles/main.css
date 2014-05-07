@@ -250,8 +250,8 @@ br {
     top:35.2px;
     position:absolute;
     left:50%;
-    margin-left: -13px;
-    background-size: 32px 32px;
+    margin-left: -12px;
+    background-size: 24px 26px;
     visibility:hidden;
 }
 
@@ -406,11 +406,8 @@ br {
 }
 
 .delivery-buttons-div{
-    bottom:15px;
-    position:absolute;
-    margin:0 auto;
+    margin-top:30px;
     width:100%;
-    margin-left:-17px;
 }
 
 #cancel-pickup-btn, #begin-tracking-btn{
