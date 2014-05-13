@@ -30,6 +30,7 @@
     var delivery_details_confirm_delivery_page = 4;
     var login_page = 5;
     var signature_page = 6;
+    var user_profile_page = 7;
     var locationWatchId = null;
     var currentShipment = null;
     var shipments = null;
@@ -53,6 +54,9 @@
     var isDeliveryComplitedClicked = false;
     var isBackPressed = false;
     var isConfirmBoxOpen = false;
+
+      var  pictureSource=navigator.camera.PictureSourceType;
+       var  destinationType=navigator.camera.DestinationType;
     //shipment saving function
     function saveShipment(shipment, cb) {
 
@@ -200,7 +204,6 @@
     var login = $('#login');
     login.on({
         pageinit: function () {
-
             login.on('click', '#login-label', function () {
                 console.log("user creds : " + $('#username-input').val() + "   " + $('#password-input').val());
                 $.mobile.loading("show");
@@ -210,14 +213,26 @@
                 });
 
                 promise.then(function (response) {
+                    map = null;
+                    finish_markers = [];
+                    start_markers = [];
+                    addresses = [];
+                    selectedMarkerIndex = 0;
+                    isStartMarkerSelected = false;
+                    isDeliveryComplitedClicked = false;
                     loadShipment();
                 }, function (error) {
                     console.log("login error " + JSON.stringify(error));
                     alert(error.description);
                 }).then(loadingHide, loadingHide);
             });
+        },
+        pagebeforeshow: function(){
+            $("#username-input").val("");
+            $("#password-input").val("");
         }
     });
+
 
     function myTimer() {
         last_time[2]++;
@@ -326,6 +341,7 @@
         $('#pause-btn').css('visibility', "visible");
         if(infobox) {
             infobox.close();
+            infobox.setMap(null);
         }
         isStartMarkerSelected = true;
         $("#step-name-label").text("Travel to Delivery Location");
@@ -346,6 +362,7 @@
         if (!isConfirmDeliveryPage) {
             if(infobox) {
                 infobox.close();
+                infobox.setMap(null);
             }
         }
         isConfirmDeliveryPage = false;
@@ -540,6 +557,9 @@
                     case delivery_details_confirm_delivery_page:
                         current_page = travel_page;
                         break;
+                    case user_profile_page:
+                        current_page = pickup_route_page;
+                        break;
                 }
                 isBackPressed = false;
             }
@@ -567,6 +587,11 @@
                 saveShipment(currentShipment, function () {
                 });
 
+            });
+
+            pickup.on('click',"#menu-btn",function(){
+                current_page = user_profile_page;
+                $.mobile.changePage(user_profile,{transition:"slide"});
             });
 
             pickup.on('click', '#play-btn', function () {
@@ -646,11 +671,136 @@
         }
     });
 
+
+    //    User Profile
+
+    var user_profile = $("#user-profile");
+    user_profile.on({
+        pageinit: function () {
+            user_profile.on('click', '#sign-out-btn', function () {
+                switch ($('#sign-out-btn').text()) {
+                    case "SIGN OUT":
+                        var user = Kinvey.getActiveUser();
+                        console.log("active user " + JSON.stringify(user));
+                        if (null !== user) {
+                            $.mobile.loading("show");
+                            var promise = Kinvey.User.logout({
+                            });
+
+                            promise.then(function (response) {
+                                console.log("logout with success");
+                                $.mobile.changePage(login, {transition: "slide"});
+                            }, function (error) {
+                                console.log("logout with error " + JSON.stringify(error));
+                            }).then(loadingHide, loadingHide);
+                        }
+                        break;
+                    case "SAVE":
+                        var user = Kinvey.getActiveUser();
+                        user.mobile_number = $('#user-mobile-number').text();
+                        user.first_name = $('#first-name').text();
+                        user.last_name = $('#last-name').text();
+                        $.mobile.loading("show");
+                        var promise = Kinvey.User.update(user, {
+                            success: function() {
+                                $("#profile-edit").css("visibility", "visible");
+                                $("#sign-out-btn").text("SIGN OUT");
+                                $("#profile-email-div").css("display", "block");
+                                $("#profile-password-div").css("display", "block");
+                            },
+                            error:function(error){
+                                console.log("user info update error " + JSON.stringify(error.description));
+                            }
+                        }).then(loadingHide, loadingHide);
+
+                        break;
+                }
+            });
+            user_profile.on('click', '#profile-back', function () {
+                switch ($('#sign-out-btn').text()) {
+                    case "SIGN OUT":
+                        console.log("profile back");
+                        isBackPressed = true;
+                        $.mobile.back({transition: "slide"});
+                        break;
+                    case "SAVE":
+                        $("#profile-edit").css("visibility", "visible");
+                        $("#sign-out-btn").text("SIGN OUT");
+                        $("#profile-email-div").css("display", "block");
+                        $("#profile-password-div").css("display", "block");
+                        $("#first-name").text(active_user.first_name);
+                        $("#last-name").text(active_user.last_name);
+                        $("#user-email").text(active_user.email);
+                        $("#user-mobile-number").text(active_user.mobile_number);
+                        break;
+                }
+            });
+            user_profile.on('click', '#profile-edit', function () {
+                console.log("profile edit");
+                $("#profile-edit").css("visibility", "hidden");
+                $("#sign-out-btn").text("SAVE");
+                $("#profile-email-div").css("display", "none");
+                $("#profile-password-div").css("display", "none");
+            });
+            user_profile.on('click', '#first-name-div', function () {
+                if ($('#sign-out-btn').text() === "SAVE") {
+                var new_name = prompt("Input name", $('#first-name').text());
+                    if(new_name !=null) {
+                        $('#first-name').text(new_name);
+                    }
+            }
+            });
+            user_profile.on('click', '#last-name-div', function () {
+                if ($('#sign-out-btn').text() === "SAVE") {
+                    var new_name = prompt("Input name", $('#last-name').text());
+                    if(new_name !=null) {
+                        $('#last-name').text(new_name);
+                    }
+                }
+            });
+            user_profile.on('click', '#profile-mobile-div', function () {
+                if ($('#sign-out-btn').text() === "SAVE") {
+                    var new_number = prompt("Input number", $('#user-mobile-number').text());
+                    if(new_number !=null) {
+                        $('#user-mobile-number').text(new_number);
+                    }
+                }
+            });
+            user_profile.on('click', '#user-avatar', function () {
+                console.log("User avatar clicked");
+               getPhoto(pictureSource.PHOTOLIBRARY);
+            });
+        },
+        pagebeforeshow: function () {
+            active_user = Kinvey.getActiveUser();
+            console.log("active user " + JSON.stringify(active_user));
+//            $("#first-name").val(user.first_name);
+//            $("#last-name").val(user.last_name);
+            $("#first-name").text(active_user.first_name);
+            $("#last-name").text(active_user.last_name);
+            $("#user-email").text(active_user.email);
+            $("#user-mobile-number").text(active_user.mobile_number);
+        }
+    });
+
+    function getPhoto(source) {
+        // Retrieve image file location from specified source
+        console.log(navigator.camera);
+        console.log(pictureSource.CAMERA);
+
+        navigator.camera.getPicture(function(){
+            console.log("get photo success");
+        }, function(error){
+            console.log("get photo error " + JSON.stringify(error));
+        }, { quality: 50,
+            destinationType: destinationType.FILE_URI,
+            sourceType: source });
+    }
     function stopTrackingStartConfiming() {
         console.log("stop user posit");
         isConfirmDeliveryPage = true;
         $("#step-name-label").text("Travel to Delivery Location");
-        $("#step-number-label").text("b");
+        $("#step-number-label").text("Step 3");
         $("#green-circle-right").css("visibility", "visible");
         stopTrackingUserPosition();
         $("#green-circle-central").css("visibility", "hidden");
@@ -737,6 +887,7 @@
                 $("#green-circle-left").css("visibility", "visible");
                 clearInterval(my_timer);
                 confirm_infobox.close();
+                confirm_infobox.setMap(null);
                 isConfirmBoxOpen = false;
                 console.log("changePage pickup 3");
                 current_page = pickup_route_page;
@@ -821,6 +972,7 @@
                                 $("#green-circle-left").css("visibility", "visible");
                                 clearInterval(my_timer);
                                 confirm_infobox.close();
+                                confirm_infobox.setMap(null);
                                 isConfirmBoxOpen = false;
                                 loadShipment();
                                 isDeliveryComplitedClicked = true;

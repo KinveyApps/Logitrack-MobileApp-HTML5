@@ -37,9 +37,11 @@
                             <script src="http://jsconsole.com/remote.js?2C8202B4-22AF-4FE1-ABB6-104F6D8AC08D"></script>
     </head>
     <body>
-        
-        
-        <!-- Splash Screen -->
+
+
+
+
+    <!-- Splash Screen -->
         <div data-role="page" data-title="Splash" id="splash">
         </div>
 
@@ -64,13 +66,12 @@
         
         <!-- Pickup Route. -->
         <div data-role="page" data-title="Logitrack - Route" id="pickup-route">
-            
-            
+
             <div data-role="header" data-position="fixed" id="pickup-route-header">
                 <div style="height:45px;background:rgba(248,248,248,0.8);">
                     <div id="menu-btn"></div>
                     <h3 align="center">LOGITRACK</h3>
-                    <div style="position:absolute;text-align:right;right:10px;top:0px">
+                    <div class="right-header-div">
                         <p id="timer" >00:00:00</p>
                         <p id="tracking-state">TRACKING ON</p>
                     </div>
@@ -189,7 +190,66 @@
                 </div>
             </div>
         </div>
-        
+
+
+    <!--Profile Screen-->
+    <div data-role="page" data-title="User Profile" id="user-profile" class="full-page-content">
+          <div >
+            <p id="profile-back" class="left-header-div profile-header-div">BACK</p>
+
+            <p  id="profile-title" align="center">PROFILE</p>
+
+            <p id="profile-edit" class="right-header-div profile-header-div">EDIT</p>
+        </div>
+        <div class="initials-avatar-div">
+            <div id="user-avatar"></div>
+            <div class="initials-div">
+                <div id="first-name-div" class="span-div">
+                    <span id="first-name" >First Name</span>
+                    <div class="delivery-list-separator"></div>
+                </div>
+                <div id="last-name-div" class="span-div">
+                    <span id="last-name">Last Name</span>
+                    <div class="delivery-list-separator"></div>
+                </div>
+            </div>
+        </div>
+        <p class="account-title" >ACCOUNT</p>
+
+        <div class="user-info-div" >
+            <div id="profile-email-div"  class="span-div">
+                <div>
+                    <span class="span-title">Email</span>
+                </div>
+                <div class="span-info-div">
+                    <span class="span-info" id="user-email">name@mail.com</span>
+                </div>
+                <div class="delivery-list-separator">
+                </div>
+            </div>
+            <div id="profile-mobile-div" class="span-div">
+
+                    <span class="span-title">Mobile</span>
+
+                <div style="height: 34px" class="span-info-div">
+                    <span class="span-info" id="user-mobile-number">917-555-0012</span>
+                </div>
+                <div class="delivery-list-separator"></div>
+            </div>
+            <div class="span-div" id="profile-password-div">
+                    <span class="span-title">Password</span>
+                <div class="span-info-div">
+                    <span class="span-info">*******</span>
+                </div>
+                <div class="delivery-list-separator"></div>
+            </div>
+        </div>
+        <div id="sign-out-btn">
+            SIGN OUT
+        </div>
+    </div>
+
+
         <!-- Delivery Details-->
         
         <div data-role="page" data-title="Delivery_Details" id="delivery-details">
@@ -248,7 +308,7 @@
         <!--Signature -->
 
 <div data-role="page" data-title="Signature" id="signature">
-    <div data-role="content" id="signature-content" style="padding-left:0px;padding-right:0px" >
+    <div data-role="content" class="full-page-content" style="padding-left:0px;padding-right:0px" >
         <div>
             <p id="signature-back" >BACK</p>
             <p id="signature-title">SIGNATURE</p>
