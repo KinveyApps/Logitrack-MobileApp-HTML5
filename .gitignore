@@ -1,3 +1,4 @@
 .idea
-platforms
+platforms/android
+platforms/ios
 merges
