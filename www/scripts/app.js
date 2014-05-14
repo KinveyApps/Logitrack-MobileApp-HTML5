@@ -44,8 +44,6 @@
     var directionsDisplay;
     var directionsService = new google.maps.DirectionsService();
     var user_marker;
-    var infobox;
-    var confirm_infobox;
     var my_timer;
     var last_time = [0, 0, 0];
     var geocoder = new google.maps.Geocoder();
@@ -55,9 +53,12 @@
     var isDeliveryComplitedClicked = false;
     var isBackPressed = false;
     var isConfirmBoxOpen = false;
+    var infobox;
+    var confirm_infobox;
+    createInfoboxes();
 
-      var  pictureSource=navigator.camera.PictureSourceType;
-       var  destinationType=navigator.camera.DestinationType;
+//      var  pictureSource=navigator.camera.PictureSourceType;
+//       var  destinationType=navigator.camera.DestinationType;
     //shipment saving function
     function saveShipment(shipment, cb) {
 
@@ -272,9 +273,8 @@
         });
     }
 
-    function getConfirmInfoBox(){
-        console.log("getConfirmInfobox");
-        var box =new InfoBox({
+    function createInfoboxes(){
+        confirm_infobox =new InfoBox({
             content: document.getElementById("confirm-infobox"),
             maxWidth: 200,
             pane: "floatPane",
@@ -289,21 +289,20 @@
             closeBoxURL: "",
             infoBoxClearance: new google.maps.Size(1, 1)
         });
-        google.maps.event.addListener(box, 'domready', function (e) {
-            $('.confirm-infobox-arrow-btn').click(function (e) {
+        google.maps.event.addListener(confirm_infobox, 'domready', function (e) {
+            $( "#confirm-infobox-arrow-btn").on("click", function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 console.log("changePage delivery details 3");
-                    current_page = delivery_details_confirm_delivery_page;
-                    $.mobile.changePage(delivery_details, {
-                        transition: "slide"
-                    });
+                current_page = delivery_details_confirm_delivery_page;
+                $.mobile.changePage(delivery_details, {
+                    transition: "slide"
+                });
             });
+            google.maps.event.clearListeners(confirm_infobox,'domready');
         });
-        return box;
-    }
 
-    function getInfoBox(){
-        console.log("getInfobox");
-        var box = new InfoBox({
+        infobox = new InfoBox({
             content: document.getElementById("infobox"),
             pane: "floatPane",
             disableAutoPan: false,
@@ -317,16 +316,18 @@
             closeBoxURL: "",
             infoBoxClearance: new google.maps.Size(1, 1)
         });
-        google.maps.event.addListener(box, 'domready', function (e) {
-            $('.infobox-arrow-btn').click(function (e) {
-                    console.log("changePage delivery details 2");
-                    current_page = delivery_details_begin_tracking_page;
-                    $.mobile.changePage(delivery_details, {
-                        transition: "slide"
-                    });
+        google.maps.event.addListener(infobox, 'domready', function (e) {
+            $( "#infobox-arrow-btn" ).on("click", function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("changePage delivery details 2");
+                current_page = delivery_details_begin_tracking_page;
+                $.mobile.changePage(delivery_details, {
+                    transition: "slide"
+                });
             });
+            google.maps.event.clearListeners(infobox,'domready');
         });
-        return box;
     }
 
     function beginTrackingPagePreload() {
@@ -358,6 +359,7 @@
         $("#step-name-label").text("Tap to Browse Different Pickups");
         $("#step-number-label").text("Waiting for Delivery");
         $("#next-label").css("visibility", "hidden");
+        console.log("show markers in preload");
         showMarkers();
         isStartMarkerSelected = false;
         if (!isConfirmDeliveryPage) {
@@ -480,10 +482,12 @@
     }
 
     function addAllStartMarkers(map) {
+        console.log("add all markers" + map);
         var start_marker;
         var finish_marker;
         var route_addresses;
         for (var i in shipments) {
+            console.log("shipments " + JSON.stringify(shipments));
             if (!!shipments[i].route) {
                 route_addresses = {
                     start: shipments[i].route.start,
@@ -499,6 +503,7 @@
                             map: map,
                             icon: 'images/start_marker.png'
                         });
+                        console.log("push start marker" + i + " " + start_marker);
                         start_markers.push(start_marker);
                         google.maps.event.addListener(start_marker, 'click', function () {
                             if (!isStartMarkerSelected) {
@@ -530,6 +535,7 @@
                         });
                         finish_marker.setMap(null);
                         finish_markers.push(finish_marker);
+                        console.log("push finish marker " + i);
                     } else {
                         alert("Geocode was not successful for the following reason: " + status);
                     }
@@ -656,14 +662,13 @@
                 $("#message-confirm").css("display", "none");
                 $("#step-name-label").text("En Route to Pickup");
                 $("#next-label").css("visibility", "visible");
-                infobox = getInfoBox();
+                google.maps.event.clearListeners($("#infobox-arrow-btn"),'click');
                 infobox.open(map, start_markers[selectedMarkerIndex]);
             });
             //              $("#alertcontainer").css("display", "block");
             //              $("#messagefg").css("display", "block");
-
-
             var userRoute = currentShipment.route;
+            console.log("get user position");
             navigator.geolocation.getCurrentPosition(onSuccessGetUserPosition, onErrorGetUserPosition);
         },
         pageshow: function () {
@@ -756,7 +761,7 @@
             });
             user_profile.on('click', '#user-avatar', function () {
                 console.log("User avatar clicked");
-               getPhoto(pictureSource.PHOTOLIBRARY);
+//               getPhoto(pictureSource.PHOTOLIBRARY);
             });
         },
         pagebeforeshow: function () {
@@ -791,22 +796,22 @@
         }
     }
 
-    function getPhoto(source) {
-        // Retrieve image file location from specified source
-
-        navigator.camera.getPicture(function(){
-            setTimeout(function() {
-                console.log("get photo success");
-            }, 0);
-
-        }, function(message){
-            setTimeout(function() {
-                console.log("get photo error " + JSON.stringify(message));
-            },0);
-        }, { quality: 50,
-            destinationType: destinationType.FILE_URI,
-        sourceType: source});
-    }
+//    function getPhoto(source) {
+//        // Retrieve image file location from specified source
+//
+//        navigator.camera.getPicture(function(){
+//            setTimeout(function() {
+//                console.log("get photo success");
+//            }, 0);
+//
+//        }, function(message){
+//            setTimeout(function() {
+//                console.log("get photo error " + JSON.stringify(message));
+//            },0);
+//        }, { quality: 50,
+//            destinationType: destinationType.FILE_URI,
+//        sourceType: source});
+//    }
     function stopTrackingStartConfiming() {
         console.log("stop user posit");
         isConfirmDeliveryPage = true;
@@ -819,8 +824,8 @@
         $("#play-btn").css("visibility", "hidden");
         $("#timer").css("visibility", "hidden");
         directionsDisplay.setMap(null);
-        console.log("confirm infobox " + selectedMarkerIndex + "   " + JSON.stringify(selectedMarkerIndex));
-        confirm_infobox = getConfirmInfoBox();
+        console.log("confirm infobox " + selectedMarkerIndex);
+        google.maps.event.clearListeners($("#confirm-infobox-arrow-btn"),'click');
         confirm_infobox.open(map, finish_markers[selectedMarkerIndex]);
         isConfirmBoxOpen = true;
     };
@@ -866,9 +871,11 @@
     }
 
     function showMarkers() {
-        console.log("check 2");
-        setAllMap(map);
-        clearFinishMarkers();
+        console.log("check 2 " + map);
+        if(!!map) {
+            setAllMap(map);
+            clearFinishMarkers();
+        }
     }
 
     function setAllMap(map) {
@@ -1200,10 +1207,11 @@
             for (var i = 0; i < checkins.length; i++) {
                 if (checkins[i].position) {
                     var position = checkins[i].position;
-                    $('#map_canvas').gmap('addMarker', {
-                        position: new google.maps.LatLng(position.lat, position.lon),
-                        'icon': 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
-                    });
+                    //TODO fix
+//                    $('#map_canvas').gmap('addMarker', {
+//                        position: new google.maps.LatLng(position.lat, position.lon),
+//                        'icon': 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png'
+//                    });
                 }
             }
 
@@ -1220,11 +1228,12 @@
                 if (marker) {
                     marker.setPosition(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
                 } else {
-                    $('#map_canvas').gmap('addMarker', {
-                        'id': 'current',
-                        'position': new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
-                        'icon': 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
-                    });
+                    //TODO fix
+//                    $('#map_canvas').gmap('addMarker', {
+//                        'id': 'current',
+//                        'position': new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
+//                        'icon': 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+//                    });
                 }
                 if (route.followUser) {
                     $('#map_canvas').gmap('option', {

@@ -319,7 +319,7 @@ br {
     width: 150px
 }
 
-.infobox-arrow-btn, .confirm-infobox-arrow-btn {
+#infobox-arrow-btn, #confirm-infobox-arrow-btn {
     margin-left: 15px;
     display: inline-block;
     width: 15px;
