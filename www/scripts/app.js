@@ -482,7 +482,6 @@
     function addAllStartMarkers(map) {
         var start_marker;
         var finish_marker;
-        var coordinates;
         var route_addresses;
         for (var i in shipments) {
             if (!!shipments[i].route) {
@@ -722,8 +721,7 @@
                 }
             });
             user_profile.on('click', '#profile-back', function () {
-
-
+                userProfileBack();
             });
             user_profile.on('click', '#profile-edit', function () {
                 console.log("profile edit");
