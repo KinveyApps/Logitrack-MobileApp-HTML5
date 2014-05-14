@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 /* global $: true, Kinvey: true */
+
 (function () {
     'use strict';
 
@@ -472,6 +473,9 @@
                     transition: "slide"
                 });
                 break;
+            case user_profile_page:
+                userProfileBack();
+                break;
         }
     }
 
@@ -677,6 +681,7 @@
     var user_profile = $("#user-profile");
     user_profile.on({
         pageinit: function () {
+            $("#sign-out-btn").text("SIGN OUT");
             user_profile.on('click', '#sign-out-btn', function () {
                 switch ($('#sign-out-btn').text()) {
                     case "SIGN OUT":
@@ -717,23 +722,8 @@
                 }
             });
             user_profile.on('click', '#profile-back', function () {
-                switch ($('#sign-out-btn').text()) {
-                    case "SIGN OUT":
-                        console.log("profile back");
-                        isBackPressed = true;
-                        $.mobile.back({transition: "slide"});
-                        break;
-                    case "SAVE":
-                        $("#profile-edit").css("visibility", "visible");
-                        $("#sign-out-btn").text("SIGN OUT");
-                        $("#profile-email-div").css("display", "block");
-                        $("#profile-password-div").css("display", "block");
-                        $("#first-name").text(active_user.first_name);
-                        $("#last-name").text(active_user.last_name);
-                        $("#user-email").text(active_user.email);
-                        $("#user-mobile-number").text(active_user.mobile_number);
-                        break;
-                }
+
+
             });
             user_profile.on('click', '#profile-edit', function () {
                 console.log("profile edit");
@@ -783,18 +773,41 @@
         }
     });
 
+    function userProfileBack(){
+        switch ($('#sign-out-btn').text()) {
+            case "SIGN OUT":
+                console.log("profile back");
+                isBackPressed = true;
+                $.mobile.back({transition: "slide"});
+                break;
+            case "SAVE":
+                $("#profile-edit").css("visibility", "visible");
+                $("#sign-out-btn").text("SIGN OUT");
+                $("#profile-email-div").css("display", "block");
+                $("#profile-password-div").css("display", "block");
+                $("#first-name").text(active_user.first_name);
+                $("#last-name").text(active_user.last_name);
+                $("#user-email").text(active_user.email);
+                $("#user-mobile-number").text(active_user.mobile_number);
+                break;
+        }
+    }
+
     function getPhoto(source) {
         // Retrieve image file location from specified source
-        console.log(navigator.camera);
-        console.log(pictureSource.CAMERA);
 
         navigator.camera.getPicture(function(){
-            console.log("get photo success");
-        }, function(error){
-            console.log("get photo error " + JSON.stringify(error));
+            setTimeout(function() {
+                console.log("get photo success");
+            }, 0);
+
+        }, function(message){
+            setTimeout(function() {
+                console.log("get photo error " + JSON.stringify(message));
+            },0);
         }, { quality: 50,
             destinationType: destinationType.FILE_URI,
-            sourceType: source });
+        sourceType: source});
     }
     function stopTrackingStartConfiming() {
         console.log("stop user posit");
