@@ -86,7 +86,8 @@
 }
 
 .p-info-a{
-    margin-top:-16px
+    margin-top:-14px;
+    line-height: 14px;
 }
 
 .p-info-b{
