@@ -834,7 +834,7 @@
 
     function addressFormat(address) {
         var ad = address.split(',');
-        return ad[0] + " " + ad[1] + " </br>" + ad[2] + ", " + ad[3] + ad[4];
+        return ad[0] + " " + ad[1] + " </br>" + ad[2].trim(); + ", " + ad[3] + ad[4];
     }
 
     function nth_ocurrence(str, needle, nth) {
