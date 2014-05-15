@@ -229,7 +229,7 @@
                 }).then(loadingHide, loadingHide);
             });
         },
-        pagebeforeshow: function(){
+        pagebeforeshow: function () {
             $("#username-input").val("");
             $("#password-input").val("");
         }
@@ -273,8 +273,8 @@
         });
     }
 
-    function createInfoboxes(){
-        confirm_infobox =new InfoBox({
+    function createInfoboxes() {
+        confirm_infobox = new InfoBox({
             content: document.getElementById("confirm-infobox"),
             maxWidth: 200,
             pane: "floatPane",
@@ -290,7 +290,7 @@
             infoBoxClearance: new google.maps.Size(1, 1)
         });
         google.maps.event.addListener(confirm_infobox, 'domready', function (e) {
-            $( "#confirm-infobox-arrow-btn").on("click", function(e) {
+            $("#confirm-infobox-arrow-btn").on("click", function (e) {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log("changePage delivery details 3");
@@ -299,7 +299,7 @@
                     transition: "slide"
                 });
             });
-            google.maps.event.clearListeners(confirm_infobox,'domready');
+            google.maps.event.clearListeners(confirm_infobox, 'domready');
         });
 
         infobox = new InfoBox({
@@ -317,7 +317,7 @@
             infoBoxClearance: new google.maps.Size(1, 1)
         });
         google.maps.event.addListener(infobox, 'domready', function (e) {
-            $( "#infobox-arrow-btn" ).on("click", function(e) {
+            $("#infobox-arrow-btn").on("click", function (e) {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log("changePage delivery details 2");
@@ -326,7 +326,7 @@
                     transition: "slide"
                 });
             });
-            google.maps.event.clearListeners(infobox,'domready');
+            google.maps.event.clearListeners(infobox, 'domready');
         });
     }
 
@@ -341,7 +341,7 @@
         $('#green-circle-left').css('visibility', "hidden");
         $('#green-circle-central').css('visibility', "visible");
         $('#pause-btn').css('visibility', "visible");
-        if(infobox) {
+        if (infobox) {
             infobox.close();
             infobox.setMap(null);
         }
@@ -363,7 +363,7 @@
         showMarkers();
         isStartMarkerSelected = false;
         if (!isConfirmDeliveryPage) {
-            if(infobox) {
+            if (infobox) {
                 infobox.close();
                 infobox.setMap(null);
             }
@@ -486,60 +486,65 @@
         var start_marker;
         var finish_marker;
         var route_addresses;
+        var k = 0;
         for (var i in shipments) {
-            console.log("shipments " + JSON.stringify(shipments));
+            console.log("ship " + i);
             if (!!shipments[i].route) {
+                console.log("shipments " + JSON.stringify(shipments[i].route));
                 route_addresses = {
                     start: shipments[i].route.start,
                     finish: shipments[i].route.finish
                 };
                 addresses.push(route_addresses);
-                geocoder.geocode({
-                    'address': shipments[i].route.start
-                }, function (results, status) {
-                    if (status == google.maps.GeocoderStatus.OK) {
-                        start_marker = new google.maps.Marker({
-                            position: new google.maps.LatLng(results[0].geometry.location.k, results[0].geometry.location.A),
-                            map: map,
-                            icon: 'images/start_marker.png'
-                        });
-                        console.log("push start marker" + i + " " + start_marker);
-                        start_markers.push(start_marker);
-                        google.maps.event.addListener(start_marker, 'click', function () {
-                            if (!isStartMarkerSelected) {
-                                $("#alertcontainer").css("display", "block");
-                                $("#message-confirm").css("display", "block");
-                                $("#step-number-label").text("Step 1");
-                                $("#step-name-label").text("Pickup");
-                                selectedMarkerIndex = start_markers.indexOf(this);
-                                currentShipment = shipments[selectedMarkerIndex];
-                                setConfirmAddressText();
-                                hideMarkers(map);
-                                isStartMarkerSelected = true;
-                            }
-                        });
-                        showMarkers();
-                    } else {
-                        alert("Geocode was not successful for the following reason: " + status);
-                    }
-                });
+                !function outer(ii) {
+                    geocoder.geocode({
+                        'address': shipments[ii].route.start
+                    }, function (results, status) {
+                        if (status == google.maps.GeocoderStatus.OK) {
+                            var start_marker = new google.maps.Marker({
+                                position: new google.maps.LatLng(results[0].geometry.location.k, results[0].geometry.location.A),
+                                map: map,
+                                icon: 'images/start_marker.png'
+                            });
+                            console.log("push start marker " + ii);
+                            start_markers[ii] = start_marker;
+                            google.maps.event.addListener(start_marker, 'click', function () {
+                                if (!isStartMarkerSelected) {
+                                    $("#alertcontainer").css("display", "block");
+                                    $("#message-confirm").css("display", "block");
+                                    $("#step-number-label").text("Step 1");
+                                    $("#step-name-label").text("Pickup");
+                                    selectedMarkerIndex = start_markers.indexOf(this);
+                                    currentShipment = shipments[selectedMarkerIndex];
+                                    setConfirmAddressText();
+                                    hideMarkers(map);
+                                    isStartMarkerSelected = true;
+                                }
+                            });
+                            showMarkers();
+                        } else {
+                            alert("Geocode was not successful for the following reason: " + status);
+                        }
+                    });
 
-                geocoder.geocode({
-                    'address': shipments[i].route.finish
-                }, function (results, status) {
-                    if (status == google.maps.GeocoderStatus.OK) {
-                        finish_marker = new google.maps.Marker({
-                            position: new google.maps.LatLng(results[0].geometry.location.k, results[0].geometry.location.A),
-                            map: map,
-                            icon: 'images/finish_marker.png'
-                        });
-                        finish_marker.setMap(null);
-                        finish_markers.push(finish_marker);
-                        console.log("push finish marker " + i);
-                    } else {
-                        alert("Geocode was not successful for the following reason: " + status);
-                    }
-                });
+                    geocoder.geocode({
+                        'address': shipments[ii].route.finish
+                    }, function (results, status) {
+                        if (status == google.maps.GeocoderStatus.OK) {
+                            finish_marker = new google.maps.Marker({
+                                position: new google.maps.LatLng(results[0].geometry.location.k, results[0].geometry.location.A),
+                                map: map,
+                                icon: 'images/finish_marker.png'
+                            });
+                            finish_marker.setMap(null);
+                            finish_markers[ii] = finish_marker;
+                            console.log("push finish marker " + ii);
+                        } else {
+                            alert("Geocode was not successful for the following reason: " + status);
+                        }
+                    });
+                }(k);
+                k++;
             }
         }
     }
@@ -558,8 +563,8 @@
                     startTrackingUserPosition();
                     break;
             }
-            if(isBackPressed){
-                switch (current_page){
+            if (isBackPressed) {
+                switch (current_page) {
                     case delivery_details_begin_tracking_page:
                         current_page = pickup_route_page;
                         break;
@@ -567,7 +572,11 @@
                         current_page = travel_page;
                         break;
                     case user_profile_page:
-                        current_page = pickup_route_page;
+                        if ($("#step-number-label").text() == "Step 2" || $("#step-number-label").text() == "Step 3") {
+                            current_page = travel_page;
+                        } else {
+                            current_page = pickup_route_page;
+                        }
                         break;
                 }
                 isBackPressed = false;
@@ -598,9 +607,9 @@
 
             });
 
-            pickup.on('click',"#menu-btn",function(){
+            pickup.on('click', "#menu-btn", function () {
                 current_page = user_profile_page;
-                $.mobile.changePage(user_profile,{transition:"slide"});
+                $.mobile.changePage(user_profile, {transition: "slide"});
             });
 
             pickup.on('click', '#play-btn', function () {
@@ -662,7 +671,7 @@
                 $("#message-confirm").css("display", "none");
                 $("#step-name-label").text("En Route to Pickup");
                 $("#next-label").css("visibility", "visible");
-                google.maps.event.clearListeners($("#infobox-arrow-btn"),'click');
+                google.maps.event.clearListeners($("#infobox-arrow-btn"), 'click');
                 infobox.open(map, start_markers[selectedMarkerIndex]);
             });
             //              $("#alertcontainer").css("display", "block");
@@ -711,13 +720,13 @@
                         user.last_name = $('#last-name').text();
                         $.mobile.loading("show");
                         var promise = Kinvey.User.update(user, {
-                            success: function() {
+                            success: function () {
                                 $("#profile-edit").css("visibility", "visible");
                                 $("#sign-out-btn").text("SIGN OUT");
                                 $("#profile-email-div").css("display", "block");
                                 $("#profile-password-div").css("display", "block");
                             },
-                            error:function(error){
+                            error: function (error) {
                                 console.log("user info update error " + JSON.stringify(error.description));
                             }
                         }).then(loadingHide, loadingHide);
@@ -737,16 +746,16 @@
             });
             user_profile.on('click', '#first-name-div', function () {
                 if ($('#sign-out-btn').text() === "SAVE") {
-                var new_name = prompt("Input name", $('#first-name').text());
-                    if(new_name !=null) {
+                    var new_name = prompt("Input name", $('#first-name').text());
+                    if (new_name != null) {
                         $('#first-name').text(new_name);
                     }
-            }
+                }
             });
             user_profile.on('click', '#last-name-div', function () {
                 if ($('#sign-out-btn').text() === "SAVE") {
                     var new_name = prompt("Input name", $('#last-name').text());
-                    if(new_name !=null) {
+                    if (new_name != null) {
                         $('#last-name').text(new_name);
                     }
                 }
@@ -754,7 +763,7 @@
             user_profile.on('click', '#profile-mobile-div', function () {
                 if ($('#sign-out-btn').text() === "SAVE") {
                     var new_number = prompt("Input number", $('#user-mobile-number').text());
-                    if(new_number !=null) {
+                    if (new_number != null) {
                         $('#user-mobile-number').text(new_number);
                     }
                 }
@@ -776,7 +785,7 @@
         }
     });
 
-    function userProfileBack(){
+    function userProfileBack() {
         switch ($('#sign-out-btn').text()) {
             case "SIGN OUT":
                 console.log("profile back");
@@ -825,7 +834,7 @@
         $("#timer").css("visibility", "hidden");
         directionsDisplay.setMap(null);
         console.log("confirm infobox " + selectedMarkerIndex);
-        google.maps.event.clearListeners($("#confirm-infobox-arrow-btn"),'click');
+        google.maps.event.clearListeners($("#confirm-infobox-arrow-btn"), 'click');
         confirm_infobox.open(map, finish_markers[selectedMarkerIndex]);
         isConfirmBoxOpen = true;
     };
@@ -839,18 +848,8 @@
 
     function addressFormat(address) {
         var ad = address.split(',');
-        return ad[0] + " " + ad[1] + " </br>" + ad[2].trim(); + ", " + ad[3] + ad[4];
-    }
-
-    function nth_ocurrence(str, needle, nth) {
-        for (var i = 0; i < str.length; i++) {
-            if (str.charAt(i) == needle) {
-                if (!--nth) {
-                    return i;
-                }
-            }
-        }
-        return false;
+        return ad[0] + " " + ad[1] + " </br>" + ad[2].trim();
+        +", " + ad[3] + ad[4];
     }
 
     function hideMarkers(map) {
@@ -866,13 +865,15 @@
 
     function clearFinishMarkers() {
         for (var i = 0; i < finish_markers.length; i++) {
-            finish_markers[i].setMap(null);
+            if (!!finish_markers[i]) {
+                finish_markers[i].setMap(null);
+            }
         }
     }
 
     function showMarkers() {
         console.log("check 2 " + map);
-        if(!!map) {
+        if (!!map) {
             setAllMap(map);
             clearFinishMarkers();
         }
@@ -881,7 +882,9 @@
     function setAllMap(map) {
         console.log("markers count " + start_markers.length);
         for (var i = 0; i < start_markers.length; i++) {
-            start_markers[i].setMap(map);
+            if (!!start_markers[i]) {
+                start_markers[i].setMap(map);
+            }
         }
     }
 
@@ -909,7 +912,7 @@
                 isConfirmBoxOpen = false;
                 console.log("changePage pickup 3");
                 current_page = pickup_route_page;
-                $.mobile.changePage(pickup,{
+                $.mobile.changePage(pickup, {
                     transition: "slide"
                 });
                 isConfirmDeliveryPage = false;
