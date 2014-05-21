@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 /* global $: true, Kinvey: true */
-
 (function () {
     'use strict';
 
@@ -55,10 +54,12 @@
     var isConfirmBoxOpen = false;
     var infobox;
     var confirm_infobox;
+    var current_avatar_data_uri = null;
+    var start_avatar_data_uri = null;
     createInfoboxes();
 
-//      var  pictureSource=navigator.camera.PictureSourceType;
-//       var  destinationType=navigator.camera.DestinationType;
+    var pictureSource = navigator.camera.PictureSourceType;
+    var destinationType = navigator.camera.DestinationType;
     //shipment saving function
     function saveShipment(shipment, cb) {
 
@@ -586,6 +587,7 @@
 
             pickup.on('click', "#menu-btn", function () {
                 current_page = user_profile_page;
+                console.log("click user profile");
                 $.mobile.changePage(user_profile, {transition: "slide"});
             });
 
@@ -651,8 +653,6 @@
                 google.maps.event.clearListeners($("#infobox-arrow-btn"), 'click');
                 infobox.open(map, start_markers[selectedMarkerIndex]);
             });
-            //              $("#alertcontainer").css("display", "block");
-            //              $("#messagefg").css("display", "block");
             var userRoute = currentShipment.route;
             console.log("get user position");
             navigator.geolocation.getCurrentPosition(onSuccessGetUserPosition, onErrorGetUserPosition);
@@ -695,19 +695,28 @@
                         user.mobile_number = $('#user-mobile-number').text();
                         user.first_name = $('#first-name').text();
                         user.last_name = $('#last-name').text();
-                        $.mobile.loading("show");
-                        var promise = Kinvey.User.update(user, {
-                            success: function () {
-                                $("#profile-edit").css("visibility", "visible");
-                                $("#sign-out-btn").text("SIGN OUT");
-                                $("#profile-email-div").css("display", "block");
-                                $("#profile-password-div").css("display", "block");
-                            },
-                            error: function (error) {
-                                console.log("user info update error " + JSON.stringify(error.description));
-                            }
-                        }).then(loadingHide, loadingHide);
-
+                        if (current_avatar_data_uri != null) {
+                            $.mobile.loading("show");
+                            var blob = b64toBlob(current_avatar_data_uri, "image/png");
+                            var promise = Kinvey.File.upload(blob, {
+                                mimeType: 'image/png',
+                                size: current_avatar_data_uri.length
+                            }, {
+                                success: function (file) {
+                                    console.log("success " + JSON.stringify(file));
+                                    user.avatar = {
+                                        _type: 'KinveyFile',
+                                        _id: file._id
+                                    }
+                                    updateUserInfo(user);
+                                },
+                                error: function (error) {
+                                    console.log("error " + JSON.stringify(error));
+                                }
+                            }).then(loadingHide, loadingHide);
+                        } else {
+                            updateUserInfo(user);
+                        }
                         break;
                 }
             });
@@ -746,27 +755,57 @@
                 }
             });
             user_profile.on('click', '#user-avatar', function () {
-                console.log("User avatar clicked");
-//               getPhoto(pictureSource.PHOTOLIBRARY);
+                if ($('#sign-out-btn').text() === "SAVE") {
+                    console.log("User avatar clicked");
+                    getPhoto();
+                }
             });
         },
         pagebeforeshow: function () {
             active_user = Kinvey.getActiveUser();
             console.log("active user " + JSON.stringify(active_user));
-//            $("#first-name").val(user.first_name);
-//            $("#last-name").val(user.last_name);
             $("#first-name").text(active_user.first_name);
             $("#last-name").text(active_user.last_name);
             $("#user-email").text(active_user.email);
             $("#user-mobile-number").text(active_user.mobile_number);
+            var user_avatar = document.getElementById('user-avatar');
+            console.log("avatar id " + JSON.stringify(active_user.avatar));
+            if (active_user.avatar) {
+                var promise = Kinvey.File.stream(active_user.avatar._id);
+                promise.then(function (response) {
+                    console.log("photo url " + JSON.stringify(response));
+                    var url = response._downloadURL;
+                    user_avatar.setAttribute('src', url);
+                    start_avatar_data_uri = url;
+                });
+            } else {
+                user_avatar.src = "./images/default_avatar.png";
+            }
         }
     });
+
+    function updateUserInfo(user) {
+        $.mobile.loading("show");
+        var promise = Kinvey.User.update(user, {
+            success: function () {
+                $("#profile-edit").css("visibility", "visible");
+                $("#sign-out-btn").text("SIGN OUT");
+                $("#profile-email-div").css("display", "block");
+                $("#profile-password-div").css("display", "block");
+            },
+            error: function (error) {
+                console.log("user info update error " + JSON.stringify(error.description));
+            }
+        }).then(loadingHide, loadingHide);
+    }
 
     function userProfileBack() {
         switch ($('#sign-out-btn').text()) {
             case "SIGN OUT":
                 console.log("profile back");
                 isBackPressed = true;
+                current_avatar_data_uri = null;
+                start_avatar_data_uri = null;
                 $.mobile.back({transition: "slide"});
                 break;
             case "SAVE":
@@ -778,26 +817,61 @@
                 $("#last-name").text(active_user.last_name);
                 $("#user-email").text(active_user.email);
                 $("#user-mobile-number").text(active_user.mobile_number);
+                var user_avatar = document.getElementById('user-avatar');
+                if(start_avatar_data_uri!=null){
+                    user_avatar.setAttribute('src', start_avatar_data_uri);
+                }else {
+                    console.log("default");
+                    user_avatar.src = "./images/default_avatar.png";
+                }
                 break;
         }
     }
 
-//    function getPhoto(source) {
-//        // Retrieve image file location from specified source
-//
-//        navigator.camera.getPicture(function(){
-//            setTimeout(function() {
-//                console.log("get photo success");
-//            }, 0);
-//
-//        }, function(message){
-//            setTimeout(function() {
-//                console.log("get photo error " + JSON.stringify(message));
-//            },0);
-//        }, { quality: 50,
-//            destinationType: destinationType.FILE_URI,
-//        sourceType: source});
-//    }
+    function b64toBlob(b64Data, contentType, sliceSize) {
+        contentType = contentType || '';
+        sliceSize = sliceSize || 512;
+
+        var byteCharacters = atob(b64Data);
+        var byteArrays = [];
+
+        for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+            var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+            var byteNumbers = new Array(slice.length);
+            for (var i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+            }
+
+            var byteArray = new Uint8Array(byteNumbers);
+
+            byteArrays.push(byteArray);
+        }
+
+        var blob = new Blob(byteArrays, {type: contentType});
+        return blob;
+    }
+
+    function getPhoto() {
+        // Retrieve image file location from specified source
+
+        navigator.camera.getPicture(function (dataURI) {
+            setTimeout(function () {
+                console.log("get photo success " + dataURI);
+                var user_avatar = document.getElementById('user-avatar');
+                user_avatar.src = "data:image/png;base64," + dataURI;
+                current_avatar_data_uri = dataURI;
+            }, 0);
+
+        }, function (message) {
+            setTimeout(function () {
+                console.log("get photo error " + JSON.stringify(message));
+            }, 0);
+        }, { quality: 50,
+            destinationType: destinationType.DATA_URL,
+            sourceType: pictureSource.PHOTOLIBRARY});
+    }
+
     function stopTrackingStartConfiming() {
         console.log("stop user posit");
         isConfirmDeliveryPage = true;
