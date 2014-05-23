@@ -56,6 +56,7 @@
     var confirm_infobox;
     var current_avatar_data_uri = null;
     var start_avatar_data_uri = null;
+    var isFirstStart = true;
     createInfoboxes();
 
     var pictureSource = navigator.camera.PictureSourceType;
@@ -408,8 +409,8 @@
             icon: 'images/user_marker.png'
         });
         addAllStartMarkers(map);
-
         $('#map_canvas').gmap('refresh');
+
     };
 
     // onError Callback receives a PositionError object
@@ -499,6 +500,12 @@
                                     isStartMarkerSelected = true;
                                 }
                             });
+                            if(ii == 0&&isFirstStart){
+                                $("#alertcontainer").css("display", "block");
+                                $("#messagefg").css("display", "block");
+                                setPushNotifiAddressText();
+                                isFirstStart = false;
+                            }
                             showMarkers();
                         } else {
                             alert("Geocode was not successful for the following reason: " + status);
@@ -638,6 +645,13 @@
             pickup.on('click', '#view-btn', function () {
                 $("#messagefg").css("display", "none");
                 $("#message-confirm").css("display", "block");
+                $("#step-number-label").text("Step 1");
+                $("#step-name-label").text("Pickup");
+                selectedMarkerIndex = 0;
+                currentShipment = shipments[0];
+                setConfirmAddressText();
+                hideMarkers(map);
+                isStartMarkerSelected = true;
             });
             pickup.on('click', '#cancel-btn', function () {
                 $("#alertcontainer").css("display", "none");
@@ -895,6 +909,11 @@
         console.log("addresses: " + JSON.stringify(addresses));
         $("#confirm-start-address").html(addressFormat(addresses[selectedMarkerIndex].start));
         $("#confirm-finish-address").html(addressFormat(addresses[selectedMarkerIndex].finish));
+    }
+
+    function setPushNotifiAddressText(){
+        $("#start-address").html(addressFormat(addresses[0].start));
+        $("#finish-address").html(addressFormat(addresses[0].finish));
     }
 
     function addressFormat(address) {
