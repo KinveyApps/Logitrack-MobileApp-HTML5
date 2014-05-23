@@ -269,22 +269,24 @@ br {
 }
 
 #pause-btn, #play-btn {
-    width: 32px;
-    height: 32px;
-    top: 35.2px;
+    width: 30px;
+    height: 30px;
+    top: 36px;
     position: absolute;
     left: 50%;
     margin-left: -12px;
     background-size: 24px 26px;
+    background-position: center;
+    border-color: transparent;
     visibility: hidden;
 }
 
 #pause-btn {
-    background: url(../images/pause-btn.png) no-repeat;
+    background: url(../images/pause.png) no-repeat;
 }
 
 #play-btn {
-    background: url(../images/play-btn.png) no-repeat;
+    background: url(../images/play.png) no-repeat;
 }
 
 .red-circle {
