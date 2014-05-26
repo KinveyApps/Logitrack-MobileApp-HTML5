@@ -90,13 +90,7 @@ function onDeviceReady() {
             }
         });
         promise.then(function (activeUser) {
-            // Preload templates.
             active_user = activeUser;
-            //        if (null !== activeUser) {
-            //                 loadShipment();
-            //                    $.mobile.loading("show");
-            //                 $.mobile.changePage(pickup);
-            //        }
 
         }).then(function () {
             $.mobile.initializePage();
@@ -367,11 +361,11 @@ function onDeviceReady() {
                         icon: 'images/user_marker.png'
                     });
                 }
-                if (route.followUser) {
-                    $('#map_canvas').gmap('option', {
-                        'center': new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
-                    });
-                }
+//                if (route.followUser) {
+//                    $('#map_canvas').gmap('option', {
+//                        'center': new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
+//                    });
+//                }
             }, function (error) {
                 console.log('code: ' + error.code + '\n' +
                     'message: ' + error.message + '\n');
@@ -424,12 +418,8 @@ function onDeviceReady() {
         function onBackKeyDown() {
             switch (current_page) {
                 case travel_page:
-                    $("#green-circle-central").css("visibility", "hidden");
-                    $("#pause-btn").css("visibility", "hidden");
-                    $("#play-btn").css("visibility", "hidden");
-                    $("#timer").css("visibility", "hidden");
-                    directionsDisplay.setMap(null);
                     rejectRoute();
+                    isBackPressed = true;
                     break;
                 case pickup_route_page:
                     navigator.app.exitApp();
@@ -972,16 +962,27 @@ function onDeviceReady() {
                             $("#tracking-state").css("visibility", "hidden");
                             $("#green-circle-right").css("visibility", "hidden");
                             $("#green-circle-left").css("visibility", "visible");
+
                             clearInterval(my_timer);
                             confirm_infobox.close();
                             confirm_infobox.setMap(null);
                             isConfirmBoxOpen = false;
+                            directionsDisplay.setMap(null);
                             console.log("changePage pickup 3");
                             current_page = pickup_route_page;
-                            $.mobile.changePage(pickup, {
-                                transition: "slide"
-                            });
-                            isConfirmDeliveryPage = false;
+                            if(isBackPressed){
+                                $("#green-circle-central").css("visibility", "hidden");
+                                $("#pause-btn").css("visibility", "hidden");
+                                $("#play-btn").css("visibility", "hidden");
+                                $("#timer").css("visibility", "hidden");
+                                pickupRoutePagePreload();
+                                isBackPressed=false;
+                            }else {
+                                $.mobile.changePage(pickup, {
+                                    transition: "slide"
+                                });
+                                isConfirmDeliveryPage = false;
+                            }
                         });
                     }
                 },
