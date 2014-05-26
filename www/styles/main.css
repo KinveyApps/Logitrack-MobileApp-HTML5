@@ -234,11 +234,11 @@ br {
     top: 40px;
 }
 
-#circle-central {
+#circle-right {
     right: 40px;
 }
 
-#circle-left {
+#circle-central {
     left: 50%;
     margin-left: -8px;
 }

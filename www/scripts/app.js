@@ -59,6 +59,7 @@ function onDeviceReady() {
         var current_avatar_data_uri = null;
         var start_avatar_data_uri = null;
         var isFirstStart = true;
+        var current_direction_route = null;
         createInfoboxes();
 
         //shipment saving function
@@ -240,6 +241,7 @@ function onDeviceReady() {
             };
             directionsService.route(request, function (response, status) {
                 if (status == google.maps.DirectionsStatus.OK) {
+                    current_direction_route = response;
                     directionsDisplay.setDirections(response);
                     directionsDisplay.setMap(map);
                 }
@@ -668,6 +670,24 @@ function onDeviceReady() {
                     google.maps.event.clearListeners($("#infobox-arrow-btn"), 'click');
                     infobox.open(map, start_markers[selectedMarkerIndex]);
                 });
+                pickup.on("click","#circle-central",function(){
+                if($("#green-circle-right").css("visibility") == "visible") {
+                    stopConfirmingStartTracking();
+                }
+                });
+                pickup.on("click","#circle-right",function(){
+                    if($("#green-circle-central").css("visibility") == "visible"){
+                        stopTrackingStartConfiming();
+                    }
+                });
+
+                pickup.on("click","#circle-left",function(){
+                        if($("#green-circle-left").css("visibility") == "hidden"){
+                            isBackPressed = true;
+                            rejectRoute();
+                        }
+                });
+
                 var userRoute = currentShipment.route;
                 console.log("get user position");
                 navigator.geolocation.getCurrentPosition(onSuccessGetUserPosition, onErrorGetUserPosition);
@@ -896,7 +916,7 @@ function onDeviceReady() {
             console.log("stop user posit");
             isConfirmDeliveryPage = true;
             $("#step-name-label").text("Travel to Delivery Location");
-            $("#step-number-label").text("Step 3");
+            $("#step-number-label").text("Step 2");
             $("#green-circle-right").css("visibility", "visible");
             stopTrackingUserPosition();
             $("#green-circle-central").css("visibility", "hidden");
@@ -909,6 +929,26 @@ function onDeviceReady() {
             confirm_infobox.open(map, finish_markers[selectedMarkerIndex]);
             isConfirmBoxOpen = true;
         };
+
+        function stopConfirmingStartTracking(){
+            isConfirmDeliveryPage = false;
+            $("#step-name-label").text("Travel to Delivery Location");
+            $("#step-number-label").text("Step 3");
+            $("#green-circle-right").css("visibility", "hidden");
+       startTrackingUserPosition();
+            if($("#green-circle-central").css("background") =="red"){
+                $("#play-btn").css("visibility", "visible");
+            }else{
+                $("#pause-btn").css("visibility", "visible");
+            }
+            $("#green-circle-central").css("visibility", "visible");
+            $("#timer").css("visibility", "visible");
+            directionsDisplay.setDirections(current_direction_route);
+            directionsDisplay.setMap(map);
+            confirm_infobox.close();
+            confirm_infobox.setMap(null);
+            isConfirmBoxOpen = false;
+        }
 
 
         function setConfirmAddressText() {
