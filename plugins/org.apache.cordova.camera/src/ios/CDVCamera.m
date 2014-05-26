@@ -259,7 +259,7 @@ static NSSet* org_apache_cordova_validArrowDirections;
 - (void)imagePickerController:(UIImagePickerController*)picker didFinishPickingMediaWithInfo:(NSDictionary*)info
 {
     CDVCameraPicker* cameraPicker = (CDVCameraPicker*)picker;
-
+    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationNone];
     if (cameraPicker.popoverSupported && (cameraPicker.popoverController != nil)) {
         [cameraPicker.popoverController dismissPopoverAnimated:YES];
         cameraPicker.popoverController.delegate = nil;
@@ -378,13 +378,12 @@ static NSSet* org_apache_cordova_validArrowDirections;
 {
     NSDictionary* imageInfo = [NSDictionary dictionaryWithObject:image forKey:UIImagePickerControllerOriginalImage];
 
-    [self imagePickerController:picker didFinishPickingMediaWithInfo:imageInfo];
+    [self imagePickerController:picker didFinishPickingMediaWithInfo:imageInfo ;
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController*)picker
 {
     CDVCameraPicker* cameraPicker = (CDVCameraPicker*)picker;
-
     if ([cameraPicker respondsToSelector:@selector(presentingViewController)]) {
         [[cameraPicker presentingViewController] dismissModalViewControllerAnimated:YES];
     } else {
