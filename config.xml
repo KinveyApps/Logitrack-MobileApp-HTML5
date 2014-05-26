@@ -13,5 +13,10 @@
     <preference name="webviewbounce" value="true" />
     <feature name="Camera">
         <param name="ios-package" value="CDVCamera" />
+
     </feature>
+    <feature name="Camera">
+        <param name="android-package" value="org.apache.cordova.CameraLauncher" />
+    </feature>
+
 </widget>
