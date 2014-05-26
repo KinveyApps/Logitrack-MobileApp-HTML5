@@ -9,27 +9,11 @@
                 "parents": {
                     "/*": [
                         {
-                            "xml": "<feature name=\"Notification\"><param name=\"android-package\" value=\"org.apache.cordova.dialogs.Notification\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"Geolocation\"><param name=\"android-package\" value=\"org.apache.cordova.geolocation.GeoBroker\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"NetworkStatus\"><param name=\"android-package\" value=\"org.apache.cordova.networkinformation.NetworkManager\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"SplashScreen\"><param name=\"android-package\" value=\"org.apache.cordova.splashscreen.SplashScreen\" /></feature>",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<feature name=\"InAppBrowser\"><param name=\"android-package\" value=\"org.apache.cordova.inappbrowser.InAppBrowser\" /></feature>",
-                            "count": 1
-                        },
-                        {
                             "xml": "<feature name=\"Camera\"><param name=\"android-package\" value=\"org.apache.cordova.camera.CameraLauncher\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Notification\"><param name=\"android-package\" value=\"org.apache.cordova.dialogs.Notification\" /></feature>",
                             "count": 1
                         }
                     ]
@@ -39,18 +23,6 @@
                 "parents": {
                     "/*": [
                         {
-                            "xml": "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\" />",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\" />",
-                            "count": 1
-                        },
-                        {
-                            "xml": "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />",
-                            "count": 1
-                        },
-                        {
                             "xml": "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />",
                             "count": 1
                         }
@@ -59,48 +31,23 @@
             }
         },
         "res/xml/config.xml": {
-            "/*": {
-                "<feature name=\"File\"><param name=\"android-package\" value=\"org.apache.cordova.file.FileUtils\" /><param name=\"onload\" value=\"true\" /></feature>": 1,
-                "<feature name=\"Capture\"><param name=\"android-package\" value=\"org.apache.cordova.mediacapture.Capture\" /></feature>": 1
-            }
+            "/*": {}
         },
         "AndroidManifest.xml": {
             "/*": {
                 "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />": 2,
-                "<uses-permission android:name=\"android.permission.RECORD_AUDIO\" />": 1,
-                "<uses-permission android:name=\"android.permission.RECORD_VIDEO\" />": 1
+                "<uses-permission android:name=\"android.permission.INTERNET\"/>": 1,
+                "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\" />": 1
             }
         }
     },
     "installed_plugins": {
-        "org.apache.cordova.console": {
+        "org.apache.cordova.camera": {
             "PACKAGE_NAME": "com.kinvey.logitrack"
         },
         "org.apache.cordova.dialogs": {
             "PACKAGE_NAME": "com.kinvey.logitrack"
-        },
-        "org.apache.cordova.geolocation": {
-            "PACKAGE_NAME": "com.kinvey.logitrack"
-        },
-        "org.apache.cordova.network-information": {
-            "PACKAGE_NAME": "com.kinvey.logitrack"
-        },
-        "org.apache.cordova.splashscreen": {
-            "PACKAGE_NAME": "com.kinvey.logitrack"
-        },
-        "org.apache.cordova.inappbrowser": {
-            "PACKAGE_NAME": "com.kinvey.logitrack"
-        },
-        "org.apache.cordova.camera": {
-            "PACKAGE_NAME": "com.kinvey.logitrack"
-        },
-        "org.apache.cordova.media-capture": {
-            "PACKAGE_NAME": "com.kinvey.logitrack"
         }
     },
-    "dependent_plugins": {
-        "org.apache.cordova.file": {
-            "PACKAGE_NAME": "com.kinvey.logitrack"
-        }
-    }
+    "dependent_plugins": {}
 }

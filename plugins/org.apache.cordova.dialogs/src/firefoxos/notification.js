@@ -1,3 +1,24 @@
+/*
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ *
+*/
+
 function _empty() {}
 
 function modal(message, callback, title, buttonLabels, domObjects) {
@@ -45,7 +66,7 @@ function modal(message, callback, title, buttonLabels, domObjects) {
     function addButton(label, index, recommended) {
         var button = document.createElement('button');
         button.appendChild(document.createTextNode(label));
-        button.labelIndex = index;
+        button.labelIndex = index + 1;
         button.addEventListener('click', callbackButton, false);
         if (recommended) {
           // TODO: default one listens to Enter key
@@ -56,7 +77,17 @@ function modal(message, callback, title, buttonLabels, domObjects) {
 
     // call callback and destroy modal
     function callbackButton() {
-        callback(this.labelIndex);
+        var promptInput = document.getElementById('prompt-input');
+        var promptValue;
+        var response;
+        if (promptInput) {
+            response = {
+                input1: promptInput.value,
+                buttonIndex: this.labelIndex
+            }
+        }
+        response = response || this.labelIndex;
+        callback(response);
         box.parentNode.removeChild(box);
     }
 }
@@ -80,16 +111,15 @@ var Notification = {
         modal(message, _callback, title, buttonLabels);
     },
     prompt: function(successCallback, errorCallback, args) {
-        console.log(args);
         var message = args[0];
         var title = args[1];
         var buttonLabels = args[2];
         var defaultText = args[3];
-        var _tempcallback = (successCallback || _empty);
-        function _callback(labelIndex) {
-            var content = document.getElementById('prompt-input').value;
-            successCallback(labelIndex, content);
-        }
+        var _callback = (successCallback || _empty);
+        // function _callback(labelIndex) {
+        //     console.log(content);
+        //     successCallback(labelIndex, content);
+        // }
         var inputParagraph = document.createElement('p');
         inputParagraph.classList.add('input');
         var inputElement = document.createElement('input');
