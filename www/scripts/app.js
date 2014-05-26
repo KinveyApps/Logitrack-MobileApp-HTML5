@@ -422,7 +422,18 @@ function onDeviceReady() {
                     isBackPressed = true;
                     break;
                 case pickup_route_page:
-                    navigator.app.exitApp();
+                    if ($('#alertcontainer').css('display') == 'block') {
+                        $('#alertcontainer').css('display',"none");
+                        if($("#messagefg").css("display")=="block"){
+                            $("#messagefg").css("display","none");
+                        }else{
+                            $("#message-confirm").css("display","none");
+                            showMarkers();
+                            isStartMarkerSelected = false;
+                        }
+                    }else {
+                        navigator.app.exitApp();
+                    }
                     break;
                 case login_page:
                     navigator.app.exitApp();
