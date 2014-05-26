@@ -1006,6 +1006,8 @@ function onDeviceReady() {
             pagebeforeshow: function (event, data) {
                 $("#delivery-start-address").html(addressFormat(addresses[selectedMarkerIndex].start));
                 $("#delivery-finish-address").html(addressFormat(addresses[selectedMarkerIndex].finish));
+                var user = Kinvey.getActiveUser();
+                $("#delivery-agent").html("DELIVERY AGENT: " + user.first_name + " " + user.last_name);
                 switch (current_page) {
                     case delivery_details_confirm_delivery_page:
                         $("#delivered-state").removeClass("delivery-icon-empty-circle");
