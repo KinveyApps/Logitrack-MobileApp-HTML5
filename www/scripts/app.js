@@ -767,26 +767,30 @@ function onDeviceReady() {
                 });
                 user_profile.on('click', '#first-name-div', function () {
                     if ($('#sign-out-btn').text() === "SAVE") {
-                        var new_name = prompt("Input name", $('#first-name').text());
-                        if (new_name != null) {
-                            $('#first-name').text(new_name);
-                        }
+                        navigator.notification.prompt("Name editing", function(results){
+                            if (results.input1 != null) {
+                                $('#first-name').text(results.input1);
+                            }
+                        }, "Input your name", ["Ok"],$('#first-name').text());
+
                     }
                 });
                 user_profile.on('click', '#last-name-div', function () {
                     if ($('#sign-out-btn').text() === "SAVE") {
-                        var new_name = prompt("Input name", $('#last-name').text());
-                        if (new_name != null) {
-                            $('#last-name').text(new_name);
-                        }
+                        navigator.notification.prompt("Surname editing", function(results){
+                            if (results.input1 != null) {
+                                $('#last-name').text(results.input1);
+                            }
+                        }, "Input your surname", ["Ok"],$('#last-name').text());
                     }
                 });
                 user_profile.on('click', '#profile-mobile-div', function () {
                     if ($('#sign-out-btn').text() === "SAVE") {
-                        var new_number = prompt("Input number", $('#user-mobile-number').text());
-                        if (new_number != null) {
-                            $('#user-mobile-number').text(new_number);
-                        }
+                        navigator.notification.prompt("Mobile number editing", function(results){
+                            if (results.input1 != null) {
+                                $('#user-mobile-number').text(results.input1);
+                            }
+                        }, "Input your number", ["Ok"],$('#user-mobile-number').text());
                     }
                 });
                 user_profile.on('click', '#user-avatar', function () {
