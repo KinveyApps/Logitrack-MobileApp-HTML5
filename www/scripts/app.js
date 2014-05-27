@@ -740,8 +740,8 @@ function onDeviceReady() {
                             user.last_name = $('#last-name').text();
                             if (current_avatar_data_uri != null) {
                                 $.mobile.loading("show");
-                                var blob = b64toBlob(current_avatar_data_uri, "image/jpeg");
-                                var promise = Kinvey.File.upload(blob, {
+                                var array_buffer = _base64ToArrayBuffer(current_avatar_data_uri)
+                                var promise = Kinvey.File.upload(array_buffer, {
                                     mimeType: 'image/jpeg',
                                     size: current_avatar_data_uri.length
                                 }, {
@@ -817,6 +817,7 @@ function onDeviceReady() {
                 $("#user-mobile-number").text(active_user.mobile_number);
                 var user_avatar = document.getElementById('user-avatar');
                 console.log("avatar id " + JSON.stringify(active_user.avatar));
+                //TODO uncomment
                 if (active_user.avatar) {
                     var promise = Kinvey.File.stream(active_user.avatar._id);
                     promise.then(function (response) {
@@ -828,6 +829,7 @@ function onDeviceReady() {
                 } else {
                     user_avatar.src = "./images/default_avatar.png";
                 }
+
             }
         });
 
@@ -875,33 +877,15 @@ function onDeviceReady() {
             }
         }
 
-        function b64toBlob(b64Data, contentType, sliceSize) {
-            contentType = contentType || '';
-            sliceSize = sliceSize || 512;
-
-            var byteCharacters = atob(b64Data);
-            var byteArrays = [];
-
-            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-                var slice = byteCharacters.slice(offset, offset + sliceSize);
-
-                var byteNumbers = new Array(slice.length);
-                for (var i = 0; i < slice.length; i++) {
-                    byteNumbers[i] = slice.charCodeAt(i);
-                }
-
-                var byteArray = new Uint8Array(byteNumbers);
-
-                byteArrays.push(byteArray);
+        function _base64ToArrayBuffer(base64) {
+            var binary_string =  window.atob(base64);
+            var len = binary_string.length;
+            var bytes = new Uint8Array( len );
+            for (var i = 0; i < len; i++)        {
+                var ascii = binary_string.charCodeAt(i);
+                bytes[i] = ascii;
             }
-            var blob = new Blob(byteArrays, {type: contentType});
-//            var blobBuilder = new (window.BlobBuilder ||
-//                window.WebKitBlobBuilder)();
-//            blobBuilder.append(byteArrays,{type: contentType});
-
-            return blob;
-//            return blobBuilder.getBlob();
-//            return Base64Binary.decodeArrayBuffer(b64Data);
+            return bytes.buffer;
         }
 
         function getPhoto() {
