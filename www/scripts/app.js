@@ -60,6 +60,7 @@ function onDeviceReady() {
         var start_avatar_data_uri = null;
         var isFirstStart = true;
         var current_direction_route = null;
+        var isNewLogin = false;
         createInfoboxes();
 
         //shipment saving function
@@ -128,22 +129,48 @@ function onDeviceReady() {
                     if (data.length == 0) {
                         alert("No route found");
                     } else {
-                        console.log("success shipment " + JSON.stringify(data));
+                        console.log("success shipment " + isDeliveryComplitedClicked + " " + JSON.stringify(data));
 
                         shipments = data;
                         currentShipment = data[0];
-                        if (isDeliveryComplitedClicked) {
+                        if (isDeliveryComplitedClicked||isNewLogin) {
                             clearMarkers();
                             finish_markers = [];
                             start_markers = [];
                             addresses = [];
                             selectedMarkerIndex = 0;
                             isStartMarkerSelected = false;
-                            isDeliveryComplitedClicked = false;
+                        }
+                        if (isDeliveryComplitedClicked){
                             addAllStartMarkers(map);
                             map.setCenter(user_marker.getPosition());
+                            isDeliveryComplitedClicked = false;
                         }
                         current_page = pickup_route_page;
+                        if(isNewLogin){
+                            lastUserPosition = null;
+                            directionsDisplay.setMap(null);
+                            last_time = [0, 0, 0];
+                            isConfirmDeliveryPage = false;
+                            isBackPressed = false;
+                            isConfirmBoxOpen = false;
+                             current_avatar_data_uri = null;
+                             start_avatar_data_uri = null;
+                             current_direction_route = null;
+                            navigator.geolocation.getCurrentPosition(onSuccessGetUserPosition, onErrorGetUserPosition);
+                            $('#green-circle-left').css('visibility', "visible");
+                            $('#green-circle-central').css('visibility', "hidden");
+                            $('#green-circle-right').css('visibility', "hidden");
+                            $('#play-btn').css('visibility', "hidden");
+                            $('#pause-btn').css('visibility', "hidden");
+                            clearInterval(my_timer);
+                            stopTrackingUserPosition();
+                            $("#timer").css('visibility', "hidden");
+                            $("#tracking-state").css('visibility', "hidden");
+                            $("#tracking-state").text("TRACKING ON");
+                            $("#tracking-state").css("color", "rgb(65,226,65)");
+                            isNewLogin = false;
+                        }
                         console.log("changePage pickup 1");
                         $.mobile.changePage(pickup);
                     }
@@ -191,12 +218,6 @@ function onDeviceReady() {
 
                     promise.then(function (response) {
                         map = null;
-                        finish_markers = [];
-                        start_markers = [];
-                        addresses = [];
-                        selectedMarkerIndex = 0;
-                        isStartMarkerSelected = false;
-                        isDeliveryComplitedClicked = false;
                         loadShipment();
                     }, function (error) {
                         console.log("login error " + JSON.stringify(error));
@@ -542,6 +563,7 @@ function onDeviceReady() {
         var pickup = $('#pickup-route');
         pickup.on({
             pagebeforeshow: function (event, data) {
+
                 console.log("page before show pickup");
                 switch (current_page) {
                     case pickup_route_page:
@@ -728,6 +750,7 @@ function onDeviceReady() {
 
                                 promise.then(function (response) {
                                     console.log("logout with success");
+                                    isNewLogin = true;
                                     $.mobile.changePage(login, {transition: "slide"});
                                 }, function (error) {
                                     console.log("logout with error " + JSON.stringify(error));
@@ -818,7 +841,6 @@ function onDeviceReady() {
                 $("#user-mobile-number").text(active_user.mobile_number);
                 var user_avatar = document.getElementById('user-avatar');
                 console.log("avatar id " + JSON.stringify(active_user.avatar));
-                //TODO uncomment
                 if (active_user.avatar) {
                     var promise = Kinvey.File.stream(active_user.avatar._id);
                     promise.then(function (response) {
