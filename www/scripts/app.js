@@ -94,6 +94,7 @@ function onDeviceReady() {
             active_user = activeUser;
 
         }).then(function () {
+            window.location.hash = 'splash';
             $.mobile.initializePage();
         }, function () {
             alert('cant connect to server');
