@@ -425,15 +425,15 @@ function onDeviceReady() {
                     break;
                 case pickup_route_page:
                     if ($('#alertcontainer').css('display') == 'block') {
-                        $('#alertcontainer').css('display',"none");
-                        if($("#messagefg").css("display")=="block"){
-                            $("#messagefg").css("display","none");
-                        }else{
-                            $("#message-confirm").css("display","none");
+                        $('#alertcontainer').css('display', "none");
+                        if ($("#messagefg").css("display") == "block") {
+                            $("#messagefg").css("display", "none");
+                        } else {
+                            $("#message-confirm").css("display", "none");
                             showMarkers();
                             isStartMarkerSelected = false;
                         }
-                    }else {
+                    } else {
                         navigator.app.exitApp();
                     }
                     break;
@@ -670,22 +670,30 @@ function onDeviceReady() {
                     google.maps.event.clearListeners($("#infobox-arrow-btn"), 'click');
                     infobox.open(map, start_markers[selectedMarkerIndex]);
                 });
-                pickup.on("click","#circle-central",function(){
-                if($("#green-circle-right").css("visibility") == "visible") {
-                    stopConfirmingStartTracking();
-                }
+                pickup.on("click", "#circle-central", function () {
+                    if ($("#green-circle-right").css("visibility") == "visible") {
+                        stopConfirmingStartTracking();
+                    }
+                    if ($("#green-circle-left").css("visibility") == "visible") {
+                        if (isStartMarkerSelected) {
+                            current_page = delivery_details_begin_tracking_page;
+                            $.mobile.changePage(delivery_details, {
+                                transition: "slide"
+                            });
+                        }
+                    }
                 });
-                pickup.on("click","#circle-right",function(){
-                    if($("#green-circle-central").css("visibility") == "visible"){
+                pickup.on("click", "#circle-right", function () {
+                    if ($("#green-circle-central").css("visibility") == "visible") {
                         stopTrackingStartConfiming();
                     }
                 });
 
-                pickup.on("click","#circle-left",function(){
-                        if($("#green-circle-left").css("visibility") == "hidden"){
-                            isBackPressed = true;
-                            rejectRoute();
-                        }
+                pickup.on("click", "#circle-left", function () {
+                    if ($("#green-circle-left").css("visibility") == "hidden") {
+                        isBackPressed = true;
+                        rejectRoute();
+                    }
                 });
 
                 var userRoute = currentShipment.route;
@@ -767,30 +775,30 @@ function onDeviceReady() {
                 });
                 user_profile.on('click', '#first-name-div', function () {
                     if ($('#sign-out-btn').text() === "SAVE") {
-                        navigator.notification.prompt("Name editing", function(results){
+                        navigator.notification.prompt("Name editing", function (results) {
                             if (results.input1 != null) {
                                 $('#first-name').text(results.input1);
                             }
-                        }, "Input your name", ["Ok"],$('#first-name').text());
+                        }, "Input your name", ["Ok"], $('#first-name').text());
 
                     }
                 });
                 user_profile.on('click', '#last-name-div', function () {
                     if ($('#sign-out-btn').text() === "SAVE") {
-                        navigator.notification.prompt("Surname editing", function(results){
+                        navigator.notification.prompt("Surname editing", function (results) {
                             if (results.input1 != null) {
                                 $('#last-name').text(results.input1);
                             }
-                        }, "Input your surname", ["Ok"],$('#last-name').text());
+                        }, "Input your surname", ["Ok"], $('#last-name').text());
                     }
                 });
                 user_profile.on('click', '#profile-mobile-div', function () {
                     if ($('#sign-out-btn').text() === "SAVE") {
-                        navigator.notification.prompt("Mobile number editing", function(results){
+                        navigator.notification.prompt("Mobile number editing", function (results) {
                             if (results.input1 != null) {
                                 $('#user-mobile-number').text(results.input1);
                             }
-                        }, "Input your number", ["Ok"],$('#user-mobile-number').text());
+                        }, "Input your number", ["Ok"], $('#user-mobile-number').text());
                     }
                 });
                 user_profile.on('click', '#user-avatar', function () {
@@ -934,15 +942,15 @@ function onDeviceReady() {
             isConfirmBoxOpen = true;
         };
 
-        function stopConfirmingStartTracking(){
+        function stopConfirmingStartTracking() {
             isConfirmDeliveryPage = false;
             $("#step-name-label").text("Travel to Delivery Location");
             $("#step-number-label").text("Step 3");
             $("#green-circle-right").css("visibility", "hidden");
-       startTrackingUserPosition();
-            if($("#green-circle-central").css("background") =="red"){
+            startTrackingUserPosition();
+            if ($("#green-circle-central").css("background") == "red") {
                 $("#play-btn").css("visibility", "visible");
-            }else{
+            } else {
                 $("#pause-btn").css("visibility", "visible");
             }
             $("#green-circle-central").css("visibility", "visible");
@@ -1025,14 +1033,14 @@ function onDeviceReady() {
                             directionsDisplay.setMap(null);
                             console.log("changePage pickup 3");
                             current_page = pickup_route_page;
-                            if(isBackPressed){
+                            if (isBackPressed) {
                                 $("#green-circle-central").css("visibility", "hidden");
                                 $("#pause-btn").css("visibility", "hidden");
                                 $("#play-btn").css("visibility", "hidden");
                                 $("#timer").css("visibility", "hidden");
                                 pickupRoutePagePreload();
-                                isBackPressed=false;
-                            }else {
+                                isBackPressed = false;
+                            } else {
                                 $.mobile.changePage(pickup, {
                                     transition: "slide"
                                 });
