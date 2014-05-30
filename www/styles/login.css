@@ -30,6 +30,9 @@
     margin-top:20px;
     margin-bottom:30px;
 }
+#login-label:active{
+    color:grey;
+}
 
 #registration-label{
     color:#4095FB;

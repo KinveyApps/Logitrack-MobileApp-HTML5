@@ -192,6 +192,7 @@ br {
     margin-top: 7px;
 }
 
+
 #next-label {
     line-height: 12px;
     color: #4095FB;
@@ -234,6 +235,10 @@ br {
     top: 40px;
 }
 
+#circle-right:active, #circle-central:active, #circle-left:active{
+    background: rgb(220, 220, 220);
+}
+
 #circle-right {
     right: 40px;
 }
@@ -243,7 +248,7 @@ br {
     margin-left: -8px;
 }
 
-#green-circle-left, #green-circle-right, #green-circle-central {
+#green-circle-left, #green-circle-right, #green-circle-central{
     width: 32px;
     height: 32px;
     -webkit-border-radius: 16px;
@@ -298,6 +303,10 @@ br {
     background: rgba(248, 35, 35, 0.8);
 }
 
+#green-circle-central:active,.red-circle:active{
+    opacity: 0.5;
+}
+
 .infobox-wrapper {
     display: none;
 }
@@ -337,6 +346,10 @@ br {
     height: 12px;
     left: 50%;
     margin-left: -10px;
+}
+
+#infobox-arrow-btn:active, #confirm-infobox-arrow-btn:active{
+    opacity: 0.5;
 }
 
 #delivery-header {
@@ -455,6 +468,10 @@ br {
 #cancel-pickup-btn {
     color: red;
     margin-left: 5%;
+}
+
+#begin-tracking-btn:active,#cancel-pickup-btn:active{
+    color:gray;
 }
 
 #textarea-div {
@@ -596,4 +613,11 @@ br {
     line-height: 34px;
     border:none;
     height:30px;
+}
+
+#menu-btn:active,#next-btn:active,#delivery-details-back:active,#signature-arrow-btn:active{
+    opacity: 0.5;
+}
+#profile-back:active,#profile-edit:active,#sign-out-btn:active,#signature-back:active{
+    color:grey;
 }
