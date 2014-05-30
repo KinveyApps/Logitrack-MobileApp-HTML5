@@ -15,8 +15,8 @@
  */
 /* global $: true, Kinvey: true */
 function onDeviceReady() {
-
-
+    window.location.hash = 'splash';
+    $.mobile.initializePage();
     (function () {
         'use strict';
         var active_user;
@@ -62,10 +62,8 @@ function onDeviceReady() {
         var current_direction_route = null;
         var isNewLogin = false;
         createInfoboxes();
-
         //shipment saving function
         function saveShipment(shipment, cb) {
-
             $.mobile.loading("show");
             Kinvey.DataStore.save('shipment',
                 shipment, {
@@ -82,24 +80,7 @@ function onDeviceReady() {
                 }).then(loadingHide, loadingHide);
         }
 
-        // Initialize Kinvey.
-        var promise = Kinvey.init({
-            appKey: 'kid_VTpS9qbe7q',
-            appSecret: '5ae17c3bd8414d7f917c59a1c14a8fcd',
-            sync: {
-                enable: true,
-                online: navigator.onLine
-            }
-        });
-        promise.then(function (activeUser) {
-            active_user = activeUser;
 
-        }).then(function () {
-            window.location.hash = 'splash';
-            $.mobile.initializePage();
-        }, function () {
-            alert('cant connect to server');
-        });
 
         // On/offline hooks.
         $(window).on({
@@ -115,7 +96,7 @@ function onDeviceReady() {
 
         //Load route
         function loadShipment() {
-            $.mobile.loading("show");
+                $.mobile.loading("show");
             //TODO modify query
             var query = new Kinvey.Query();
             //            query.notEqualTo('user_status', 'done');
@@ -182,13 +163,29 @@ function onDeviceReady() {
         var splash = $('#splash');
         splash.on({
             pageinit: function () {
-                if (null !== active_user) {
-                    loadShipment();
-                } else {
-                    console.log("changePage login");
-                    current_page = login_page;
-                    $.mobile.changePage(login);
-                }
+                // Initialize Kinvey.
+                var promise = Kinvey.init({
+                    appKey: 'kid_VTpS9qbe7q',
+                    appSecret: '5ae17c3bd8414d7f917c59a1c14a8fcd',
+                    sync: {
+                        enable: true,
+                        online: navigator.onLine
+                    }
+                });
+                promise.then(function (activeUser) {
+                    active_user = activeUser;
+
+                }).then(function () {
+                    if (null !== active_user) {
+                        loadShipment();
+                    } else {
+                        console.log("changePage login");
+                        current_page = login_page;
+                        $.mobile.changePage(login);
+                    }
+                }, function () {
+                    alert('cant connect to server');
+                });
             }
         });
 
@@ -210,7 +207,6 @@ function onDeviceReady() {
             pageinit: function () {
                 login.on('click', '#login-label', function () {
                     console.log("user creds : " + $('#username-input').val() + "   " + $('#password-input').val());
-                    $.mobile.loading("show");
                     var promise = Kinvey.User.login({
                         username: $('#username-input').val(),
                         password: $('#password-input').val()
