@@ -213,8 +213,19 @@ function onDeviceReady() {
                     });
 
                     promise.then(function (response) {
-                        map = null;
-                        loadShipment();
+                        if(response.status === "driver") {
+                            map = null;
+                            loadShipment();
+                        }else{
+                            alert("You don't have required permissions");
+                            var promise = Kinvey.User.logout({
+                            });
+                            promise.then(function (response) {
+                                console.log("logout with success");
+                            }, function (error) {
+                                console.log("logout with error " + JSON.stringify(error));
+                            });
+                        }
                     }, function (error) {
                         console.log("login error " + JSON.stringify(error));
                         alert(error.description);
@@ -381,11 +392,6 @@ function onDeviceReady() {
                         icon: 'images/user_marker.png'
                     });
                 }
-//                if (route.followUser) {
-//                    $('#map_canvas').gmap('option', {
-//                        'center': new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
-//                    });
-//                }
             }, function (error) {
                 console.log('code: ' + error.code + '\n' +
                     'message: ' + error.message + '\n');
