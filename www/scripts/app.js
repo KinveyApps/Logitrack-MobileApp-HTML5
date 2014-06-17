@@ -47,7 +47,6 @@ function onDeviceReady() {
         var user_marker;
         var my_timer;
         var last_time = [0, 0, 0];
-        var geocoder = new google.maps.Geocoder();
         var bounds = new google.maps.LatLngBounds();
         var isStartMarkerSelected = false;
         var isConfirmDeliveryPage = false;
@@ -392,12 +391,23 @@ function onDeviceReady() {
                         icon: 'images/user_marker.png'
                     });
                 }
+//                var user = Kinvey.getActiveUser();
+//                user.position.lat = position.coords.latitude;
+//                user.position.lon = position.coords.longitude;
+//                var promise = Kinvey.User.update(user, {
+//                    success: function () {
+//                       console.log("update driver position with success");
+//                    },
+//                    error: function (error) {
+//                        console.log("update driver position with error " + JSON.stringify(error.description));
+//                    }
+//                });
             }, function (error) {
                 console.log('code: ' + error.code + '\n' +
                     'message: ' + error.message + '\n');
             }, {
                 timeout: 30000,
-                frequency: 5000
+                frequency: 10000
             });
 
         }
@@ -492,7 +502,6 @@ function onDeviceReady() {
             var start_marker;
             var finish_marker;
             var route_addresses;
-            var k = 0;
             for (var i in shipments) {
                 console.log("ship " + i);
                 if (!!shipments[i].route) {
@@ -502,61 +511,41 @@ function onDeviceReady() {
                         finish: shipments[i].route.finish
                     };
                     addresses.push(route_addresses);
-                    !function outer(ii) {
-                        geocoder.geocode({
-                            'address': shipments[ii].route.start
-                        }, function (results, status) {
-                            if (status == google.maps.GeocoderStatus.OK) {
-                                var start_marker = new google.maps.Marker({
-                                    position: new google.maps.LatLng(results[0].geometry.location.k, results[0].geometry.location.A),
-                                    map: map,
-                                    icon: 'images/start_marker.png'
-                                });
-                                console.log("push start marker " + ii);
-                                start_markers[ii] = start_marker;
-                                google.maps.event.addListener(start_marker, 'click', function () {
-                                    if (!isStartMarkerSelected) {
-                                        $("#alertcontainer").css("display", "block");
-                                        $("#message-confirm").css("display", "block");
-                                        $("#step-number-label").text("Step 1");
-                                        $("#step-name-label").text("Pickup");
-                                        selectedMarkerIndex = start_markers.indexOf(this);
-                                        currentShipment = shipments[selectedMarkerIndex];
-                                        setConfirmAddressText();
-                                        hideMarkers(map);
-                                        isStartMarkerSelected = true;
-                                    }
-                                });
-                                if (ii == 0 && isFirstStart) {
-                                    $("#alertcontainer").css("display", "block");
-                                    $("#messagefg").css("display", "block");
-                                    setPushNotifiAddressText();
-                                    isFirstStart = false;
-                                }
-                                showMarkers();
-                            } else {
-                                console.log("Geocode was not successful for the following reason: " + status);
-                            }
-                        });
 
-                        geocoder.geocode({
-                            'address': shipments[ii].route.finish
-                        }, function (results, status) {
-                            if (status == google.maps.GeocoderStatus.OK) {
-                                finish_marker = new google.maps.Marker({
-                                    position: new google.maps.LatLng(results[0].geometry.location.k, results[0].geometry.location.A),
-                                    map: map,
-                                    icon: 'images/finish_marker.png'
-                                });
-                                finish_marker.setMap(null);
-                                finish_markers[ii] = finish_marker;
-                                console.log("push finish marker " + ii);
-                            } else {
-                                console.log("Geocode was not successful for the following reason: " + status);
-                            }
-                        });
-                    }(k);
-                    k++;
+                    start_marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(shipments[i].route.start_lat, shipments[i].route.start_long),
+                        map: map,
+                        icon: 'images/start_marker.png'
+                    });
+                    start_markers.push(start_marker);
+                    google.maps.event.addListener(start_marker, 'click', function () {
+                        if (!isStartMarkerSelected) {
+                            $("#alertcontainer").css("display", "block");
+                            $("#message-confirm").css("display", "block");
+                            $("#step-number-label").text("Step 1");
+                            $("#step-name-label").text("Pickup");
+                            selectedMarkerIndex = start_markers.indexOf(this);
+                            currentShipment = shipments[selectedMarkerIndex];
+                            setConfirmAddressText();
+                            hideMarkers(map);
+                            isStartMarkerSelected = true;
+                        }
+                    });
+                    if (i == 0 && isFirstStart) {
+                        $("#alertcontainer").css("display", "block");
+                        $("#messagefg").css("display", "block");
+                        setPushNotifiAddressText();
+                        isFirstStart = false;
+                    }
+                    showMarkers();
+
+                    finish_marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(shipments[i].route.finish_lat, shipments[i].route.finish_long),
+                        map: map,
+                        icon: 'images/finish_marker.png'
+                    });
+                    finish_marker.setMap(null);
+                    finish_markers.push(finish_marker);
                 }
             }
         }
@@ -565,7 +554,6 @@ function onDeviceReady() {
         var pickup = $('#pickup-route');
         pickup.on({
             pagebeforeshow: function (event, data) {
-
                 console.log("page before show pickup");
                 switch (current_page) {
                     case pickup_route_page:
