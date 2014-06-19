@@ -39,6 +39,8 @@ br {
     line-height: 12px;
     margin-top: 6px;
     font-size: 12px;
+    width: 45px;
+    height: 45px;
 }
 
 #timer {
@@ -79,12 +81,14 @@ br {
 #next-div {
     right: 0px;
     position: absolute;
+    width: 45px;
+    height: 45px;
 }
 
 #next-btn {
-    background: url(../images/next.png) no-repeat;
-    width: 18px;
-    height: 18px;
+    background: url(../images/next.png) no-repeat top;
+    width: 45px;
+    height: 45px;
     background-size: 18px 18px;
     margin-top: 7px;
 }
@@ -94,8 +98,8 @@ br {
     line-height: 12px;
     color: #4095FB;
     font-size: 12px;
-    margin-top: 2px;
-    margin-right: 5px;
+    margin-top: -25px;
+    margin-right: 3px;
     visibility: hidden;
 }
 
@@ -122,18 +126,33 @@ br {
 }
 
 #circle-right, #circle-central, #circle-left {
-    width: 16px;
-    height: 16px;
-    -webkit-border-radius: 8px;
-    -moz-border-radius: 8px;
-    border-radius: 8px;
-    background: rgb(204, 204, 204);
+    width: 32px;
+    height: 32px;
+    background-size: 16px 16px;
     position: absolute;
-    top: 40px;
+    top: 32px;
 }
 
-#circle-right:active, #circle-central:active, #circle-left:active{
-    background: rgb(220, 220, 220);
+#circle-right{
+    background: url(../images/circle.png) no-repeat right;
+}
+#circle-left{
+    background: url(../images/circle.png) no-repeat left;
+}
+
+#circle-central{
+    background: url(../images/circle.png) no-repeat center;
+}
+
+#circle-right:active{
+    background: url(../images/active-circle.png) no-repeat right;
+}
+#circle-left:active{
+    background: url(../images/active-circle.png) no-repeat left;
+}
+
+#circle-central:active{
+    background: url(../images/active-circle.png) no-repeat center;
 }
 
 #circle-right {
@@ -264,11 +283,14 @@ br {
     position: absolute;
     left: 5px;
     top: 8px;
-    height: 30px;
-    width: 20px;
+    height: 45px;
+    width: 45px;
     background: url(../images/back_large.png) no-repeat;
 }
 
+.back-arrow:active{
+    opacity: 0.5;
+}
 
 #delivery-details-content {
     background: rgb(236, 236, 236);
@@ -513,6 +535,6 @@ br {
     height:30px;
 }
 
-#menu-btn:active,#next-btn:active,#delivery-details-back:active,#signature-arrow-btn:active{
+#menu-btn:active,#next-btn:active,#signature-arrow-btn:active,#profile-edit:active{
     opacity: 0.5;
 }
