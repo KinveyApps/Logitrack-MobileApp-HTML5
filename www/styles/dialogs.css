@@ -36,6 +36,7 @@
     margin-right: auto;
     border-radius: 5px;
     font-size: 15px;
+    padding-top: 5px;
     color: #505050;
     box-shadow: 2px 2px 5px #888;
     background: rgba(227,230,230,1);
@@ -94,4 +95,11 @@
 
 .p-info-b{
     margin-top:-8px
+}
+
+.address-div{
+    width:auto;
+    text-align:center;
+    margin-right: 10px;
+    margin-left: 10px;
 }
