@@ -15,6 +15,16 @@
  */
 /* global $: true, Kinvey: true */
 function onDeviceReady() {
+    console.log("device plat " + device.platform);
+    if (device.platform === "iOS") {
+        $("#pickup-route-header").addClass("ios");
+        $("#user-profile").addClass("ios-full-page-content");
+        $("#delivery-header").addClass("ios");
+        $("#map_canvas").addClass("ios-content");
+        $("#delivery-details-content").addClass("ios-delivery-content");
+    }else{
+        $("#user-profile").addClass("full-page-content");
+    }
     window.location.hash = 'splash';
     $.mobile.initializePage();
     (function () {
@@ -24,7 +34,7 @@ function onDeviceReady() {
         // ------
         var loadingHide = function () {
             $.mobile.loading("hide");
-        }
+        };
         var current_page = 1;
         var pickup_route_page = 1;
         var travel_page = 2;
@@ -715,6 +725,9 @@ function onDeviceReady() {
             },
             pageshow: function () {
                 var the_height = ($(window).height() - $(this).find('[data-role="header"]').height() - $(this).find('[data-role="footer"]').height()) - 36;
+                if(device.platform ==="iOS") {
+                    the_height -= 20;
+                }
                 pickup.contentHeight = the_height;
                 $(this).find('[data-role="content"]').height(the_height);
                 $(this).find('#map_canvas').height(the_height + 32);

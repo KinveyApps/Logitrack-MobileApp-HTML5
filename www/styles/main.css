@@ -1,5 +1,26 @@
 @charset "utf-8";
 
+.ios{
+    top: 20px !important;
+}
+
+.ios-content{
+    top: 0 !important;
+}
+
+.ios-full-page-content{
+    background: rgb(236, 236, 236);
+    overflow: auto;
+    position: absolute;
+    margin: 20px auto auto;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.ios-delivery-content{
+    top:60px !important;
+}
 br {
     display: block;
     margin: 30px 30px;
@@ -364,7 +385,7 @@ br {
 }
 
 .delivery-buttons-div {
-    margin-top: 30px;
+    margin-top: 20px;
     width: 100%;
 }
 
