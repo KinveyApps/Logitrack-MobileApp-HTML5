@@ -260,7 +260,7 @@ br {
     font-size: 14px
 }
 
-#delivery-details-back {
+.back-arrow{
     position: absolute;
     left: 5px;
     top: 8px;
@@ -268,6 +268,7 @@ br {
     width: 20px;
     background: url(../images/back_large.png) no-repeat;
 }
+
 
 #delivery-details-content {
     background: rgb(236, 236, 236);
@@ -514,7 +515,4 @@ br {
 
 #menu-btn:active,#next-btn:active,#delivery-details-back:active,#signature-arrow-btn:active{
     opacity: 0.5;
-}
-#profile-back:active,#profile-edit:active,#sign-out-btn:active,#signature-back:active{
-    color:grey;
 }
