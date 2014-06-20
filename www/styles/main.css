@@ -169,6 +169,7 @@ br {
 
 #circle-right{
     background: url(../images/circle.png) no-repeat right;
+    right: 40px;
 }
 #circle-left{
     background: url(../images/circle.png) no-repeat left;
@@ -176,6 +177,8 @@ br {
 
 #circle-central{
     background: url(../images/circle.png) no-repeat center;
+    left: 50%;
+    margin-left: -16px;
 }
 
 #circle-right:active{
@@ -187,15 +190,6 @@ br {
 
 #circle-central:active{
     background: url(../images/active-circle.png) no-repeat center;
-}
-
-#circle-right {
-    right: 40px;
-}
-
-#circle-central {
-    left: 50%;
-    margin-left: -8px;
 }
 
 #green-circle-left, #green-circle-right, #green-circle-central{
