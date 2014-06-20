@@ -19,9 +19,15 @@ function onDeviceReady() {
     if (device.platform === "iOS") {
         $("#pickup-route-header").addClass("ios");
         $("#user-profile").addClass("ios-full-page-content");
+        $("#user-profile-header").addClass("ios");
         $("#delivery-header").addClass("ios");
         $("#map_canvas").addClass("ios-content");
         $("#delivery-details-content").addClass("ios-delivery-content");
+        $("#profile-back").addClass("ios-back-arrow");
+        $("#signature-back").addClass("ios-back-arrow");
+        $("#profile-title").addClass("ios-profile-title");
+        $("#profile-edit").addClass("ios-profile-edit");
+
     }else{
         $("#user-profile").addClass("full-page-content");
     }

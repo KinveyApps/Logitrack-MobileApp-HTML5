@@ -4,18 +4,31 @@
     top: 20px !important;
 }
 
+.ios-back-arrow{
+    top: 28px !important;
+}
+
+.ios-profile-title{
+    margin-top: 24px !important;
+}
+
+.ios-profile-edit{
+    margin-top: 26px !important;
+}
+
 .ios-content{
     top: 0 !important;
 }
 
 .ios-full-page-content{
     background: rgb(236, 236, 236);
-    overflow: auto;
-    position: absolute;
-    margin: 20px auto auto;
+    /*overflow: auto;*/
+    /*position: absolute;*/
+    margin:auto;
     left: 0;
     bottom: 0;
     right: 0;
+    top:0;
 }
 
 .ios-delivery-content{
