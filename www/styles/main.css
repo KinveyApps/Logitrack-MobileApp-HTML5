@@ -658,3 +658,14 @@ br {
     text-align:center;
     background:rgba(248,248,248,0.8);
 }
+
+#splash-content{
+    background-color: #ffffff;
+    overflow: auto;
+    margin: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
