@@ -651,3 +651,10 @@ br {
     font-size:12px;
     margin-top:20px
 }
+
+#checkin-tap-div{
+    height: 15px;
+    font-size:12px;
+    text-align:center;
+    background:rgba(248,248,248,0.8);
+}

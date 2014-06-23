@@ -392,11 +392,24 @@ function onDeviceReady() {
 
         };
 
+        var activeWatch;
+
         function startTrackingUserPosition() {
-            if (locationWatchId) {
-                navigator.geolocation.clearWatch(locationWatchId);
+            setupWatch(5000);
+
+            function setupWatch(freq) {
+                activeWatch = setInterval(watchLocation, freq);
             }
-            locationWatchId = navigator.geolocation.watchPosition(function (position) {
+
+            function watchLocation() {
+                navigator.geolocation.getCurrentPosition(
+                    updateUserLoc, onLocationError, {
+                        enableHighAccuracy: true
+                    });
+            }
+
+
+            function updateUserLoc(position) {
                 lastUserPosition = position;
                 console.log("last user positon " + JSON.stringify(position));
                 if (user_marker) {
@@ -419,20 +432,15 @@ function onDeviceReady() {
 //                        console.log("update driver position with error " + JSON.stringify(error.description));
 //                    }
 //                });
-            }, function (error) {
+            }
+            function onLocationError(error){
                 console.log('code: ' + error.code + '\n' +
                     'message: ' + error.message + '\n');
-            }, {
-                timeout: 30000,
-                frequency:10000
-            });
-
+            }
         }
 
         function stopTrackingUserPosition() {
-            if (locationWatchId) {
-                navigator.geolocation.clearWatch(locationWatchId);
-            }
+            clearInterval(activeWatch);
         }
 
         var onSuccessGetUserPosition = function (position) {
@@ -466,9 +474,9 @@ function onDeviceReady() {
         function updateCheckin() {
             if (current_page == travel_page) {
                 //todo
-                var checkinWatchId = navigator.geolocation.watchPosition(function (position) {
+                navigator.geolocation.getCurrentPosition(function (position) {
                     console.log("checkin position " + JSON.stringify(position));
-                    geocoder.geocode({'latLng': new google.maps.LatLng(position.latitude, position.longitude)}, function (results, status) {
+                    geocoder.geocode({'latLng': new google.maps.LatLng(-122, 37.7)}, function (results, status) {
                         if (status == google.maps.GeocoderStatus.OK) {
                             $.mobile.loading("show");
 
@@ -492,7 +500,6 @@ function onDeviceReady() {
                             console.log('Geocoder failed due to: ' + status);
                         }
                     });
-                    navigator.geolocation.clearWatch(checkinWatchId);
                 });
             }
         };
