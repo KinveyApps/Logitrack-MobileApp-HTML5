@@ -164,7 +164,7 @@ br {
     height: 32px;
     background-size: 16px 16px;
     position: absolute;
-    top: 32px;
+    top: 47px;
 }
 
 #circle-right{
@@ -200,7 +200,7 @@ br {
     border-radius: 16px;
     background: rgba(69, 191, 69, 0.8);
     position: absolute;
-    top: 32px;
+    top: 47px;
     visibility: hidden;
 }
 
@@ -220,7 +220,7 @@ br {
 #pause-btn, #play-btn {
     width: 30px;
     height: 30px;
-    top: 36px;
+    top: 51px;
     position: absolute;
     left: 50%;
     margin-left: -12px;

@@ -76,6 +76,7 @@ function onDeviceReady() {
         var isFirstStart = true;
         var current_direction_route = null;
         var isNewLogin = false;
+        var geocoder = new google.maps.Geocoder();
         createInfoboxes();
         //shipment saving function
         function saveShipment(shipment, cb) {
@@ -423,7 +424,7 @@ function onDeviceReady() {
                     'message: ' + error.message + '\n');
             }, {
                 timeout: 30000,
-                frequency: 10000
+                frequency:10000
             });
 
         }
@@ -456,7 +457,44 @@ function onDeviceReady() {
             });
             addAllStartMarkers(map);
             $('#map_canvas').gmap('refresh');
+                google.maps.event.addListener(map, 'click', function() {
+                    updateCheckin();
+                });
+        };
 
+
+        function updateCheckin() {
+            if (current_page == travel_page) {
+                //todo
+                var checkinWatchId = navigator.geolocation.watchPosition(function (position) {
+                    console.log("checkin position " + JSON.stringify(position));
+                    geocoder.geocode({'latLng': new google.maps.LatLng(position.latitude, position.longitude)}, function (results, status) {
+                        if (status == google.maps.GeocoderStatus.OK) {
+                            $.mobile.loading("show");
+
+                            console.log("position " + JSON.stringify(results));
+                            Kinvey.DataStore.save('shipment-checkins', {
+                                address: results[0].formatted_address,
+                                shipment_id: currentShipment._id,
+                                position: {
+                                    lat:results[0].geometry.location.k,
+                                    lon: results[0].geometry.location.A
+                                }
+                            }, {
+                                success: function (response) {
+                                    console.log("save shipment checkin success");
+                                },
+                                error: function (error) {
+                                    console.log("sava shipment checkin error " + JSON.stringify(error));
+                                }
+                            }).then(loadingHide, loadingHide);
+                        } else {
+                            console.log('Geocoder failed due to: ' + status);
+                        }
+                    });
+                    navigator.geolocation.clearWatch(checkinWatchId);
+                });
+            }
         };
 
         // onError Callback receives a PositionError object
@@ -573,9 +611,11 @@ function onDeviceReady() {
                 console.log("page before show pickup");
                 switch (current_page) {
                     case pickup_route_page:
+                        $('#checkin-tap-div').text("");
                         pickupRoutePagePreload();
                         break;
                     case travel_page:
+                        $('#checkin-tap-div').text("Tap map to send check-in update");
                         beginTrackingPagePreload();
                         startTrackingUserPosition();
                         break;
@@ -631,7 +671,7 @@ function onDeviceReady() {
                 });
 
                 pickup.on('click', '#play-btn', function () {
-                    stopTrackingUserPosition();
+                    startTrackingUserPosition();
                     my_timer = setInterval(function () {
                         myTimer()
                     }, 1000);
@@ -644,6 +684,7 @@ function onDeviceReady() {
                     saveShipment(currentShipment, function () {
                     });
                 });
+
                 pickup.on('click', '#next-btn', function () {
                     console.log("click next button " + current_page);
                     if (isStartMarkerSelected) {
