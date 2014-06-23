@@ -205,17 +205,6 @@ function onDeviceReady() {
             }
         });
 
-        var signature = $('#signature');
-        signature.on({
-            pageinit: function () {
-                signature.on('click', '#signature-back', function () {
-                    $.mobile.back({
-                        transition: "slide"
-                    });
-                });
-            }
-        });
-
         // Login.
         // -----
         var login = $('#login');
@@ -254,6 +243,16 @@ function onDeviceReady() {
             }
         });
 
+        var signature = $('#signature');
+        signature.on({
+            pageinit: function () {
+                signature.on('click', '#signature-back', function () {
+                    $.mobile.back({
+                        transition: "slide"
+                    });
+                });
+            }
+        });
 
         function myTimer() {
             last_time[2]++;
@@ -352,6 +351,7 @@ function onDeviceReady() {
 
         function beginTrackingPagePreload() {
             console.log("begin tracking preload");
+            $('#checkin-tap-div').text("Tap map to send check-in update");
             last_time = [0, 0, 0];
             my_timer = setInterval(function () {
                 myTimer()
@@ -369,13 +369,18 @@ function onDeviceReady() {
             $("#step-name-label").text("Travel to Delivery Location");
             $("#step-number-label").text("Step 2");
             currentShipment.user_status = "in progress";
-            saveShipment(currentShipment, function () {
+            Date.prototype.timeNow = function () {
+                return ((this.getHours() < 10)?"0":"") + this.getHours() +":"+ ((this.getMinutes() < 10)?"0":"") + this.getMinutes() +":"+ ((this.getSeconds() < 10)?"0":"") + this.getSeconds();
+            };
+            currentShipment.start_time = new Date().timeNow();
+            saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
             });
             calcRoute();
         };
 
         function pickupRoutePagePreload() {
             console.log("pickup route pleload");
+            $('#checkin-tap-div').text("");
             $("#step-name-label").text("Tap to Browse Different Pickups");
             $("#step-number-label").text("Waiting for Delivery");
             $("#next-label").css("visibility", "hidden");
@@ -498,6 +503,31 @@ function onDeviceReady() {
                             console.log('Geocoder failed due to: ' + status);
                         }
                     });
+
+
+                    var origin = new google.maps.LatLng(currentShipment.route.start_lat, currentShipment.route.start_long);
+                    var destination = new google.maps.LatLng(currentShipment.route.finish_lat, currentShipment.route.finish_long);
+
+                    var service = new google.maps.DistanceMatrixService();
+                    service.getDistanceMatrix(
+                        {
+                            origins:[origin],
+                            destinations: [destination],
+                            travelMode: google.maps.TravelMode.DRIVING,
+                            avoidHighways: false,
+                            avoidTolls: false
+                        }, callback);
+
+                    function callback(response, status) {
+                        if (status == google.maps.DistanceMatrixStatus.OK) {
+                            var checkin_distance = response.rows[0].elements[0].distance.value;
+                            if(currentShipment.route.distance>checkin_distance){
+                                currentShipment.status = ((1 - checkin_distance/currentShipment.route.distance)*100).toFixed(0) + "%";
+                                saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
+                                });
+                            }
+                        }
+                    }
                 });
             }
         };
@@ -616,11 +646,9 @@ function onDeviceReady() {
                 console.log("page before show pickup");
                 switch (current_page) {
                     case pickup_route_page:
-                        $('#checkin-tap-div').text("");
                         pickupRoutePagePreload();
                         break;
                     case travel_page:
-                        $('#checkin-tap-div').text("Tap map to send check-in update");
                         beginTrackingPagePreload();
                         startTrackingUserPosition();
                         break;
@@ -664,7 +692,7 @@ function onDeviceReady() {
                     $("#pause-btn").css("visibility", "hidden");
                     $("#green-circle-central").css("background", "red");
                     currentShipment.user_status = "paused";
-                    saveShipment(currentShipment, function () {
+                    saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
                     });
 
                 });
@@ -686,7 +714,7 @@ function onDeviceReady() {
                     $("#play-btn").css("visibility", "hidden");
                     $("#green-circle-central").css("background", "rgba(69,191,69,0.8)");
                     currentShipment.user_status = "in progress";
-                    saveShipment(currentShipment, function () {
+                    saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
                     });
                 });
 
@@ -1083,7 +1111,7 @@ function onDeviceReady() {
                 function (button) {
                     if (button == 1) {
                         currentShipment.user_status = "rejected";
-                        saveShipment(currentShipment, function (data) {
+                        saveShipment(JSON.parse(JSON.stringify(currentShipment)), function (data) {
                             $("#tracking-state").css("visibility", "hidden");
                             $("#green-circle-right").css("visibility", "hidden");
                             $("#green-circle-left").css("visibility", "visible");
@@ -1186,7 +1214,7 @@ function onDeviceReady() {
                                     if (button == 1) {
                                         current_page = pickup_route_page;
                                         currentShipment.user_status = "done";
-                                        saveShipment(currentShipment, function (data) {
+                                        saveShipment(JSON.parse(JSON.stringify(currentShipment)), function (data) {
                                             $("#tracking-state").css("visibility", "hidden");
                                             $("#green-circle-right").css("visibility", "hidden");
                                             $("#green-circle-left").css("visibility", "visible");
