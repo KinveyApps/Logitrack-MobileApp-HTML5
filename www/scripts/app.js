@@ -475,12 +475,10 @@ function onDeviceReady() {
             if (current_page == travel_page) {
                 //todo
                 navigator.geolocation.getCurrentPosition(function (position) {
-                    console.log("checkin position " + JSON.stringify(position));
-                    geocoder.geocode({'latLng': new google.maps.LatLng(-122, 37.7)}, function (results, status) {
+                    geocoder.geocode({'latLng': new google.maps.LatLng(position.coords.latitude, position.coords.longitude)}, function (results, status) {
                         if (status == google.maps.GeocoderStatus.OK) {
                             $.mobile.loading("show");
-
-                            console.log("position " + JSON.stringify(results));
+                            console.log("position " + JSON.stringify(results[0]));
                             Kinvey.DataStore.save('shipment-checkins', {
                                 address: results[0].formatted_address,
                                 shipment_id: currentShipment._id,
