@@ -41,7 +41,7 @@
         <!-- Pickup Route. -->
         <div data-role="page" data-title="Logitrack - Route" id="pickup-route" >
             <div  data-role="header" data-position="fixed" id="pickup-route-header">
-                <div style="height:45px;background:rgba(248,248,248,0.8);">
+                <div class="first-pickup-header">
                     <div id="menu-btn"></div>
                     <h3 align="center">LOGITRACK</h3>
                     <div class="right-header-div">
@@ -50,7 +50,7 @@
                     </div>
 
                 </div>
-                <div style="height:45px;background:rgba(235,248,248,0.8)">
+                <div class="second-pickup-header">
                     <div id="locate-btn">
                     </div>
                     <div align="center" id="next-div">
@@ -113,11 +113,11 @@
                         <div id="dialog-confirm" class="dialog-content">
                             <h4>Confirm</h4>
 
-                            <p style="margin-right: 10px;margin-left: 10px" class="p-info-a">Would you like to accept this delivery?</p>
+                            <p class="p-info-a footer-title">Would you like to accept this delivery?</p>
 
                             <div class="address-div">
                                 <div id="dialog-start-marker"></div>
-                                <div class="p-info-a;" style="display:inline-block">
+                                <div class="p-info-a inline-div">
                                     <p class="p-info-b">Pickup:</p>
 
                                     <p id="confirm-start-address" class="p-info-a" ></p>
@@ -125,7 +125,7 @@
                             </div>
                             <div class="address-div">
                                 <div id="dialog-finish-marker"></div>
-                                <div style="display:inline-block">
+                                <div class="inline-div">
                                     <p class="p-info-b">Drop-off:</p>
                                     <p id="confirm-finish-address" class="p-info-a"></p>
                                 </div>
@@ -139,13 +139,13 @@
                 </div>
             </div>
             <div data-role="footer" data-position="fixed" style="position: fixed">
-                <div data-position="fixed" style="background: rgba(248,248,248,0.8);height:70px;">
-                    <div style="display:inline;height:30px">
-                        <h5 style="left:25px;line-height:30px;margin:0 auto; position:absolute">PICKUP</h5>
-                        <h5 style="right:15px; line-height:30px;margin:0 auto;position:absolute">DELIVERY</h5>
-                        <h5 align="center" style="line-height:30px;margin:0 auto;">TRAVEL</h5>
+                <div data-position="fixed" id="footer-content">
+                    <div class="footer-labels-div">
+                        <h5 id="pickup-footer-label" class="absolute-footer-label">PICKUP</h5>
+                        <h5 id="delivery-footer-label" class="absolute-footer-label">DELIVERY</h5>
+                        <h5 align="center" class="footer-label">TRAVEL</h5>
                     </div>
-                    <div style="margin-left:40px;margin-right:40px">
+                    <div class="circles-div">
                         <div id="circle-line"></div>
                         <div id="circle-left"></div>
                         <div id="circle-central"></div>
@@ -200,7 +200,7 @@
 
                     <span class="span-title">Mobile</span>
 
-                <div style="height: 34px" class="span-info-div">
+                <div id="mobile-info-div" class="span-info-div">
                     <span class="span-info" id="user-mobile-number">917-555-0012</span>
                 </div>
                 <div class="delivery-list-separator"></div>
@@ -230,7 +230,7 @@
                 </div>
             </div>
             <div data-role="content" id="delivery-details-content">
-                <div style="margin-left:10px;margin-top:10px">
+                <div id="location-div">
                     <p class="p-info-b">PICKUP LOCATION:</p>
 
                     <p class="p-info-a" id="delivery-start-address"></p>
@@ -241,7 +241,7 @@
 
                     <p class="p-info-b" id ="delivery-agent"></p>
                 </div>
-                <div style="background:white;margin-top:20px">
+                <div id="delivery-list-div">
                     <div>
                         <p class="delivery-listitem-title">1. Picked Up</p>
 
@@ -266,10 +266,9 @@
                     <div id="begin-tracking-btn">Begin Tracking</div>
                 </div>
             </div>
-            <div data-role="footer" data-position="fixed" style="position: fixed;">
-                <div style="background:rgb(249,249,249);height:70px">
+            <div data-role="footer" data-position="fixed" id="delivery-footer">
+                <div>
                 </div>
-
             </div>
 
         </div>
@@ -277,7 +276,7 @@
         <!--Signature -->
 
     <div data-role="page" data-title="Signature" id="signature">
-        <div data-role="content" class="full-page-content" style="padding-left:0px;padding-right:0px">
+        <div data-role="content" class="full-page-content" id="signature-content">
             <div>
                 <div class="back-arrow" id="signature-back"></div>
 
@@ -286,7 +285,7 @@
             <div id="textarea-div">
                 <textarea id="signature-textarea" rows="10" cols="50" placeholder="Tap to sign"></textarea>
             </div>
-            <p style="text-align:center;font-size:12px;margin-top:20px">Placeholder screen for signature page</p>
+            <p class="signature-label">Placeholder screen for signature page</p>
 
             <div align="center" id="email-div">
                 <div id="email-icon"></div>

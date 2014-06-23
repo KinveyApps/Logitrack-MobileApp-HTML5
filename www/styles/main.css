@@ -538,6 +538,20 @@ br {
     overflow: hidden;
 }
 
+#mobile-info-div{
+    height: 34px;
+}
+
+#location-div{
+    margin-left:10px;
+    margin-top:10px
+}
+
+#delivery-list-div{
+    background:white;
+    margin-top:20px;
+}
+
 .span-info {
     word-wrap: break-word;
     line-height: 34px;
@@ -565,4 +579,75 @@ br {
 
 #menu-btn:active,#next-btn:active,#signature-arrow-btn:active,#profile-edit:active{
     opacity: 0.5;
+}
+
+.first-pickup-header{
+    height:45px;
+    background:rgba(248,248,248,0.8);
+}
+
+.second-pickup-header {
+    height:45px;
+    background:rgba(235,248,248,0.8)
+}
+
+.footer-title {
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+.inline-div{
+    display: inline-block;
+}
+
+#footer-content {
+    background: rgba(248,248,248,0.8);
+    height:70px;
+}
+
+.footer-labels-div {
+    display:inline;
+    height:30px
+}
+
+.footer-label,.absolute-footer-label {
+    line-height:30px;
+    margin:0 auto;
+}
+
+.absolute-footer-label {
+    position:absolute;
+}
+
+#pickup-footer-label {
+    left:25px;
+}
+
+#delivery-footer-label {
+    right:15px;
+}
+
+.circles-div{
+    margin-left:40px;
+    margin-right:40px
+}
+
+#delivery-footer{
+    position: fixed;
+}
+
+#delivery-footer div{
+    background:rgb(249,249,249);
+    height:70px
+}
+
+#signature-content{
+    padding-left:0px;
+    padding-right:0px;
+}
+
+.signature-label{
+    text-align:center;
+    font-size:12px;
+    margin-top:20px
 }
