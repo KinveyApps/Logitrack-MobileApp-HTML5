@@ -49,7 +49,6 @@ function onDeviceReady() {
         var login_page = 5;
         var signature_page = 6;
         var user_profile_page = 7;
-        var locationWatchId = null;
         var currentShipment = null;
         var shipments = null;
         var start_markers = [];
@@ -78,9 +77,12 @@ function onDeviceReady() {
         var isNewLogin = false;
         var geocoder = new google.maps.Geocoder();
         createInfoboxes();
+
         //shipment saving function
         function saveShipment(shipment, cb) {
             $.mobile.loading("show");
+
+            //Kinvey save shipment starts
             Kinvey.DataStore.save('shipment',
                 shipment, {
                     relations: {
@@ -91,12 +93,10 @@ function onDeviceReady() {
                         cb(response);
                     },
                     error: function (error) {
-                        console.log("sava shipment error " + JSON.stringify(error));
+                        console.log("save shipment with error " + JSON.stringify(error));
                     }
                 }).then(loadingHide, loadingHide);
         }
-
-
 
         // On/offline hooks.
         $(window).on({
@@ -112,11 +112,13 @@ function onDeviceReady() {
 
         //Load route
         function loadShipment() {
-                $.mobile.loading("show");
+            $.mobile.loading("show");
             //TODO modify query
             var query = new Kinvey.Query();
             //            query.notEqualTo('user_status', 'done');
             query.exists('route');
+
+            //Kinvey get shipments that have route starts
             Kinvey.DataStore.find('shipment', query, {
                 relations: {
                     'checkins': 'shipment-checkins',
@@ -126,11 +128,12 @@ function onDeviceReady() {
                     if (data.length == 0) {
                         alert("No route found");
                     } else {
-                        console.log("success shipment " + isDeliveryComplitedClicked + " " + JSON.stringify(data));
 
+                        //reinitialization main pickup screen variables
                         shipments = data;
                         currentShipment = data[0];
-                        if (isDeliveryComplitedClicked||isNewLogin) {
+                        current_page = pickup_route_page;
+                        if (isDeliveryComplitedClicked || isNewLogin) {
                             clearMarkers();
                             finish_markers = [];
                             start_markers = [];
@@ -138,22 +141,21 @@ function onDeviceReady() {
                             selectedMarkerIndex = 0;
                             isStartMarkerSelected = false;
                         }
-                        if (isDeliveryComplitedClicked){
+                        if (isDeliveryComplitedClicked) {
                             addAllStartMarkers(map);
                             map.setCenter(user_marker.getPosition());
                             isDeliveryComplitedClicked = false;
                         }
-                        current_page = pickup_route_page;
-                        if(isNewLogin){
+                        if (isNewLogin) {
                             lastUserPosition = null;
                             directionsDisplay.setMap(null);
                             last_time = [0, 0, 0];
                             isConfirmDeliveryPage = false;
                             isBackPressed = false;
                             isConfirmBoxOpen = false;
-                             current_avatar_data_uri = null;
-                             start_avatar_data_uri = null;
-                             current_direction_route = null;
+                            current_avatar_data_uri = null;
+                            start_avatar_data_uri = null;
+                            current_direction_route = null;
                             navigator.geolocation.getCurrentPosition(onSuccessGetUserPosition, onErrorGetUserPosition);
                             $('#green-circle-left').css('visibility', "visible");
                             $('#green-circle-central').css('visibility', "hidden");
@@ -171,11 +173,11 @@ function onDeviceReady() {
                         console.log("changePage pickup 1");
                         $.mobile.changePage(pickup);
                     }
-
                 }
             }).then(loadingHide, loadingHide);
         }
 
+        //Splash screen
         var splash = $('#splash');
         splash.on({
             pageinit: function () {
@@ -205,24 +207,25 @@ function onDeviceReady() {
             }
         });
 
-        // Login.
-        // -----
+        // Login Page
         var login = $('#login');
         login.on({
             pageinit: function () {
                 login.on('click', '#login-label', function () {
-                    console.log("user creds : " + $('#username-input').val() + "   " + $('#password-input').val());
+
+                    //Kinvey user login starts
                     var promise = Kinvey.User.login({
                         username: $('#username-input').val(),
                         password: $('#password-input').val()
                     });
-
                     promise.then(function (response) {
-                        if(response.status === "driver") {
+                        if (response.status === "driver") {
                             map = null;
                             loadShipment();
-                        }else{
+                        } else {
                             alert("You don't have required permissions");
+
+                            //Kinvey user logout starts
                             var promise = Kinvey.User.logout({
                             });
                             promise.then(function (response) {
@@ -254,7 +257,8 @@ function onDeviceReady() {
             }
         });
 
-        function myTimer() {
+        //sets timers value
+        function setTimerValue() {
             last_time[2]++;
             if (last_time[2] == 59) {
                 last_time[2] = 0;
@@ -273,14 +277,12 @@ function onDeviceReady() {
             $("#timer").text(h + ':' + m + ':' + s);
         }
 
+        //builds route between markers
         function calcRoute() {
             console.log("calc route");
             var request = {
                 origin: new google.maps.LatLng(start_markers[selectedMarkerIndex].getPosition().k, start_markers[selectedMarkerIndex].getPosition().A),
                 destination: new google.maps.LatLng(finish_markers[selectedMarkerIndex].getPosition().k, finish_markers[selectedMarkerIndex].getPosition().A),
-                // Note that Javascript allows us to access the constant
-                // using square brackets and a string value as its
-                // "property."
                 travelMode: google.maps.DirectionsTravelMode.DRIVING
             };
             directionsService.route(request, function (response, status) {
@@ -292,6 +294,7 @@ function onDeviceReady() {
             });
         }
 
+        //infoboxes initialization
         function createInfoboxes() {
             confirm_infobox = new InfoBox({
                 content: document.getElementById("confirm-infobox"),
@@ -349,12 +352,13 @@ function onDeviceReady() {
             });
         }
 
+        //tracking page initialization
         function beginTrackingPagePreload() {
             console.log("begin tracking preload");
             $('#checkin-tap-div').text("Tap map to send check-in update");
             last_time = [0, 0, 0];
             my_timer = setInterval(function () {
-                myTimer()
+                setTimerValue()
             }, 1000);
             $('#tracking-state').css('visibility', "visible");
             $('#timer').css('visibility', "visible");
@@ -370,7 +374,7 @@ function onDeviceReady() {
             $("#step-number-label").text("Step 2");
             currentShipment.user_status = "in progress";
             Date.prototype.timeNow = function () {
-                return ((this.getHours() < 10)?"0":"") + this.getHours() +":"+ ((this.getMinutes() < 10)?"0":"") + this.getMinutes() +":"+ ((this.getSeconds() < 10)?"0":"") + this.getSeconds();
+                return ((this.getHours() < 10) ? "0" : "") + this.getHours() + ":" + ((this.getMinutes() < 10) ? "0" : "") + this.getMinutes() + ":" + ((this.getSeconds() < 10) ? "0" : "") + this.getSeconds();
             };
             currentShipment.start_time = new Date().timeNow();
             saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
@@ -378,6 +382,7 @@ function onDeviceReady() {
             calcRoute();
         };
 
+        //pickup route page initialization
         function pickupRoutePagePreload() {
             console.log("pickup route pleload");
             $('#checkin-tap-div').text("");
@@ -398,7 +403,7 @@ function onDeviceReady() {
         };
 
         var activeWatch;
-
+        //sets update driver position timer
         function startTrackingUserPosition() {
             setupWatch(5000);
 
@@ -413,10 +418,12 @@ function onDeviceReady() {
                     });
             }
 
-
+            //updates driver location
             function updateUserLoc(position) {
                 lastUserPosition = position;
-                console.log("last user positon " + JSON.stringify(position));
+                console.log("last user position " + JSON.stringify(position));
+
+                //updates user marker location
                 if (user_marker) {
                     user_marker.setPosition(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
                 } else {
@@ -426,32 +433,39 @@ function onDeviceReady() {
                         icon: 'images/user_marker.png'
                     });
                 }
-//                var user = Kinvey.getActiveUser();
-//                user.position.lat = position.coords.latitude;
-//                user.position.lon = position.coords.longitude;
-//                var promise = Kinvey.User.update(user, {
-//                    success: function () {
-//                       console.log("update driver position with success");
-//                    },
-//                    error: function (error) {
-//                        console.log("update driver position with error " + JSON.stringify(error.description));
-//                    }
-//                });
+                var user = Kinvey.getActiveUser();
+                user.position.lat = position.coords.latitude;
+                user.position.lon = position.coords.longitude;
+
+                //Kinvey user update position starts
+                var promise = Kinvey.User.update(user, {
+                    success: function () {
+                       console.log("update driver position with success");
+                    },
+                    error: function (error) {
+                        console.log("update driver position with error " + JSON.stringify(error.description));
+                    }
+                });
             }
-            function onLocationError(error){
+
+            function onLocationError(error) {
                 console.log('code: ' + error.code + '\n' +
                     'message: ' + error.message + '\n');
             }
         }
 
+        //drops update user location timer
         function stopTrackingUserPosition() {
             clearInterval(activeWatch);
         }
 
+
+        //creates map when user login in app
         var onSuccessGetUserPosition = function (position) {
-            console.log("success");
             var user = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
             bounds.extend(user);
+
+            //map creation
             var mapOptions = {
                 center: user,
                 zoom: 15,
@@ -463,6 +477,8 @@ function onDeviceReady() {
             directionsDisplay.setOptions({
                 suppressMarkers: true
             });
+
+            //user marker creation
             user_marker = new google.maps.Marker({
                 position: user,
                 map: map,
@@ -470,16 +486,17 @@ function onDeviceReady() {
             });
             addAllStartMarkers(map);
             $('#map_canvas').gmap('refresh');
-                google.maps.event.addListener(map, 'click', function() {
-                    updateCheckin();
-                });
+            google.maps.event.addListener(map, 'click', function () {
+                updateCheckin();
+            });
         };
 
-
+        //creates checkin each time when user click on map on travel page
         function updateCheckin() {
             if (current_page == travel_page) {
-                //todo
                 navigator.geolocation.getCurrentPosition(function (position) {
+
+                    //gets address by position
                     geocoder.geocode({'latLng': new google.maps.LatLng(position.coords.latitude, position.coords.longitude)}, function (results, status) {
                         if (status == google.maps.GeocoderStatus.OK) {
                             $.mobile.loading("show");
@@ -488,7 +505,7 @@ function onDeviceReady() {
                                 address: results[0].formatted_address,
                                 shipment_id: currentShipment._id,
                                 position: {
-                                    lat:results[0].geometry.location.k,
+                                    lat: results[0].geometry.location.k,
                                     lon: results[0].geometry.location.A
                                 }
                             }, {
@@ -504,14 +521,13 @@ function onDeviceReady() {
                         }
                     });
 
-
+                    //updates shipment percentage complete, calculates distance between last checkin and finish point
                     var origin = new google.maps.LatLng(currentShipment.route.start_lat, currentShipment.route.start_long);
                     var destination = new google.maps.LatLng(currentShipment.route.finish_lat, currentShipment.route.finish_long);
-
                     var service = new google.maps.DistanceMatrixService();
                     service.getDistanceMatrix(
                         {
-                            origins:[origin],
+                            origins: [origin],
                             destinations: [destination],
                             travelMode: google.maps.TravelMode.DRIVING,
                             avoidHighways: false,
@@ -521,8 +537,8 @@ function onDeviceReady() {
                     function callback(response, status) {
                         if (status == google.maps.DistanceMatrixStatus.OK) {
                             var checkin_distance = response.rows[0].elements[0].distance.value;
-                            if(currentShipment.route.distance>checkin_distance){
-                                currentShipment.status = ((1 - checkin_distance/currentShipment.route.distance)*100).toFixed(0) + "%";
+                            if (currentShipment.route.distance > checkin_distance) {
+                                currentShipment.status = ((1 - checkin_distance / currentShipment.route.distance) * 100).toFixed(0) + "%";
                                 saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
                                 });
                             }
@@ -533,13 +549,14 @@ function onDeviceReady() {
         };
 
         // onError Callback receives a PositionError object
-        //
         function onErrorGetUserPosition(error) {
             console.log("on error getUser position " + error.message);
         }
 
+
         document.addEventListener("backbutton", onBackKeyDown, false);
 
+        //Android back button listener
         function onBackKeyDown() {
             switch (current_page) {
                 case travel_page:
@@ -586,27 +603,29 @@ function onDeviceReady() {
             }
         }
 
+        //add all start markers on map
         function addAllStartMarkers(map) {
-            console.log("add all markers" + map);
+            console.log("add all markers");
             var start_marker;
             var finish_marker;
             var route_addresses;
             for (var i in shipments) {
-                console.log("ship " + i);
                 if (!!shipments[i].route) {
-                    console.log("shipments " + JSON.stringify(shipments[i].route));
                     route_addresses = {
                         start: shipments[i].route.start,
                         finish: shipments[i].route.finish
                     };
                     addresses.push(route_addresses);
 
+                    //creates start marker
                     start_marker = new google.maps.Marker({
                         position: new google.maps.LatLng(shipments[i].route.start_lat, shipments[i].route.start_long),
                         map: map,
                         icon: 'images/start_marker.png'
                     });
                     start_markers.push(start_marker);
+
+                    //add start marker click listener
                     google.maps.event.addListener(start_marker, 'click', function () {
                         if (!isStartMarkerSelected) {
                             $("#alertcontainer").css("display", "block");
@@ -628,6 +647,7 @@ function onDeviceReady() {
                     }
                     showMarkers();
 
+                    //creates finish marker
                     finish_marker = new google.maps.Marker({
                         position: new google.maps.LatLng(shipments[i].route.finish_lat, shipments[i].route.finish_long),
                         map: map,
@@ -639,7 +659,7 @@ function onDeviceReady() {
             }
         }
 
-
+        //Pickup route page
         var pickup = $('#pickup-route');
         pickup.on({
             pagebeforeshow: function (event, data) {
@@ -706,7 +726,7 @@ function onDeviceReady() {
                 pickup.on('click', '#play-btn', function () {
                     startTrackingUserPosition();
                     my_timer = setInterval(function () {
-                        myTimer()
+                        setTimerValue()
                     }, 1000);
                     $("#tracking-state").text("TRACKING ON");
                     $("#tracking-state").css("color", "rgb(65,226,65)");
@@ -719,7 +739,6 @@ function onDeviceReady() {
                 });
 
                 pickup.on('click', '#next-btn', function () {
-                    console.log("click next button " + current_page);
                     if (isStartMarkerSelected) {
                         switch (current_page) {
                             case travel_page:
@@ -731,7 +750,7 @@ function onDeviceReady() {
                                     });
                                 } else {
                                     console.log("stop tracking start confirming");
-                                    stopTrackingStartConfiming();
+                                    stopTrackStartConfirm();
                                 }
                                 break;
                             case pickup_route_page:
@@ -744,10 +763,12 @@ function onDeviceReady() {
                         }
                     }
                 });
+
                 pickup.on('click', '#dismiss-btn', function () {
                     $("#alertcontainer").css("display", "none");
                     $("#messagefg").css("display", "none");
                 });
+
                 pickup.on('click', '#view-btn', function () {
                     $("#messagefg").css("display", "none");
                     $("#message-confirm").css("display", "block");
@@ -759,12 +780,14 @@ function onDeviceReady() {
                     hideMarkers(map);
                     isStartMarkerSelected = true;
                 });
+
                 pickup.on('click', '#cancel-btn', function () {
                     $("#alertcontainer").css("display", "none");
                     $("#message-confirm").css("display", "none");
                     showMarkers();
                     isStartMarkerSelected = false;
                 });
+
                 pickup.on('click', '#confirm-btn', function () {
                     $("#alertcontainer").css("display", "none");
                     $("#message-confirm").css("display", "none");
@@ -773,9 +796,10 @@ function onDeviceReady() {
                     google.maps.event.clearListeners($("#infobox-arrow-btn"), 'click');
                     infobox.open(map, start_markers[selectedMarkerIndex]);
                 });
+
                 pickup.on("click", "#circle-central", function () {
                     if ($("#green-circle-right").css("visibility") == "visible") {
-                        stopConfirmingStartTracking();
+                        stopConfirmStartTrack();
                     }
                     if ($("#green-circle-left").css("visibility") == "visible") {
                         if (isStartMarkerSelected) {
@@ -786,9 +810,10 @@ function onDeviceReady() {
                         }
                     }
                 });
+
                 pickup.on("click", "#circle-right", function () {
                     if ($("#green-circle-central").css("visibility") == "visible") {
-                        stopTrackingStartConfiming();
+                        stopTrackStartConfirm();
                     }
                 });
 
@@ -800,12 +825,11 @@ function onDeviceReady() {
                 });
 
                 var userRoute = currentShipment.route;
-                console.log("get user position");
                 navigator.geolocation.getCurrentPosition(onSuccessGetUserPosition, onErrorGetUserPosition);
             },
             pageshow: function () {
                 var the_height = ($(window).height() - $(this).find('[data-role="header"]').height() - $(this).find('[data-role="footer"]').height()) - 36;
-                if(device.platform ==="iOS") {
+                if (device.platform === "iOS") {
                     the_height -= 20;
                 }
                 pickup.contentHeight = the_height;
@@ -815,8 +839,7 @@ function onDeviceReady() {
         });
 
 
-        //    User Profile
-
+        //User Profile Page
         var user_profile = $("#user-profile");
         user_profile.on({
             pageinit: function () {
@@ -828,9 +851,8 @@ function onDeviceReady() {
                             console.log("active user " + JSON.stringify(user));
                             if (null !== user) {
                                 $.mobile.loading("show");
-                                var promise = Kinvey.User.logout({
-                                });
-
+                                //Kinvey user logout starts
+                                var promise = Kinvey.User.logout({});
                                 promise.then(function (response) {
                                     console.log("logout with success");
                                     isNewLogin = true;
@@ -848,6 +870,8 @@ function onDeviceReady() {
                             if (current_avatar_data_uri != null) {
                                 $.mobile.loading("show");
                                 var array_buffer = _base64ToArrayBuffer(current_avatar_data_uri)
+
+                                //Kinvey save avatar image file starts
                                 var promise = Kinvey.File.upload(array_buffer, {
                                     mimeType: 'image/jpeg',
                                     size: current_avatar_data_uri.length
@@ -870,9 +894,11 @@ function onDeviceReady() {
                             break;
                     }
                 });
+
                 user_profile.on('click', '#profile-back', function () {
                     userProfileBack();
                 });
+
                 user_profile.on('click', '#profile-edit', function () {
                     console.log("profile edit");
                     $("#profile-edit").css("visibility", "hidden");
@@ -880,6 +906,7 @@ function onDeviceReady() {
                     $("#profile-email-div").css("display", "none");
                     $("#profile-password-div").css("display", "none");
                 });
+
                 user_profile.on('click', '#first-name-div', function () {
                     if ($('#sign-out-btn').text() === "SAVE") {
                         navigator.notification.prompt("Name editing", function (results) {
@@ -890,6 +917,7 @@ function onDeviceReady() {
 
                     }
                 });
+
                 user_profile.on('click', '#last-name-div', function () {
                     if ($('#sign-out-btn').text() === "SAVE") {
                         navigator.notification.prompt("Surname editing", function (results) {
@@ -899,6 +927,7 @@ function onDeviceReady() {
                         }, "Input your surname", ["Ok"], $('#last-name').text());
                     }
                 });
+
                 user_profile.on('click', '#profile-mobile-div', function () {
                     if ($('#sign-out-btn').text() === "SAVE") {
                         navigator.notification.prompt("Mobile number editing", function (results) {
@@ -908,6 +937,7 @@ function onDeviceReady() {
                         }, "Input your number", ["Ok"], $('#user-mobile-number').text());
                     }
                 });
+
                 user_profile.on('click', '#user-avatar', function () {
                     if ($('#sign-out-btn').text() === "SAVE") {
                         console.log("User avatar clicked");
@@ -925,6 +955,7 @@ function onDeviceReady() {
                 var user_avatar = document.getElementById('user-avatar');
                 console.log("avatar id " + JSON.stringify(active_user.avatar));
                 if (active_user.avatar) {
+                    //Kinvey stream user avatar starts
                     var promise = Kinvey.File.stream(active_user.avatar._id);
                     promise.then(function (response) {
                         console.log("photo url " + JSON.stringify(response));
@@ -941,6 +972,7 @@ function onDeviceReady() {
 
         function updateUserInfo(user) {
             $.mobile.loading("show");
+            //Kinvey update user info starts
             var promise = Kinvey.User.update(user, {
                 success: function () {
                     $("#profile-edit").css("visibility", "visible");
@@ -954,6 +986,7 @@ function onDeviceReady() {
             }).then(loadingHide, loadingHide);
         }
 
+        // back user profile listener
         function userProfileBack() {
             switch ($('#sign-out-btn').text()) {
                 case "SIGN OUT":
@@ -983,11 +1016,12 @@ function onDeviceReady() {
             }
         }
 
+        //converts base64 to bytes
         function _base64ToArrayBuffer(base64) {
-            var binary_string =  window.atob(base64);
+            var binary_string = window.atob(base64);
             var len = binary_string.length;
-            var bytes = new Uint8Array( len );
-            for (var i = 0; i < len; i++)        {
+            var bytes = new Uint8Array(len);
+            for (var i = 0; i < len; i++) {
                 var ascii = binary_string.charCodeAt(i);
                 bytes[i] = ascii;
             }
@@ -995,8 +1029,8 @@ function onDeviceReady() {
         }
 
         function getPhoto() {
-            // Retrieve image file location from specified source
 
+            // Retrieve image file location from specified source
             navigator.camera.getPicture(function (dataURI) {
                 setTimeout(function () {
                     console.log("get photo success " + dataURI);
@@ -1014,7 +1048,7 @@ function onDeviceReady() {
                 sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY});
         }
 
-        function stopTrackingStartConfiming() {
+        function stopTrackStartConfirm() {
             console.log("stop user posit");
             isConfirmDeliveryPage = true;
             $("#step-name-label").text("Travel to Delivery Location");
@@ -1026,13 +1060,12 @@ function onDeviceReady() {
             $("#play-btn").css("visibility", "hidden");
             $("#timer").css("visibility", "hidden");
             directionsDisplay.setMap(null);
-            console.log("confirm infobox " + selectedMarkerIndex);
             google.maps.event.clearListeners($("#confirm-infobox-arrow-btn"), 'click');
             confirm_infobox.open(map, finish_markers[selectedMarkerIndex]);
             isConfirmBoxOpen = true;
         };
 
-        function stopConfirmingStartTracking() {
+        function stopConfirmStartTrack() {
             isConfirmDeliveryPage = false;
             $("#step-name-label").text("Travel to Delivery Location");
             $("#step-number-label").text("Step 3");
@@ -1052,7 +1085,6 @@ function onDeviceReady() {
             isConfirmBoxOpen = false;
         }
 
-
         function setConfirmAddressText() {
             console.log("addresses: " + JSON.stringify(addresses));
             $("#confirm-start-address").html(addressFormat(addresses[selectedMarkerIndex].start));
@@ -1064,23 +1096,27 @@ function onDeviceReady() {
             $("#finish-address").html(addressFormat(addresses[0].finish));
         }
 
+        //converts address string to right format
         function addressFormat(address) {
             var ad = address.split(',');
             return ad[0] + " " + ad[1] + " </br>" + ad[2].trim();
             +", " + ad[3] + ad[4];
         }
 
+        //hides all markers on map except selected
         function hideMarkers(map) {
             clearMarkers();
             start_markers[selectedMarkerIndex].setMap(map);
             finish_markers[selectedMarkerIndex].setMap(map);
         }
 
+        //hides all markers
         function clearMarkers() {
             setAllMap(null);
             clearFinishMarkers();
         }
 
+        //hides finish markers
         function clearFinishMarkers() {
             for (var i = 0; i < finish_markers.length; i++) {
                 if (!!finish_markers[i]) {
@@ -1089,14 +1125,15 @@ function onDeviceReady() {
             }
         }
 
+        //shows start markers and hides finish markers
         function showMarkers() {
-            console.log("check 2 " + map);
             if (!!map) {
                 setAllMap(map);
                 clearFinishMarkers();
             }
         }
 
+        //set visibility of start markers
         function setAllMap(map) {
             console.log("markers count " + start_markers.length);
             for (var i = 0; i < start_markers.length; i++) {
@@ -1106,6 +1143,7 @@ function onDeviceReady() {
             }
         }
 
+        //reject route functionality
         function rejectRoute() {
             navigator.notification.confirm("Do you really want to reject route",
                 function (button) {
@@ -1140,9 +1178,9 @@ function onDeviceReady() {
                     }
                 },
                 "Change route status", ["OK", "Cancel"])
-
         }
 
+        //Delivery Details Page
         var delivery_details = $('#delivery-details');
         delivery_details.on({
             pagebeforeshow: function (event, data) {
@@ -1178,6 +1216,7 @@ function onDeviceReady() {
                         transition: "slide"
                     });
                 });
+
                 delivery_details.on('click', '#signature-arrow-btn', function () {
                     if ($(this).hasClass("delivery-icon-arrow-enable")) {
                         console.log("changePage signature");
@@ -1187,6 +1226,7 @@ function onDeviceReady() {
                         });
                     }
                 });
+
                 delivery_details.on('click', '#cancel-pickup-btn', function () {
                     switch (current_page) {
                         case delivery_details_confirm_delivery_page:
@@ -1201,6 +1241,7 @@ function onDeviceReady() {
                             break;
                     }
                 });
+                
                 delivery_details.on('click', '#begin-tracking-btn', function () {
                     switch ($('#begin-tracking-btn').text()) {
                         case "Begin Tracking":
