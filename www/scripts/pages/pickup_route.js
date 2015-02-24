@@ -68,7 +68,7 @@ pickup.on({
         $('#green-circle-left').css('visibility', "visible");
         $('#map_canvas').gmap({
             'zoom': 10,
-            'disableDefaultUI': true,
+            'disableDefaultUI': false,
             'callback': function () {
             }
         });
@@ -325,7 +325,7 @@ var onSuccessGetUserPosition = function (position) {
     var mapOptions = {
         center: user,
         zoom: 15,
-        disableDefaultUI: true
+        disableDefaultUI: false
     };
     map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
     directionsDisplay = new google.maps.DirectionsRenderer();

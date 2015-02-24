@@ -19,8 +19,8 @@ splash.on({
     pageinit: function () {
         // Initialize Kinvey.
         var promise = Kinvey.init({
-            appKey: 'MY_APP_KEY',
-            appSecret: 'MY_APP_SECRET',
+            appKey: 'kid_VTpS9qbe7q',
+            appSecret: '5ae17c3bd8414d7f917c59a1c14a8fcd',
             sync: {
                 enable: true,
                 online: navigator.onLine
