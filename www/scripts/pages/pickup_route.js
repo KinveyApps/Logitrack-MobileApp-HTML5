@@ -194,7 +194,9 @@ pickup.on({
             }
         });
 
-        var userRoute = currentShipment.route;
+        if(currentShipment) {
+            var userRoute = currentShipment.route;
+        }
         navigator.geolocation.getCurrentPosition(onSuccessGetUserPosition, onErrorGetUserPosition);
     },
     pageshow: function () {

@@ -218,7 +218,37 @@ var loadShipment = function() {
         },
         success: function (data) {
             if (data.length == 0) {
-                alert("No route found");
+                shipments = [];
+                currentShipment = {};
+                clearMarkers();
+                finish_markers = [];
+                start_markers = [];
+                addresses = [];
+                selectedMarkerIndex = 0;
+                isStartMarkerSelected = false;
+                lastUserPosition = null;
+                last_time = [0, 0, 0];
+                isConfirmDeliveryPage = false;
+                isBackPressed = false;
+                isConfirmBoxOpen = false;
+                current_avatar_data_uri = null;
+                start_avatar_data_uri = null;
+                current_direction_route = null;
+                navigator.geolocation.getCurrentPosition(onSuccessGetUserPosition, onErrorGetUserPosition);
+                $('#green-circle-left').css('visibility', "visible");
+                $('#green-circle-central').css('visibility', "hidden");
+                $('#green-circle-right').css('visibility', "hidden");
+                $('#play-btn').css('visibility', "hidden");
+                $('#pause-btn').css('visibility', "hidden");
+                clearInterval(my_timer);
+                stopTrackingUserPosition();
+                $("#timer").css('visibility', "hidden");
+                $("#tracking-state").css('visibility', "hidden");
+                $("#tracking-state").text("TRACKING ON");
+                $("#tracking-state").css("color", "rgb(65,226,65)");
+                isNewLogin = false;
+                alert("You haven't dispatches");
+                $.mobile.changePage(pickup);
             } else {
                 console.log("shipments " + JSON.stringify(data));
                 //reinitialization main pickup screen variables
