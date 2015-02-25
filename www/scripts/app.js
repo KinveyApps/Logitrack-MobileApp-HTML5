@@ -205,8 +205,10 @@ function loadShipment() {
     $.mobile.loading("show");
     //TODO modify query
     var query = new Kinvey.Query();
-    //            query.notEqualTo('user_status', 'done');
+    query.equalTo('user_status', 'open').or().equalTo('user_status', 'in progress').or().equalTo('user_status', 'paused');
+    query.equalTo("driver._id", active_user._id);
     query.exists('route');
+    query.descending("_kmd.ect");
 
     //Kinvey get shipments that have route starts
     Kinvey.DataStore.find('shipment', query, {
@@ -219,6 +221,7 @@ function loadShipment() {
                 alert("No route found");
             } else {
 
+                console.log("shipments " + JSON.stringify(data));
                 //reinitialization main pickup screen variables
                 shipments = data;
                 currentShipment = data[0];

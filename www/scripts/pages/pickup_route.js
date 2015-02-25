@@ -290,6 +290,8 @@ function startTrackingUserPosition() {
             });
         }
         var user = Kinvey.getActiveUser();
+        //console.log("user " + JSON.);
+        user.position = {};
         user.position.lat = position.coords.latitude;
         user.position.lon = position.coords.longitude;
 
@@ -325,7 +327,7 @@ var onSuccessGetUserPosition = function (position) {
     var mapOptions = {
         center: user,
         zoom: 15,
-        disableDefaultUI: false
+        disableDefaultUI: true
     };
     map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
     directionsDisplay = new google.maps.DirectionsRenderer();
@@ -490,6 +492,7 @@ function setConfirmAddressText() {
 }
 
 function setPushNotifiAddressText() {
+    console.log("addresses: " + JSON.stringify(addresses));
     $("#start-address").html(addressFormat(addresses[0].start));
     $("#finish-address").html(addressFormat(addresses[0].finish));
 }
@@ -497,6 +500,13 @@ function setPushNotifiAddressText() {
 //converts address string to right format
 function addressFormat(address) {
     var ad = address.split(',');
-    return ad[0] + " " + ad[1] + " </br>" + ad[2].trim();
-    +", " + ad[3] + ad[4];
+    var result = "";
+    for (var i = 0; i < ad.length; i++) {
+        if (i == 2) {
+            result += " </br>" + ad[i].trim();
+        } else {
+            result += ad[i];
+        }
+    }
+    return result;
 }
