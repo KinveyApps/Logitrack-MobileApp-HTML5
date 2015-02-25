@@ -68,7 +68,7 @@ pickup.on({
         $('#green-circle-left').css('visibility', "visible");
         $('#map_canvas').gmap({
             'zoom': 10,
-            'disableDefaultUI': false,
+            'disableDefaultUI': true,
             'callback': function () {
             }
         });
@@ -364,7 +364,7 @@ function updateCheckin() {
                         shipment_id: currentShipment._id,
                         position: {
                             lat: results[0].geometry.location.k,
-                            lon: results[0].geometry.location.A
+                            lon: results[0].geometry.location.D
                         }
                     }, {
                         success: function (response) {
@@ -415,8 +415,8 @@ function onErrorGetUserPosition(error) {
 function calcRoute() {
     console.log("calc route");
     var request = {
-        origin: new google.maps.LatLng(start_markers[selectedMarkerIndex].getPosition().k, start_markers[selectedMarkerIndex].getPosition().A),
-        destination: new google.maps.LatLng(finish_markers[selectedMarkerIndex].getPosition().k, finish_markers[selectedMarkerIndex].getPosition().A),
+        origin: new google.maps.LatLng(start_markers[selectedMarkerIndex].getPosition().lat(), start_markers[selectedMarkerIndex].getPosition().lng()),
+        destination: new google.maps.LatLng(finish_markers[selectedMarkerIndex].getPosition().lat(), finish_markers[selectedMarkerIndex].getPosition().lng()),
         travelMode: google.maps.DirectionsTravelMode.DRIVING
     };
     directionsService.route(request, function (response, status) {
