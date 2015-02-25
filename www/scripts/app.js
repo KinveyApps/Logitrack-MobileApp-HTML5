@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* global $: true, Kinvey: true */
 
 var active_user;
 var current_page = 1;
@@ -201,12 +200,13 @@ function saveShipment(shipment, cb) {
 }
 
 //Load route
-function loadShipment() {
+var loadShipment = function() {
     $.mobile.loading("show");
     //TODO modify query
+    var user = Kinvey.getActiveUser();
     var query = new Kinvey.Query();
     query.equalTo('user_status', 'open').or().equalTo('user_status', 'in progress').or().equalTo('user_status', 'paused');
-    query.equalTo("driver._id", active_user._id);
+    query.equalTo("driver._id", user._id);
     query.exists('route');
     query.descending("_kmd.ect");
 
@@ -220,7 +220,6 @@ function loadShipment() {
             if (data.length == 0) {
                 alert("No route found");
             } else {
-
                 console.log("shipments " + JSON.stringify(data));
                 //reinitialization main pickup screen variables
                 shipments = data;
