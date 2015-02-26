@@ -31,13 +31,12 @@ var promise = Kinvey.init({
 
 3. Install all necessary cordova plugins:
 
-   `cordova plugin add org.apache.cordova.geolocation
-   
-    cordova plugin add org.apache.cordova.device
-    
-    cordova plugin add org.apache.cordova.dialogs
-    
-    cordova plugin add org.apache.cordova.camera`
+```
+   cordova plugin add org.apache.cordova.geolocation
+   cordova plugin add org.apache.cordova.device
+   cordova plugin add org.apache.cordova.dialogs
+   cordova plugin add org.apache.cordova.camera
+```
 
 4. Add platform that you want to build
 
@@ -53,17 +52,18 @@ var promise = Kinvey.init({
 
    If you see only white screen try to update platform code running these commands:
 
-   `cordova platform add <PLATFORM>
-   
+   ```
+    cordova platform add <PLATFORM>
     cordova platform remove <PLATFORM>
-    
     cordova platform add <PLATFORM>`
+   ```
 
    One other possible solution is to update plugins. You could do this by running these commands for all plugins:
 
-   `cordova plugin rm <PLUGIN_NAME>
-   
-    cordova plugin add <PLUGIN_NAME>`
+   ```
+   cordova plugin rm <PLUGIN_NAME>
+   cordova plugin add <PLUGIN_NAME>
+   ```
 
 
 ## License
