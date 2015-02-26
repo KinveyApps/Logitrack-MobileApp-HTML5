@@ -74,17 +74,7 @@ pickup.on({
         });
 
         pickup.on('click', '#pause-btn', function () {
-            clearInterval(my_timer);
-            stopTrackingUserPosition();
-            $("#tracking-state").text("PAUSED");
-            $("#tracking-state").css("color", "red");
-            $("#play-btn").css("visibility", "visible");
-            $("#pause-btn").css("visibility", "hidden");
-            $("#green-circle-central").css("background", "red");
-            currentShipment.user_status = "paused";
-            saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
-            });
-
+           pauseTracking();
         });
 
         pickup.on('click', "#menu-btn", function () {
@@ -94,21 +84,16 @@ pickup.on({
         });
 
         pickup.on('click', '#play-btn', function () {
-            startTrackingUserPosition();
-            my_timer = setInterval(function () {
-                setTimerValue()
-            }, 1000);
-            $("#tracking-state").text("TRACKING ON");
-            $("#tracking-state").css("color", "rgb(65,226,65)");
-            $("#pause-btn").css("visibility", "visible");
-            $("#play-btn").css("visibility", "hidden");
-            $("#green-circle-central").css("background", "rgba(69,191,69,0.8)");
-            currentShipment.user_status = "in progress";
-            saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
-            });
+            resumeTracking();
         });
 
         pickup.on('click', '#next-btn', function () {
+
+          
+            setTimeout(function(){
+
+                console.log("last time " + getTimer());
+            },5000);
             if (isStartMarkerSelected) {
                 switch (current_page) {
                     case travel_page:
@@ -210,13 +195,46 @@ pickup.on({
     }
 });
 
+function pauseTracking(){
+    console.log("pause tracking");
+    clearInterval(my_timer);
+    stopTrackingUserPosition();
+    $("#tracking-state").text("PAUSED");
+    $("#tracking-state").css("color", "red");
+    $("#play-btn").css("visibility", "visible");
+    $("#pause-btn").css("visibility", "hidden");
+    $("#green-circle-central").css("background", "red");
+    currentShipment.user_status = "paused";
+    setLastShipmentStatus("paused");
+    console.log("status " + getLastShipmentStatus());
+    saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
+    });
+}
+
+function resumeTracking() {
+    startTrackingUserPosition();
+    my_timer = setInterval(function () {
+        setTimerValue()
+    }, 1000);
+    $("#tracking-state").text("TRACKING ON");
+    $("#tracking-state").css("color", "rgb(65,226,65)");
+    $("#pause-btn").css("visibility", "visible");
+    $("#play-btn").css("visibility", "hidden");
+    $("#green-circle-central").css("background", "rgba(69,191,69,0.8)");
+    currentShipment.user_status = "in progress";
+    setLastShipmentStatus("in progress");
+    setLastShipmentId(currentShipment._id);
+    saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
+    });
+}
+
 //tracking page initialization
 function beginTrackingPagePreload() {
     console.log("begin tracking preload");
     $('#checkin-tap-div').text("Tap map to send check-in update");
     last_time = [0, 0, 0];
     my_timer = setInterval(function () {
-        setTimerValue()
+        setTimerValue();
     }, 1000);
     $('#tracking-state').css('visibility', "visible");
     $('#timer').css('visibility', "visible");
@@ -230,7 +248,14 @@ function beginTrackingPagePreload() {
     isStartMarkerSelected = true;
     $("#step-name-label").text("Travel to Delivery Location");
     $("#step-number-label").text("Step 2");
-    currentShipment.user_status = "in progress";
+    if(getLastShipmentStatus() == "paused"){
+        currentShipment.user_status = "paused";
+        setLastShipmentStatus("paused");
+    }else {
+        currentShipment.user_status = "in progress";
+        setLastShipmentStatus("in progress");
+    }
+    setLastShipmentId(currentShipment._id);
     Date.prototype.timeNow = function () {
         return ((this.getHours() < 10) ? "0" : "") + this.getHours() + ":" + ((this.getMinutes() < 10) ? "0" : "") + this.getMinutes() + ":" + ((this.getSeconds() < 10) ? "0" : "") + this.getSeconds();
     };
@@ -349,6 +374,26 @@ var onSuccessGetUserPosition = function (position) {
     google.maps.event.addListener(map, 'click', function () {
         updateCheckin();
     });
+    
+    if(getLastShipmentStatus() == "in progress" || getLastShipmentStatus() == "paused"){
+        current_page = travel_page;
+        beginTrackingPagePreload();
+        startTrackingUserPosition();
+        last_time = getTimer();
+        hideMarkers(map);
+        $("#next-label").css("visibility","visible");
+        console.log("status " + getLastShipmentStatus());
+        if(getLastShipmentStatus() == "paused"){
+            pauseTracking();
+            var h = last_time[0];
+            var m = last_time[1];
+            var s = last_time[2];
+            if (h < 10) h = "0" + h;
+            if (m < 10) m = "0" + m;
+            if (s < 10) s = "0" + s;
+            $("#timer").text(h + ':' + m + ':' + s);
+        }
+    }
 };
 
 //creates checkin each time when user click on map on travel page
@@ -448,6 +493,7 @@ function setTimerValue() {
     if (m < 10) m = "0" + m;
     if (s < 10) s = "0" + s;
     $("#timer").text(h + ':' + m + ':' + s);
+    saveTimer(last_time,new Date().getTime());
 }
 
 function stopTrackStartConfirm() {

@@ -21,6 +21,11 @@ function addAllStartMarkers(map) {
     var finish_marker;
     var route_addresses;
     for (var i in shipments) {
+        if((getLastShipmentStatus() == "in progress"||getLastShipmentStatus() == "paused") && shipments[i]._id == getLastShipmentId()){
+            currentShipment = shipments[i];
+            selectedMarkerIndex = i;
+            isStartMarkerSelected = true;
+        }
         if (!!shipments[i].route) {
             route_addresses = {
                 start: shipments[i].route.start,
@@ -50,7 +55,7 @@ function addAllStartMarkers(map) {
                     isStartMarkerSelected = true;
                 }
             });
-            if (i == 0 && isFirstStart) {
+            if (i == 0 && isFirstStart && (getLastShipmentStatus()!=="in progress" && getLastShipmentStatus()!=="paused")) {
                 $("#alertcontainer").css("display", "block");
                 $("#messagefg").css("display", "block");
                 setPushNotifiAddressText();

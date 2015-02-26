@@ -91,6 +91,10 @@ delivery_details.on({
                             if (button == 1) {
                                 current_page = pickup_route_page;
                                 currentShipment.user_status = "done";
+                                setLastShipmentStatus("done");
+                                clearTimer();
+                                $("#timer").text('00:00:00');
+                                isFirstStart = false;
                                 saveShipment(JSON.parse(JSON.stringify(currentShipment)), function (data) {
                                     $("#tracking-state").css("visibility", "hidden");
                                     $("#green-circle-right").css("visibility", "hidden");
@@ -104,7 +108,7 @@ delivery_details.on({
                                 });
                             }
                         },
-                        "Change route status", ["OK", "Cancel"])
+                        "Change route status", ["OK", "Cancel"]);
                     break;
             }
 
