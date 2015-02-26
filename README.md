@@ -1,7 +1,6 @@
 Logitrack-HTML5
 ===============
 
-
 ##Get Kinvey API Keys
 
 1. Visit [Kinvey official site](http://www.kinvey.com/) and create your own Kinvey account.
@@ -20,6 +19,46 @@ var promise = Kinvey.init({
             }
         });
 ```
+
+##Installation
+
+1. Install [node.js](http://nodejs.org/download/) on your machine
+2. Install latest version of cordova:
+
+   `sudo npm install -g cordova`
+
+   Windows users should run command without sudo
+
+3. Install all necessary cordova plugins:
+
+   `cordova plugin add org.apache.cordova.geolocation
+    cordova plugin add org.apache.cordova.device
+    cordova plugin add org.apache.cordova.dialogs
+    cordova plugin add org.apache.cordova.camera`
+
+4. Add platform that you want to build
+
+   `cordova platform add <platform>`
+
+5. For launch app run command
+
+   `cordova emulate <PLATFORM>`
+
+##Troubleshouting
+   If you successfully run the app but see only blue map, try to change location of your simulator.
+   iOS: Simulator Menu -> Debug -> Location
+
+   If you see only white screen try to update platform code running these commands:
+
+   `cordova platform add <PLATFORM>
+    cordova platform remove <PLATFORM>
+    cordova platform add <PLATFORM>`
+
+   One other possible solution is to update plugins. You could do this by running these commands for all plugins:
+
+   `cordova plugin rm <PLUGIN_NAME>
+    cordova plugin add <PLUGIN_NAME>`
+
 
 ## License
 
