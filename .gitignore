@@ -1,4 +1,5 @@
 platforms/android
 platforms/ios
+plugins/*
 merges
 .idea
