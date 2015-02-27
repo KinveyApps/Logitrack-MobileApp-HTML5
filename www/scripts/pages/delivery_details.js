@@ -93,6 +93,7 @@ delivery_details.on({
                                 currentShipment.user_status = "done";
                                 setLastShipmentStatus("done");
                                 clearTimer();
+                                clearRestaurantMarkers();
                                 $("#timer").text('00:00:00');
                                 isFirstStart = false;
                                 saveShipment(JSON.parse(JSON.stringify(currentShipment)), function (data) {

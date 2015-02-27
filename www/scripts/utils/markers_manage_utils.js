@@ -115,3 +115,29 @@ function setAllMap(map) {
     }
 }
 
+function clearRestaurantMarkers(){
+    for (var i = 0; i < restaurantMarkers.length; i++) {
+        if (!!restaurantMarkers[i]) {
+            restaurantMarkers[i].setMap(null);
+        }
+    }
+}
+
+
+function createRestaurantMarker(place){
+    var placeLoc = place.fullResults.geometry.location;
+    if (place.icon) {
+        var image = new google.maps.MarkerImage(
+            place.icon, new google.maps.Size(71, 71),
+            new google.maps.Point(0, 0), new google.maps.Point(17, 34),
+            new google.maps.Size(25, 25));
+    } else var image = null;
+
+    var marker=new google.maps.Marker({
+        map:map,
+        icon: image,
+        position: placeLoc
+    });
+
+    restaurantMarkers.push(marker);
+}

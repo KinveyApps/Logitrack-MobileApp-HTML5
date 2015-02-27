@@ -18,6 +18,7 @@ var lastUserPosition = null;
 var shipments = null;
 var start_markers = [];
 var finish_markers = [];
+var restaurantMarkers = [];
 var addresses = [];
 var selectedMarkerIndex = 0;
 var map;
@@ -28,6 +29,8 @@ var my_timer;
 var last_time = [0, 0, 0];
 var bounds = new google.maps.LatLngBounds();
 var geocoder = new google.maps.Geocoder();
+var rboxer = new RouteBoxer();
+var restaurantDistance = 20; // km
 
 //Pickup route page
 var pickup = $('#pickup-route');
@@ -471,6 +474,40 @@ function calcRoute() {
             current_direction_route = response;
             directionsDisplay.setDirections(response);
             directionsDisplay.setMap(map);
+            // Box the overview path of the first route
+            var path = response.routes[0].overview_path;
+            var boxes = rboxer.box(path, restaurantDistance);
+            for (var i = 0; i < boxes.length; i++) {
+                var bounds = boxes[i].toString();
+                var c = bounds.replace( /[\s()]/g, '' ).split( ',' );
+                
+                // Query for restaurants close by.
+                
+                
+                var query = new Kinvey.Query();
+                //query.withinBox('_geoloc',[0,0],[100,100]);
+                //query.withinBox('_geoloc', [c[0],c[1]],[c[2],c[3]]);
+                var lat = parseFloat(c[1]);
+                var lng = parseFloat(c[0]);
+                var coord = [lat,lng];
+
+                query.near('_geoloc',coord,1000);
+                var promise = Kinvey.DataStore.find('restaurants', query, {
+                    success : function(response) 
+                    {
+                        for (var i = 0;i< response.length; i++) {
+                            if(response[i]) {
+                                var marker = createRestaurantMarker(response[i]);
+                                marker.setMap(map);
+                            }
+                        }
+                    },
+                    error : function(error){
+                        console.log("restaurant error " + JSON.stringify(error));
+                    }
+                });
+
+            }
         }
     });
 }
