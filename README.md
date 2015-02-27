@@ -20,6 +20,13 @@ var promise = Kinvey.init({
         });
 ```
 
+
+## Preinstallation for building app on Android:
+
+ 1. Install [Android SDK](https://spring.io/guides/gs/android/)
+ 2. Install [Apache ANT](http://ant.apache.org/manual/install.html#jpackage)
+
+
 ##Installation
 
 1. Install [node.js](http://nodejs.org/download/) on your machine
