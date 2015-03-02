@@ -202,6 +202,7 @@ function saveShipment(shipment, cb) {
 
 //Load route
 var loadShipment = function() {
+    registerPushNotifications();
     $.mobile.loading("show");
     //TODO modify query
     var user = Kinvey.getActiveUser();
@@ -266,8 +267,8 @@ var loadShipment = function() {
                 }
                 if (isDeliveryComplitedClicked) {
                     addAllStartMarkers(map);
-                    //map.setCenter(user_marker.getPosition());
                     map.setCenter(mapCenter);
+                    map.setZoom(3);
                     isDeliveryComplitedClicked = false;
                 }
                 if (isNewLogin) {

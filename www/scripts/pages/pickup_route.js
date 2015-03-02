@@ -576,10 +576,9 @@ function setConfirmAddressText() {
     $("#confirm-finish-address").html(addressFormat(addresses[selectedMarkerIndex].finish));
 }
 
-function setPushNotifiAddressText() {
-    console.log("addresses: " + JSON.stringify(addresses));
-    $("#start-address").html(addressFormat(addresses[0].start));
-    $("#finish-address").html(addressFormat(addresses[0].finish));
+function setPushNotifiAddressText(index) {
+    $("#start-address").html(addressFormat(addresses[index].start));
+    $("#finish-address").html(addressFormat(addresses[index].finish));
 }
 
 //converts address string to right format

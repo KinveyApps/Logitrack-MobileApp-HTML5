@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-var isFirstStart = true;
-
 //Delivery Details Page
 var delivery_details = $('#delivery-details');
 delivery_details.on({
@@ -95,7 +93,6 @@ delivery_details.on({
                                 clearTimer();
                                 clearRestaurantMarkers();
                                 $("#timer").text('00:00:00');
-                                isFirstStart = false;
                                 saveShipment(JSON.parse(JSON.stringify(currentShipment)), function (data) {
                                     $("#tracking-state").css("visibility", "hidden");
                                     $("#green-circle-right").css("visibility", "hidden");

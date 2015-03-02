@@ -55,12 +55,13 @@ function addAllStartMarkers(map) {
                     isStartMarkerSelected = true;
                 }
             });
-            if (i == 0 && isFirstStart && (getLastShipmentStatus()!=="in progress" && getLastShipmentStatus()!=="paused")) {
-                $("#alertcontainer").css("display", "block");
-                $("#messagefg").css("display", "block");
-                setPushNotifiAddressText();
-                isFirstStart = false;
-            }
+
+            //if (shipments[i]._id == notificationShipmentId) {
+            //    $("#alertcontainer").css("display", "block");
+            //    $("#messagefg").css("display", "block");
+            //    setPushNotifiAddressText(i);
+            //    isFirstStart = false;
+            //}
             showMarkers();
 
             //creates finish marker
