@@ -355,8 +355,8 @@ var onSuccessGetUserPosition = function (position) {
 
     //map creation
     var mapOptions = {
-        center: user,
-        zoom: 15,
+        center: mapCenter,
+        zoom: 3,
         disableDefaultUI: true
     };
     map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);

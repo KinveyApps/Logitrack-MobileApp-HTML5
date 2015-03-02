@@ -33,6 +33,7 @@ var infobox;
 var confirm_infobox;
 var current_direction_route = null;
 var isNewLogin = false;
+var mapCenter = new google.maps.LatLng(40.111689,-96.943359);
 
 function onDeviceReady() {
     console.log("device plat " + device.platform);
@@ -265,7 +266,8 @@ var loadShipment = function() {
                 }
                 if (isDeliveryComplitedClicked) {
                     addAllStartMarkers(map);
-                    map.setCenter(user_marker.getPosition());
+                    //map.setCenter(user_marker.getPosition());
+                    map.setCenter(mapCenter);
                     isDeliveryComplitedClicked = false;
                 }
                 if (isNewLogin) {
