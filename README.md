@@ -43,6 +43,9 @@ var promise = Kinvey.init({
    cordova plugin add org.apache.cordova.device
    cordova plugin add org.apache.cordova.dialogs
    cordova plugin add org.apache.cordova.camera
+   cordova plugin add org.apache.cordova.vibration
+   cordova plugin add "https://github.com/phonegap-build/PushPlugin.git"
+
 ```
 
 4. Add platform that you want to build
@@ -70,6 +73,24 @@ var promise = Kinvey.init({
    ```
    cordova plugin rm <PLUGIN_NAME>
    cordova plugin add <PLUGIN_NAME>
+   ```
+
+## Push Notifications for Android
+
+   Create your own Google API project according (this)[http://devcenter.kinvey.com/phonegap/guides/push#ConsoleSetUp] documentation and
+   set your own Google project number in 'scripts/utils/push_utils.js' file:
+
+   ```javascript
+   if ('android' === device.platform.toLowerCase()) {
+          window.plugins.pushNotification.register(function (deviceId) {
+              console.log("register with success " + deviceId);
+          }, function (error) {
+              console.log("push register error " + JSON.stringify(error));
+          }, {
+              ecb: 'onNotificationGCM',
+              senderID: '55343369787'// Google Project Number.
+          });
+      }
    ```
 
 
