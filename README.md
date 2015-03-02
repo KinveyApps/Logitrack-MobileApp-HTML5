@@ -88,7 +88,7 @@ var promise = Kinvey.init({
               console.log("push register error " + JSON.stringify(error));
           }, {
               ecb: 'onNotificationGCM',
-              senderID: '55343369787'// Google Project Number.
+              senderID: '<GOOGLE PROJECT NUMBER>'// Google Project Number.
           });
       }
    ```
