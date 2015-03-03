@@ -61,6 +61,8 @@ pickup.on({
                         current_page = pickup_route_page;
                     }
                     break;
+                case open_dispatches_page:
+                    current_page = previous_page;
             }
             isBackPressed = false;
         }
@@ -182,6 +184,12 @@ pickup.on({
             }
         });
 
+        pickup.on("click", "#locate-btn", function(){
+            $.mobile.changePage(dispatch, {
+                transition: "slide"
+            });
+        });
+
         if(currentShipment) {
             var userRoute = currentShipment.route;
         }
@@ -195,6 +203,41 @@ pickup.on({
         pickup.contentHeight = the_height;
         $(this).find('[data-role="content"]').height(the_height);
         $(this).find('#map_canvas').height(the_height + 32);
+
+        if(isDispatchFromList){
+            $("#alertcontainer").css("display", "block");
+            $("#message-confirm").css("display", "block");
+            $("#step-number-label").text("Step 1");
+            $("#step-name-label").text("Pickup");
+            directionsDisplay.setMap(null);
+            setConfirmAddressText();
+            hideMarkers(map);
+            isStartMarkerSelected = true;
+            current_page = pickup_route_page;
+            isDispatchFromList = false;
+
+            $("#timer").text('00:00:00');
+            $("#tracking-state").css("visibility", "hidden");
+            $("#green-circle-right").css("visibility", "hidden");
+            $("#green-circle-central").css("visibility", "hidden");
+            $("#green-circle-left").css("visibility", "visible");
+            $("#timer").css('visibility', "hidden");
+            $("#tracking-state").text("TRACKING ON");
+            $("#tracking-state").css("color", "rgb(65,226,65)");
+            $("#pause-btn").css("visibility", "hidden");
+            $("#play-btn").css("visibility", "hidden");
+            $("#green-circle-central").css("background", "rgba(69,191,69,0.8)");
+            confirm_infobox.close();
+            confirm_infobox.setMap(null);
+            infobox.close();
+            infobox.setMap(null);
+            last_time = [0, 0, 0];
+            clearInterval(my_timer);
+            isConfirmBoxOpen = false;
+
+            isDeliveryComplitedClicked = true;
+            selectedMarkerIndex = index;
+        }
     }
 });
 
@@ -475,39 +518,26 @@ function calcRoute() {
             directionsDisplay.setDirections(response);
             directionsDisplay.setMap(map);
             // Box the overview path of the first route
-            var path = response.routes[0].overview_path;
-            var boxes = rboxer.box(path, restaurantDistance);
-            for (var i = 0; i < boxes.length; i++) {
-                var bounds = boxes[i].toString();
-                var c = bounds.replace( /[\s()]/g, '' ).split( ',' );
-                
-                // Query for restaurants close by.
-                
-                
-                var query = new Kinvey.Query();
-                //query.withinBox('_geoloc',[0,0],[100,100]);
-                //query.withinBox('_geoloc', [c[0],c[1]],[c[2],c[3]]);
-                var lat = parseFloat(c[1]);
-                var lng = parseFloat(c[0]);
-                var coord = [lat,lng];
-
-                query.near('_geoloc',coord,1000);
-                var promise = Kinvey.DataStore.find('restaurants', query, {
-                    success : function(response) 
-                    {
-                        for (var i = 0;i< response.length; i++) {
-                            if(response[i]) {
-                                var marker = createRestaurantMarker(response[i]);
-                                marker.setMap(map);
-                            }
-                        }
-                    },
-                    error : function(error){
-                        console.log("restaurant error " + JSON.stringify(error));
-                    }
-                });
-
-            }
+            //var path = response.routes[0].overview_path;
+            //var boxes = rboxer.box(path, restaurantDistance);
+            //for (var i = 0; i < boxes.length; i++) {
+            //    var request = {
+            //        bounds: boxes[i],
+            //        types: ['restaurant']
+            //    };
+            //
+            //    placesService.radarSearch(request, function (results, status) {
+            //        console.log("restaurant search result " + status );
+            //        if (status == google.maps.places.PlacesServiceStatus.OK) {
+            //            console.log("length " + results.length);
+            //            for (var i = 0; i < results.length; i++) {
+            //                var marker = createRestaurantMarker(results[i]);
+            //                marker.setMap(map);
+            //
+            //            }
+            //        }
+            //    });
+            //}
         }
     });
 }

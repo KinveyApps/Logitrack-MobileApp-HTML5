@@ -163,7 +163,6 @@
     </div>
 </div>
 
-
 <!--Profile Screen-->
 <div data-role="page" data-title="User Profile" id="user-profile">
     <div>
@@ -173,7 +172,7 @@
         <p id="profile-edit" class="right-header-div profile-header-div">EDIT</p>
     </div>
     <div class="initials-avatar-div">
-        <img id="user-avatar"></img>
+        <img id="user-avatar"/>
 
         <div class="initials-div">
             <div id="first-name-div" class="span-div">
@@ -219,11 +218,15 @@
             <div class="delivery-list-separator"></div>
         </div>
     </div>
+
+        <div class="push-checkbox-wrapper">
+            <input id="push-checkbox" type="checkbox" /> <span class="push-label">Push notifications</span>
+        </div>
+
     <div id="sign-out-btn">
         SIGN OUT
     </div>
 </div>
-
 
 <!-- Delivery Details-->
 
@@ -279,6 +282,16 @@
 
 </div>
 
+<!-- Shipments Screen -->
+<div data-role="page" data-title="Open Dispatches" id="open-dispatch">
+    <div style="padding-bottom: 0;margin-bottom: 0">
+        <div class="back-arrow ios-back-arrow" id="dispatch-back"></div>
+        <p id="dispatch-title" class="ios-profile-title" align="center">OPEN DISPATCHES</p>
+    </div>
+    <ul id="dispatch-list">
+    </ul>
+</div>
+
 <!--Signature -->
 
 <div data-role="page" data-title="Signature" id="signature">
@@ -326,6 +339,7 @@
 <script src="scripts/pages/user_profile.js"></script>
 <script src="scripts/pages/delivery_details.js"></script>
 <script src="scripts/pages/signature.js"></script>
+<script src="scripts/pages/open_dispatches.js"></script>
 <script src="scripts/pages/splash.js"></script>
 <script src="scripts/utils/markers_manage_utils.js"></script>
 <script src="scripts/utils/storage_utils.js"></script>

@@ -74,3 +74,26 @@ function clearTimer(){
     localStorage.setItem("timer","0,0,0");
     //localStorage.setItem("lastTimeOfSave",);
 }
+
+function getPushStatus() {
+    var status = localStorage.getItem("push");
+    if(status){
+        return status;
+    }else{
+        return "enabled";
+    }
+}
+
+function savePushStatus(status) {
+    localStorage.setItem("push", status);
+}
+
+function getDeviceId() {
+    var deviceId = localStorage.getItem("deviceId");
+    console.log("device id " + deviceId);
+    return deviceId;
+}
+
+function saveDeviceId(deviceId) {
+    localStorage.setItem("deviceId", deviceId);
+}

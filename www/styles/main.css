@@ -103,13 +103,12 @@ br {
 }
 
 #locate-btn {
-    background: url(../images/locate.png) no-repeat;
-    width: 21px;
-    height: 21px;
-    left: 15px;
+    background: url(../images/locate.png) no-repeat center;
+    width: 60px;
+    height: 50px;
     position: absolute;
     background-size: 21px 21px;
-    margin-top: 15px;
+
 }
 
 #next-div {
@@ -569,13 +568,16 @@ br {
     font-size: 15px;
     margin-left: 30%;
 }
-
-#user-profile input{
-    margin-left: 10px;
-    line-height: 34px;
-    border:none;
-    height:30px;
+#user-profile{
+    padding-bottom: 0 !important;
 }
+
+/*#user-profile input{*/
+    /*margin-left: 10px;*/
+    /*line-height: 34px;*/
+    /*border:none;*/
+    /*height:30px;*/
+/*}*/
 
 #menu-btn:active,#next-btn:active,#signature-arrow-btn:active,#profile-edit:active{
     opacity: 0.5;
@@ -668,4 +670,40 @@ br {
     left: 0;
     bottom: 0;
     right: 0;
+}
+
+#dispatch-list{
+    list-style-type: none;
+    padding-left: 0;
+    padding-top: 0;
+    margin-top: 0;
+}
+
+#dispatch-list li{
+    padding-left: 10px;
+    padding-right: 10px;
+    border-bottom: 1px solid #000000;
+}
+
+#dispatch-list li:active{
+    background-color: #1B7BF9;
+}
+
+#dispatch-list li p{
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-bottom: 10px;
+    padding-top: 10px
+}
+
+.push-checkbox-wrapper{
+    margin-top: 20px;
+}
+
+.push-checkbox-wrapper .push-label{
+    margin-left: 40px;
+}
+
+.push-checkbox-wrapper .ui-checkbox{
+    display: inline;
 }

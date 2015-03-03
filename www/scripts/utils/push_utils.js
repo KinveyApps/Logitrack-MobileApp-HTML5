@@ -3,8 +3,8 @@ var notificationShipmentId;
 
 function registerPushNotifications() {
     if ('android' === device.platform.toLowerCase()) {
-        window.plugins.pushNotification.register(function (deviceId) {
-            console.log("register with success " + deviceId);
+        window.plugins.pushNotification.register(function () {
+            console.log("register with success ");
         }, function (error) {
             console.log("push register error " + JSON.stringify(error));
         }, {
@@ -28,22 +28,18 @@ function registerPushNotifications() {
 var onNotificationGCM = function (e) {
     console.log("register push " + JSON.stringify(e));
     if ('registered' === e.event) {
+        saveDeviceId(e.regid);
         registrationHandler(e.regid);// Register with Kinvey.
     }
     else if ('message' === e.event) {
         console.log("message format " + JSON.stringify(e));
-        console.log("shipments push " + JSON.stringify(shipments));
-        var shipmentId = e.message;
-        console.log("shipment id " + shipmentId);
-
-
         var user = Kinvey.getActiveUser();
         var query = new Kinvey.Query();
-        query.equalTo("_id", shipmentId);
         query.equalTo('user_status', 'open');
         query.equalTo("driver._id", user._id);
         query.exists('route');
         query.descending("_kmd.ect");
+        query.limit(1);
 
         //Kinvey get shipments that have route starts
         Kinvey.DataStore.find('shipment', query, {
@@ -51,23 +47,23 @@ var onNotificationGCM = function (e) {
                 'checkins': 'shipment-checkins',
                 'route': 'route'
             }, success: function (data) {
-                currentShipment = data[0];
+                var newShipment = data[0];
 
-                shipments.push(currentShipment);
-                if (currentShipment.route) {
+                shipments.unshift(newShipment);
+                if (newShipment.route) {
                     var route_addresses = {
-                        start: currentShipment.route.start,
-                        finish: currentShipment.route.finish
+                        start: newShipment.route.start,
+                        finish: newShipment.route.finish
                     };
-                    addresses.push(route_addresses);
+                    addresses.unshift(route_addresses);
 
                     //creates start marker
                     var start_marker = new google.maps.Marker({
-                        position: new google.maps.LatLng(currentShipment.route.start_lat, currentShipment.route.start_long),
+                        position: new google.maps.LatLng(newShipment.route.start_lat, newShipment.route.start_long),
                         map: map,
                         icon: 'images/start_marker.png'
                     });
-                    start_markers.push(start_marker);
+                    start_markers.unshift(start_marker);
 
                     //add start marker click listener
                     google.maps.event.addListener(start_marker, 'click', function () {
@@ -83,21 +79,18 @@ var onNotificationGCM = function (e) {
                             isStartMarkerSelected = true;
                         }
                     });
-                    $("#alertcontainer").css("display", "block");
-                    $("#messagefg").css("display", "block");
-                    selectedMarkerIndex = shipments.length - 1;
-                    $("#start-address").html(addressFormat(addresses[selectedMarkerIndex].start));
-                    $("#finish-address").html(addressFormat(addresses[selectedMarkerIndex].finish));
+
+                    navigator.notification.alert("You have a new pickup. Please go to your dispatch list to accept.",function(){},'New pickup','OK');
                     showMarkers();
 
                     //creates finish marker
                     var finish_marker = new google.maps.Marker({
-                        position: new google.maps.LatLng(currentShipment.route.finish_lat, currentShipment.route.finish_long),
+                        position: new google.maps.LatLng(newShipment.route.finish_lat, newShipment.route.finish_long),
                         map: map,
                         icon: 'images/finish_marker.png'
                     });
                     finish_marker.setMap(null);
-                    finish_markers.push(finish_marker);
+                    finish_markers.unshift(finish_marker);
                 }
             }
 
@@ -116,12 +109,13 @@ var onNotificationAPN = function () {
 // Method to register device with Kinvey.
 var registrationHandler = function (deviceId) {
     console.log("registration handler " + deviceId);
+    saveDeviceId(deviceId);
+    savePushStatus("enabled");
     if (null === Kinvey.getActiveUser()) {
         // Error: there must be a logged-in user.
     }
     else {
         Kinvey.Push.register(deviceId).then(function () {
-            // Successfully registered device with Kinvey.
         }, function (error) {
             // Error registering device with Kinvey.
         })
@@ -130,8 +124,16 @@ var registrationHandler = function (deviceId) {
 function unregisterPushNotifications() {
 
     window.plugins.pushNotification.unregister(function () {
-        // Success.
         console.log("unregister with success");
+    });
+    console.log("device Id " + getDeviceId());
+    var deviceId = getDeviceId();
+    Kinvey.Push.unregister(deviceId).then(function() {
+        console.log("unregister with success ");
+        savePushStatus('disabled');
+        saveDeviceId(null);
+    },function(error){
+        console.log("unregistered with error " + JSON.stringify(error));
     });
 }
 

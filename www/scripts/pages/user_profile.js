@@ -122,6 +122,22 @@ user_profile.on({
                 getPhoto();
             }
         });
+
+        if (getPushStatus() == 'enabled') {
+            $('#push-checkbox').attr('checked', true);
+        } else {
+            $('#push-checkbox').attr('checked', false);
+        }
+
+        user_profile.on('click', "#push-checkbox", function () {
+            console.log("checkbox click");
+            var status = $('#push-checkbox').prop('checked');
+            if (status) {
+                registerPushNotifications();
+            } else {
+                unregisterPushNotifications();
+            }
+        });
     },
     pagebeforeshow: function () {
         active_user = Kinvey.getActiveUser();
