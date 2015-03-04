@@ -579,23 +579,23 @@ function calcRoute(updateMarkers) {
                     var lng = (parseFloat(c[0]) + parseFloat(c[2])) / 2;
                     var coord = [lat, lng];
 
-
-                    query.near('_geoloc', coord, 1);
-                    var promise = Kinvey.DataStore.find('restaurants', query, {
-                        success : function(response)
-                        {
-                            console.log("restaurants " + JSON.stringify(response));
-                            for (var i = 0;i< response.length; i++) {
-                                if(response[i]) {
-                                    var marker = createRestaurantMarker(response[i]);
-                                    marker.setMap(map);
+                    if (getRestaurantMarkerStatus() == "enabled") {
+                        query.near('_geoloc', coord, 1);
+                        var promise = Kinvey.DataStore.find('restaurants', query, {
+                            success: function (response) {
+                                console.log("restaurants " + JSON.stringify(response));
+                                for (var i = 0; i < response.length; i++) {
+                                    if (response[i]) {
+                                        var marker = createRestaurantMarker(response[i]);
+                                        marker.setMap(map);
+                                    }
                                 }
+                            },
+                            error: function (error) {
+                                console.log("restaurant error " + JSON.stringify(error));
                             }
-                        },
-                        error : function(error){
-                            console.log("restaurant error " + JSON.stringify(error));
-                        }
-                    });
+                        });
+                    }
 
                 }
             }
