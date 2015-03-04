@@ -104,15 +104,19 @@ pickup.on({
             if (isStartMarkerSelected) {
                 switch (current_page) {
                     case travel_page:
-                        if (isConfirmBoxOpen) {
-                            console.log("changePage delivery details 3");
-                            current_page = delivery_details_confirm_delivery_page;
-                            $.mobile.changePage(delivery_details, {
-                                transition: "slide"
-                            });
-                        } else {
-                            console.log("stop tracking start confirming");
-                            stopTrackStartConfirm();
+                        if(getLastShipmentStatus() == "paused"){
+                            navigator.notification.alert("You can't confirm paused delivery",function(){},'Confirmed error','OK');
+                        }else {
+                            if (isConfirmBoxOpen) {
+                                console.log("changePage delivery details 3");
+                                current_page = delivery_details_confirm_delivery_page;
+                                $.mobile.changePage(delivery_details, {
+                                    transition: "slide"
+                                });
+                            } else {
+                                console.log("stop tracking start confirming");
+                                stopTrackStartConfirm();
+                            }
                         }
                         break;
                     case pickup_route_page:
@@ -122,6 +126,7 @@ pickup.on({
                             transition: "slide"
                         });
                         break;
+
                 }
             }
         });
