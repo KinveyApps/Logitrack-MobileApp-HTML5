@@ -29,11 +29,13 @@ delivery_details.on({
                 $("#signature-arrow-btn").removeClass("delivery-icon-arrow");
                 $("#signature-arrow-btn").addClass("delivery-icon-arrow-enable");
                 $("#begin-tracking-btn").text("Delivery Complete");
+                $("#cancel-pickup-btn").text("Cancel Delivery");
                 break;
             case delivery_details_begin_tracking_page:
                 $("#delivered-state").removeClass("delivery-icon-yes-circle");
                 $("#delivered-state").addClass("delivery-icon-empty-circle");
                 $("#begin-tracking-btn").text("Begin Tracking");
+                $("#cancel-pickup-btn").text("Cancel Pickup");
                 $("#signature-arrow-btn").removeClass("delivery-icon-arrow-enable");
                 $("#signature-arrow-btn").addClass("delivery-icon-arrow");
                 break;

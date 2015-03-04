@@ -258,7 +258,7 @@ var loadShipment = function() {
                 $("#tracking-state").text("TRACKING ON");
                 $("#tracking-state").css("color", "rgb(65,226,65)");
                 isNewLogin = false;
-                alert("You haven't dispatches");
+                navigator.notification.alert("You do not have any pending dispatches.",function(){},'Empty list of dispatches','OK');
                 $.mobile.changePage(pickup);
             } else {
                 console.log("shipments " + JSON.stringify(data));

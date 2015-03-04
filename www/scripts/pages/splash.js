@@ -38,7 +38,7 @@ splash.on({
                 $.mobile.changePage(login);
             }
         }, function () {
-            alert('cant connect to server');
+            navigator.notification.alert("Can't connect to Kinvey server",function(){},'Connection error','OK');
         });
     }
 });
