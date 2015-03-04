@@ -30,7 +30,7 @@ var last_time = [0, 0, 0];
 var bounds = new google.maps.LatLngBounds();
 var geocoder = new google.maps.Geocoder();
 var rboxer = new RouteBoxer();
-var restaurantDistance = 20; // km
+var restaurantDistance = 2; // km
 var isFirstStart;
 
 //Pickup route page
@@ -216,7 +216,6 @@ pickup.on({
         }
 
         if ((getLastShipmentStatus() != "paused" && getLastShipmentStatus() != "in progress") && isFirstStart && shipments.length > 0) {
-            isFirstStart = false;
             var items = [];
 
             $('#dispatch-list-modal li').remove();
@@ -237,6 +236,7 @@ pickup.on({
                 setTripToStartState();
             });
         }
+        isFirstStart = false;
     }
 });
 
@@ -549,26 +549,40 @@ function calcRoute() {
             directionsDisplay.setDirections(response);
             directionsDisplay.setMap(map);
             // Box the overview path of the first route
-            //var path = response.routes[0].overview_path;
-            //var boxes = rboxer.box(path, restaurantDistance);
-            //for (var i = 0; i < boxes.length; i++) {
-            //    var request = {
-            //        bounds: boxes[i],
-            //        types: ['restaurant']
-            //    };
-            //
-            //    placesService.radarSearch(request, function (results, status) {
-            //        console.log("restaurant search result " + status );
-            //        if (status == google.maps.places.PlacesServiceStatus.OK) {
-            //            console.log("length " + results.length);
-            //            for (var i = 0; i < results.length; i++) {
-            //                var marker = createRestaurantMarker(results[i]);
-            //                marker.setMap(map);
-            //
-            //            }
-            //        }
-            //    });
-            //}
+            var path = response.routes[0].overview_path;
+            var boxes = rboxer.box(path, restaurantDistance);
+            for (var i = 0; i < boxes.length; i++) {
+                var bounds = boxes[i].toString();
+                var c = bounds.replace( /[\s()]/g, '' ).split( ',' );
+
+                // Query for restaurants close by.
+
+
+                var query = new Kinvey.Query();
+                query.equalTo("keyword","restaurant");
+                var lat = (parseFloat(c[1]) + parseFloat(c[3]))/2;
+                var lng = (parseFloat(c[0]) + parseFloat(c[2]))/2;
+                var coord = [lat,lng];
+
+
+                query.near('_geoloc',coord ,1);
+                var promise = Kinvey.DataStore.find('restaurants', query, {
+                    success : function(response)
+                    {
+                        console.log("restaurants " + JSON.stringify(response));
+                        for (var i = 0;i< response.length; i++) {
+                            if(response[i]) {
+                                var marker = createRestaurantMarker(response[i]);
+                                marker.setMap(map);
+                            }
+                        }
+                    },
+                    error : function(error){
+                        console.log("restaurant error " + JSON.stringify(error));
+                    }
+                });
+
+            }
         }
     });
 }

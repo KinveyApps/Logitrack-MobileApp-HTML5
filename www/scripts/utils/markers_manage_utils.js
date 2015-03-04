@@ -118,10 +118,9 @@ function setAllMap(map) {
 
 function clearRestaurantMarkers(){
     for (var i = 0; i < restaurantMarkers.length; i++) {
-        if (!!restaurantMarkers[i]) {
             restaurantMarkers[i].setMap(null);
-        }
     }
+    restaurantMarkers = [];
 }
 
 
@@ -141,4 +140,5 @@ function createRestaurantMarker(place){
     });
 
     restaurantMarkers.push(marker);
+    return marker;
 }
