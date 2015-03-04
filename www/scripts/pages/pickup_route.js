@@ -31,6 +31,7 @@ var bounds = new google.maps.LatLngBounds();
 var geocoder = new google.maps.Geocoder();
 var rboxer = new RouteBoxer();
 var restaurantDistance = 20; // km
+var isFirstStart;
 
 //Pickup route page
 var pickup = $('#pickup-route');
@@ -69,6 +70,7 @@ pickup.on({
     },
     pageinit: function () {
         console.log("pickup page init");
+        isFirstStart = true;
         current_page = pickup_route_page;
         $('#green-circle-left').css('visibility', "visible");
         $('#map_canvas').gmap({
@@ -190,6 +192,11 @@ pickup.on({
             });
         });
 
+        pickup.on("click", "#done-btn", function (){
+            $("#alertcontainer").css("display", "none");
+            $("#dispatches-modal").css("display", "none");
+        });
+
         if(currentShipment) {
             var userRoute = currentShipment.route;
         }
@@ -204,42 +211,66 @@ pickup.on({
         $(this).find('[data-role="content"]').height(the_height);
         $(this).find('#map_canvas').height(the_height + 32);
 
-        if(isDispatchFromList){
+        if (isDispatchFromList) {
+            setTripToStartState();
+        }
+
+        if ((getLastShipmentStatus() != "paused" && getLastShipmentStatus() != "in progress") && isFirstStart && shipments.length > 0) {
+            isFirstStart = false;
+            var items = [];
+
+            $('#dispatch-list-modal li').remove();
+            for (var i = 0; i < shipments.length; i++) {
+                items.push('<li><p> Begin: ' + shipments[i].route.start + '</br>Finish: ' + shipments[i].route.finish + '</p></li>');
+            }
+
+            $('#dispatch-list-modal').append(items.join(''));
+
             $("#alertcontainer").css("display", "block");
-            $("#message-confirm").css("display", "block");
-            $("#step-number-label").text("Step 1");
-            $("#step-name-label").text("Pickup");
-            directionsDisplay.setMap(null);
-            setConfirmAddressText();
-            hideMarkers(map);
-            isStartMarkerSelected = true;
-            current_page = pickup_route_page;
-            isDispatchFromList = false;
-
-            $("#timer").text('00:00:00');
-            $("#tracking-state").css("visibility", "hidden");
-            $("#green-circle-right").css("visibility", "hidden");
-            $("#green-circle-central").css("visibility", "hidden");
-            $("#green-circle-left").css("visibility", "visible");
-            $("#timer").css('visibility', "hidden");
-            $("#tracking-state").text("TRACKING ON");
-            $("#tracking-state").css("color", "rgb(65,226,65)");
-            $("#pause-btn").css("visibility", "hidden");
-            $("#play-btn").css("visibility", "hidden");
-            $("#green-circle-central").css("background", "rgba(69,191,69,0.8)");
-            confirm_infobox.close();
-            confirm_infobox.setMap(null);
-            infobox.close();
-            infobox.setMap(null);
-            last_time = [0, 0, 0];
-            clearInterval(my_timer);
-            isConfirmBoxOpen = false;
-
-            isDeliveryComplitedClicked = true;
-            selectedMarkerIndex = index;
+            $("#dispatches-modal").css("display", "block");
+            $("#dispatch-list-modal li").click(function () {
+                var index = $(this).index();
+                currentShipment = shipments[index];
+                selectedMarkerIndex = index;
+                $("#alertcontainer").css("display", "none");
+                $("#dispatches-modal").css("display", "none");
+                setTripToStartState();
+            });
         }
     }
 });
+
+function setTripToStartState(){
+    $("#alertcontainer").css("display", "block");
+    $("#message-confirm").css("display", "block");
+    $("#step-number-label").text("Step 1");
+    $("#step-name-label").text("Pickup");
+    directionsDisplay.setMap(null);
+    setConfirmAddressText();
+    hideMarkers(map);
+    isStartMarkerSelected = true;
+    current_page = pickup_route_page;
+    isDispatchFromList = false;
+    $("#timer").text('00:00:00');
+    $("#tracking-state").css("visibility", "hidden");
+    $("#green-circle-right").css("visibility", "hidden");
+    $("#green-circle-central").css("visibility", "hidden");
+    $("#green-circle-left").css("visibility", "visible");
+    $("#timer").css('visibility', "hidden");
+    $("#tracking-state").text("TRACKING ON");
+    $("#tracking-state").css("color", "rgb(65,226,65)");
+    $("#pause-btn").css("visibility", "hidden");
+    $("#play-btn").css("visibility", "hidden");
+    $("#green-circle-central").css("background", "rgba(69,191,69,0.8)");
+    confirm_infobox.close();
+    confirm_infobox.setMap(null);
+    infobox.close();
+    infobox.setMap(null);
+    last_time = [0, 0, 0];
+    clearInterval(my_timer);
+    isConfirmBoxOpen = false;
+    isDeliveryComplitedClicked = true;
+}
 
 function pauseTracking(){
     console.log("pause tracking");

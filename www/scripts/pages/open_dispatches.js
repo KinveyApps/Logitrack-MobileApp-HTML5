@@ -30,23 +30,6 @@ dispatch.on({
                                 setLastShipmentStatus("open");
                                 clearTimer();
                                 clearRestaurantMarkers();
-                                //$("#timer").text('00:00:00');
-                                //$("#tracking-state").css("visibility", "hidden");
-                                //$("#green-circle-right").css("visibility", "hidden");
-                                //$("#pause-btn").css("visibility", "hidden");
-                                //$("#play-btn").css("visibility", "hidden");
-                                //$("#green-circle-central").css("visibility", "hidden");
-                                //$("#green-circle-left").css("visibility", "visible");
-                                //$("#timer").css('visibility', "hidden");
-                                //confirm_infobox.close();
-                                //confirm_infobox.setMap(null);
-                                //infobox.close();
-                                //infobox.setMap(null);
-                                //last_time = [0, 0, 0];
-                                //clearInterval(my_timer);
-                                //isConfirmBoxOpen = false;
-                                //isDeliveryComplitedClicked = true;
-                                //selectedMarkerIndex = index;
                                 directionsDisplay.setMap(null);
                                 currentShipment = shipments[index];
                                 saveShipment(oldShipment, function (data) {

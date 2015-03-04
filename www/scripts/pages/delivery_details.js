@@ -101,6 +101,7 @@ delivery_details.on({
                                     confirm_infobox.close();
                                     confirm_infobox.setMap(null);
                                     isConfirmBoxOpen = false;
+                                    isFirstStart = true;
                                     loadShipment();
                                     isDeliveryComplitedClicked = true;
                                 });
