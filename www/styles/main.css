@@ -114,8 +114,8 @@ br {
 #next-div {
     right: 0px;
     position: absolute;
-    width: 45px;
-    height: 45px;
+    width: 60px;
+    height: 50px;
 }
 
 #next-btn {
@@ -579,7 +579,7 @@ br {
     /*height:30px;*/
 /*}*/
 
-#menu-btn:active,#next-btn:active,#signature-arrow-btn:active,#profile-edit:active{
+#menu-btn:active,#signature-arrow-btn:active,#profile-edit:active, #next-div:active #next-btn, #next-div:active #next-label{
     opacity: 0.5;
 }
 

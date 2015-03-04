@@ -94,7 +94,7 @@ pickup.on({
             resumeTracking();
         });
 
-        pickup.on('click', '#next-btn', function () {
+        pickup.on('click', '#next-div', function () {
 
           
             setTimeout(function(){
@@ -574,21 +574,21 @@ function calcRoute(updateMarkers) {
 
 
                     query.near('_geoloc', coord, 1);
-                    var promise = Kinvey.DataStore.find('restaurants', query, {
-                        success : function(response)
-                        {
-                            console.log("restaurants " + JSON.stringify(response));
-                            for (var i = 0;i< response.length; i++) {
-                                if(response[i]) {
-                                    var marker = createRestaurantMarker(response[i]);
-                                    marker.setMap(map);
-                                }
-                            }
-                        },
-                        error : function(error){
-                            console.log("restaurant error " + JSON.stringify(error));
-                        }
-                    });
+                    //var promise = Kinvey.DataStore.find('restaurants', query, {
+                    //    success : function(response)
+                    //    {
+                    //        console.log("restaurants " + JSON.stringify(response));
+                    //        for (var i = 0;i< response.length; i++) {
+                    //            if(response[i]) {
+                    //                var marker = createRestaurantMarker(response[i]);
+                    //                marker.setMap(map);
+                    //            }
+                    //        }
+                    //    },
+                    //    error : function(error){
+                    //        console.log("restaurant error " + JSON.stringify(error));
+                    //    }
+                    //});
 
                 }
             }
