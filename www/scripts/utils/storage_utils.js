@@ -97,3 +97,16 @@ function getDeviceId() {
 function saveDeviceId(deviceId) {
     localStorage.setItem("deviceId", deviceId);
 }
+
+function getRestaurantMarkerStatus() {
+    var status = localStorage.getItem("restaurant");
+    if(status){
+        return status;
+    }else{
+        return "enabled";
+    }
+}
+
+function saveRestaurantMarkerStatus(status) {
+    localStorage.setItem("restaurant", status);
+}

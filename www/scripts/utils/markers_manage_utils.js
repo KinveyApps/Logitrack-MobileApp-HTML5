@@ -116,13 +116,10 @@ function setAllMap(map) {
     }
 }
 
-function clearRestaurantMarkers(){
-    for (var i = 0; i < restaurantMarkers.length; i++) {
-            restaurantMarkers[i].setMap(null);
-    }
+function clearRestaurantMarkers() {
+    hideRestaurantMarkers();
     restaurantMarkers = [];
 }
-
 
 function createRestaurantMarker(place){
     var placeLoc = place.fullResults.geometry.location;
@@ -141,4 +138,18 @@ function createRestaurantMarker(place){
 
     restaurantMarkers.push(marker);
     return marker;
+}
+
+
+function showRestaurantMarkers(){
+    console.log("restaraunt markers " + JSON.stringify(restaurantMarkers));
+    for (var i = 0; i < restaurantMarkers.length; i++) {
+        restaurantMarkers[i].setMap(map);
+    }
+}
+
+function hideRestaurantMarkers(){
+    for (var i = 0; i < restaurantMarkers.length; i++) {
+        restaurantMarkers[i].setMap(null);
+    }
 }

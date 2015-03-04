@@ -504,7 +504,8 @@ function updateCheckin() {
             });
 
             //updates shipment percentage complete, calculates distance between last checkin and finish point
-            var origin = new google.maps.LatLng(currentShipment.route.start_lat, currentShipment.route.start_long);
+            //var origin = new google.maps.LatLng(currentShipment.route.start_lat, currentShipment.route.start_long);
+            var origin = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
             var destination = new google.maps.LatLng(currentShipment.route.finish_lat, currentShipment.route.finish_long);
             var service = new google.maps.DistanceMatrixService();
             service.getDistanceMatrix(
@@ -519,11 +520,14 @@ function updateCheckin() {
             function callback(response, status) {
                 if (status == google.maps.DistanceMatrixStatus.OK) {
                     var checkin_distance = response.rows[0].elements[0].distance.value;
+                    console.log("checkin distance " + checkin_distance);
                     if (currentShipment.route.distance > checkin_distance) {
                         currentShipment.status = ((1 - checkin_distance / currentShipment.route.distance) * 100).toFixed(0) + "%";
-                        saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
-                        });
+                    }else{
+                        currentShipment.status = "0%";
                     }
+                    saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
+                    });
                 }
             }
         });
@@ -536,7 +540,7 @@ function onErrorGetUserPosition(error) {
 }
 
 //builds route between markers
-function calcRoute() {
+function calcRoute(updateMarkers) {
     console.log("calc route");
     var request = {
         origin: new google.maps.LatLng(start_markers[selectedMarkerIndex].getPosition().lat(), start_markers[selectedMarkerIndex].getPosition().lng()),
@@ -545,43 +549,48 @@ function calcRoute() {
     };
     directionsService.route(request, function (response, status) {
         if (status == google.maps.DirectionsStatus.OK) {
-            current_direction_route = response;
-            directionsDisplay.setDirections(response);
-            directionsDisplay.setMap(map);
+            if(!updateMarkers) {
+                current_direction_route = response;
+                directionsDisplay.setDirections(response);
+                directionsDisplay.setMap(map);
+            }
             // Box the overview path of the first route
-            var path = response.routes[0].overview_path;
-            var boxes = rboxer.box(path, restaurantDistance);
-            for (var i = 0; i < boxes.length; i++) {
-                var bounds = boxes[i].toString();
-                var c = bounds.replace( /[\s()]/g, '' ).split( ',' );
+            console.log("restaurant status " + getRestaurantMarkerStatus());
+            if (getRestaurantMarkerStatus() == "enabled") {
+                var path = response.routes[0].overview_path;
+                var boxes = rboxer.box(path, restaurantDistance);
+                for (var i = 0; i < boxes.length; i++) {
+                    var bounds = boxes[i].toString();
+                    var c = bounds.replace(/[\s()]/g, '').split(',');
 
-                // Query for restaurants close by.
-
-
-                var query = new Kinvey.Query();
-                query.equalTo("keyword","restaurant");
-                var lat = (parseFloat(c[1]) + parseFloat(c[3]))/2;
-                var lng = (parseFloat(c[0]) + parseFloat(c[2]))/2;
-                var coord = [lat,lng];
+                    // Query for restaurants close by.
 
 
-                query.near('_geoloc',coord ,1);
-                var promise = Kinvey.DataStore.find('restaurants', query, {
-                    success : function(response)
-                    {
-                        console.log("restaurants " + JSON.stringify(response));
-                        for (var i = 0;i< response.length; i++) {
-                            if(response[i]) {
-                                var marker = createRestaurantMarker(response[i]);
-                                marker.setMap(map);
+                    var query = new Kinvey.Query();
+                    query.equalTo("keyword", "restaurant");
+                    var lat = (parseFloat(c[1]) + parseFloat(c[3])) / 2;
+                    var lng = (parseFloat(c[0]) + parseFloat(c[2])) / 2;
+                    var coord = [lat, lng];
+
+
+                    query.near('_geoloc', coord, 1);
+                    var promise = Kinvey.DataStore.find('restaurants', query, {
+                        success : function(response)
+                        {
+                            console.log("restaurants " + JSON.stringify(response));
+                            for (var i = 0;i< response.length; i++) {
+                                if(response[i]) {
+                                    var marker = createRestaurantMarker(response[i]);
+                                    marker.setMap(map);
+                                }
                             }
+                        },
+                        error : function(error){
+                            console.log("restaurant error " + JSON.stringify(error));
                         }
-                    },
-                    error : function(error){
-                        console.log("restaurant error " + JSON.stringify(error));
-                    }
-                });
+                    });
 
+                }
             }
         }
     });

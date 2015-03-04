@@ -129,6 +129,12 @@ user_profile.on({
             $('#push-checkbox').attr('checked', false);
         }
 
+        if (getRestaurantMarkerStatus() == 'enabled') {
+            $('#restaurant-checkbox').attr('checked', true);
+        } else {
+            $('#restaurant-checkbox').attr('checked', false);
+        }
+
         user_profile.on('click', "#push-checkbox", function () {
             console.log("checkbox click");
             var status = $('#push-checkbox').prop('checked');
@@ -136,6 +142,21 @@ user_profile.on({
                 registerPushNotifications();
             } else {
                 unregisterPushNotifications();
+            }
+        });
+
+        user_profile.on('click', "#restaurant-checkbox", function () {
+            var status = $('#restaurant-checkbox').prop('checked');
+            if (status) {
+                saveRestaurantMarkerStatus("enabled");
+                if(restaurantMarkers.length == 0){
+                    calcRoute(true);
+                }else {
+                    showRestaurantMarkers();
+                }
+            } else {
+                saveRestaurantMarkerStatus("disabled");
+                hideRestaurantMarkers();
             }
         });
     },

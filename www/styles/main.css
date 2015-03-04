@@ -697,14 +697,15 @@ br {
     padding-top: 10px
 }
 
-.push-checkbox-wrapper{
+.checkbox-wrapper{
     margin-top: 20px;
 }
 
-.push-checkbox-wrapper .push-label{
+.checkbox-wrapper .push-label{
     margin-left: 40px;
 }
 
-.push-checkbox-wrapper .ui-checkbox{
+.checkbox-wrapper .ui-checkbox{
     display: inline;
 }
+
