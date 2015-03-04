@@ -32,6 +32,7 @@ dispatch.on({
                                 clearRestaurantMarkers();
                                 directionsDisplay.setMap(null);
                                 currentShipment = shipments[index];
+                                selectedMarkerIndex = index;
                                 saveShipment(oldShipment, function (data) {
                                     $.mobile.changePage(pickup, {transition: "slide"});
                                 });
