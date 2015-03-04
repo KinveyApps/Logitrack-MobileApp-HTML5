@@ -180,7 +180,9 @@ pickup.on({
 
         pickup.on("click", "#circle-right", function () {
             if ($("#green-circle-central").css("visibility") == "visible") {
-                stopTrackStartConfirm();
+                if(getLastShipmentStatus() == "in progress") {
+                    stopTrackStartConfirm();
+                }
             }
         });
 
