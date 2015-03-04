@@ -23,6 +23,7 @@ var delivery_details_confirm_delivery_page = 4;
 var login_page = 5;
 var signature_page = 6;
 var user_profile_page = 7;
+var open_dispatches_page = 8;
 var currentShipment = null;
 var isStartMarkerSelected = false;
 var isConfirmDeliveryPage = false;
@@ -118,6 +119,11 @@ function onBackKeyDown() {
         case user_profile_page:
             userProfileBack();
             break;
+        case open_dispatches_page:
+            $.mobile.back({
+                transition: "slide"
+            });
+            break;
     }
 }
 
@@ -202,7 +208,10 @@ function saveShipment(shipment, cb) {
 
 //Load route
 var loadShipment = function() {
-    registerPushNotifications();
+    if(getPushStatus() == 'enabled') {
+    //if(getDeviceId() == null && getPushStatus() == 'enabled') {
+        registerPushNotifications();
+    }
     $.mobile.loading("show");
     //TODO modify query
     var user = Kinvey.getActiveUser();
