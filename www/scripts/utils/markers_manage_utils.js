@@ -127,7 +127,7 @@ function createRestaurantMarker(place){
     var placeLoc = place.fullResults.geometry.location;
     var result = place.fullResults;
     var marker=new google.maps.Marker({
-        map:map,
+        map: map,
         position: placeLoc,
         clickable: true
     });
@@ -161,6 +161,9 @@ function createRestaurantMarker(place){
     });
 
 
+    if(map.getZoom() < zoomLevel){
+        marker.setVisible(false);
+    }
     restaurantMarkers.push(marker);
     return marker;
 }

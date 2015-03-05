@@ -30,10 +30,11 @@ var last_time = [0, 0, 0];
 var bounds = new google.maps.LatLngBounds();
 var geocoder = new google.maps.Geocoder();
 var rboxer = new RouteBoxer();
-var restaurantDistance = 1; // km
+var restaurantDistance = 0.5; // km
 var searchRadius = 0.5;
 var locationCheckTimeInterval = 60000; //1 minute
 var isFirstStart;
+var zoomLevel = 12;
 
 //Pickup route page
 var pickup = $('#pickup-route');
@@ -437,15 +438,16 @@ var onSuccessGetUserPosition = function (position) {
         suppressMarkers: true
     });
 
-    //google.maps.event.addListener(map, 'zoom_changed', function() {
-    //    var zoom = map.getZoom();
-    //
-    //    if (zoom <= 10) {
-    //        hideRestaurantMarkers();
-    //    } else {
-    //        showRestaurantMarkers();
-    //    }
-    //});
+    google.maps.event.addListener(map, 'zoom_changed', function() {
+        var zoom = map.getZoom();
+
+        if (zoom <= zoomLevel) {
+            hideRestaurantMarkers();
+        } else {
+            console.log("call show restaurant marker");
+            showRestaurantMarkers();
+        }
+    });
 
     //user marker creation
     user_marker = new google.maps.Marker({
@@ -500,6 +502,7 @@ function calcRoute(updateMarkers) {
             // Box the overview path of the first route
             console.log("restaurant status " + getRestaurantMarkerStatus());
             if (getRestaurantMarkerStatus() == "enabled") {
+                console.log("zoom "  + map.getZoom());
                 var path = response.routes[0].overview_path;
                 var boxes = rboxer.box(path, restaurantDistance);
                 for (var i = 0; i < boxes.length; i++) {
@@ -510,20 +513,19 @@ function calcRoute(updateMarkers) {
 
 
                     var query = new Kinvey.Query();
-                    query.equalTo("keyword", "restaurant");
                     var lat = (parseFloat(c[1]) + parseFloat(c[3])) / 2;
                     var lng = (parseFloat(c[0]) + parseFloat(c[2])) / 2;
                     var coord = [lat, lng];
+
 
                     if (getRestaurantMarkerStatus() == "enabled") {
                         query.near('_geoloc', coord, searchRadius);
                         var promise = Kinvey.DataStore.find('restaurants', query, {
                             success: function (response) {
-                                console.log("restaurants " + JSON.stringify(response));
+                                console.log("zoom "+ map.getZoom());
                                 for (var i = 0; i < response.length; i++) {
                                     if (response[i]) {
                                         var marker = createRestaurantMarker(response[i]);
-                                        marker.setMap(map);
                                     }
                                 }
                             },
