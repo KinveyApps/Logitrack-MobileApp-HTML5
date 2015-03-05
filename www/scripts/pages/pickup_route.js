@@ -160,7 +160,7 @@ pickup.on({
             $("#alertcontainer").css("display", "none");
             $("#message-confirm").css("display", "none");
             $("#step-name-label").text("En Route to Pickup");
-            $("#next-label").css("visibility", "visible");
+            $("#next-div").css("visibility", "visible");
             google.maps.event.clearListeners($("#infobox-arrow-btn"), 'click');
             infobox.open(map, start_markers[selectedMarkerIndex]);
         });
@@ -241,6 +241,7 @@ function setTripToStartState(){
     $("#message-confirm").css("display", "block");
     $("#step-number-label").text("Step 1");
     $("#step-name-label").text("Pickup");
+    $("#next-div").css("visibility","hidden");
     directionsDisplay.setMap(null);
     setConfirmAddressText();
     hideMarkers(map);
@@ -344,7 +345,7 @@ function pickupRoutePagePreload() {
     $('#checkin-tap-div').text("");
     $("#step-name-label").text("Tap to see pending pickups");
     $("#step-number-label").text("Waiting for Delivery");
-    $("#next-label").css("visibility", "hidden");
+    $("#next-div").css("visibility", "hidden");
     console.log("show markers in preload");
     showMarkers();
     isStartMarkerSelected = false;
