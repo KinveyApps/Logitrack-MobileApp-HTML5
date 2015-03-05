@@ -102,15 +102,6 @@ br {
     position: absolute;
 }
 
-#locate-btn {
-    background: url(../images/locate.png) no-repeat center;
-    width: 60px;
-    height: 50px;
-    position: absolute;
-    background-size: 21px 21px;
-
-}
-
 #next-div {
     right: 0px;
     position: absolute;
