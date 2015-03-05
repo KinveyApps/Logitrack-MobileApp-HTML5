@@ -193,10 +193,12 @@ pickup.on({
             }
         });
 
-        pickup.on("click", "#locate-btn", function(){
-            $.mobile.changePage(dispatch, {
-                transition: "slide"
-            });
+        pickup.on("click", "#step-name-label", function(){
+            if($("#step-name-label").text() == "Tap to see pending pickups") {
+                $.mobile.changePage(dispatch, {
+                    transition: "slide"
+                });
+            }
         });
 
         if(currentShipment) {
@@ -341,7 +343,7 @@ function beginTrackingPagePreload() {
 function pickupRoutePagePreload() {
     console.log("pickup route pleload");
     $('#checkin-tap-div').text("");
-    $("#step-name-label").text("Tap to Browse Different Pickups");
+    $("#step-name-label").text("Tap to see pending pickups");
     $("#step-number-label").text("Waiting for Delivery");
     $("#next-label").css("visibility", "hidden");
     console.log("show markers in preload");
