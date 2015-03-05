@@ -193,12 +193,10 @@ pickup.on({
             }
         });
 
-        pickup.on("click", "#step-name-label", function(){
-            if($("#step-name-label").text() == "Tap to see pending pickups") {
-                $.mobile.changePage(dispatch, {
-                    transition: "slide"
-                });
-            }
+        pickup.on("click", "#step-name-label", function () {
+            $.mobile.changePage(dispatch, {
+                transition: "slide"
+            });
         });
 
         if(currentShipment) {

@@ -10,7 +10,11 @@ dispatch.on({
         var items = [];
         $('#dispatch-list li').remove();
         for(var i=0;i<shipments.length;i++){
-            items.push('<li><p> Begin: ' + shipments[i].route.start + '</br>Finish: ' + shipments[i].route.finish + '</p></li>');
+            if(currentShipment._id != shipments[i]._id) {
+                items.push('<li><p> Begin: ' + shipments[i].route.start + '</br>Finish: ' + shipments[i].route.finish + '</p></li>');
+            }else if(getLastShipmentStatus() != "paused" && getLastShipmentStatus() != "in progress"){
+                items.push('<li><p> Begin: ' + shipments[i].route.start + '</br>Finish: ' + shipments[i].route.finish + '</p></li>');
+            }
         }
 
         $('#dispatch-list').append(items.join(''));

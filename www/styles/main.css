@@ -10,6 +10,7 @@
 
 .ios-profile-title{
     margin-top: 24px !important;
+    text-transform: uppercase;
 }
 
 .ios-profile-edit{
@@ -570,7 +571,7 @@ br {
     /*height:30px;*/
 /*}*/
 
-#menu-btn:active,#signature-arrow-btn:active,#profile-edit:active, #next-div:active #next-btn, #next-div:active #next-label{
+#menu-btn:active,#signature-arrow-btn:active,#profile-edit:active, #next-div:active #next-btn, #next-div:active #next-label, #step-name-label:active{
     opacity: 0.5;
 }
 
@@ -700,3 +701,10 @@ br {
     display: inline;
 }
 
+.instruction{
+    line-height: 20px;
+    margin: 0 auto;
+    font-size: 12px;
+    color: rgb(97, 102, 102);
+    text-align: center;
+}
