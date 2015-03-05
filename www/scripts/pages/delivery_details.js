@@ -121,7 +121,7 @@ delivery_details.on({
 
 //reject route functionality
 function rejectRoute() {
-    navigator.notification.confirm("Do you really want to reject route",
+    navigator.notification.confirm("Are you sure you would like to cancel delivery?",
         function (button) {
             if (button == 1) {
                 currentShipment.user_status = "open";

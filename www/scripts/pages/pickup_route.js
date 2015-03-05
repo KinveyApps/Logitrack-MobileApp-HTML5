@@ -105,7 +105,7 @@ pickup.on({
                 switch (current_page) {
                     case travel_page:
                         if(getLastShipmentStatus() == "paused"){
-                            navigator.notification.alert("You can't confirm paused delivery",function(){},'Confirmed error','OK');
+                            navigator.notification.alert("Please resume delivery before continuing.",function(){},'Warning','OK');
                         }else {
                             if (isConfirmBoxOpen) {
                                 console.log("changePage delivery details 3");
@@ -455,7 +455,7 @@ var onSuccessGetUserPosition = function (position) {
         startTrackingUserPosition();
         last_time = getTimer();
         hideMarkers(map);
-        $("#next-label").css("visibility","visible");
+        $("#next-div").css("visibility","visible");
         console.log("status " + getLastShipmentStatus());
         if(getLastShipmentStatus() == "paused"){
             pauseTracking();
