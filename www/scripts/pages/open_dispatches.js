@@ -22,6 +22,9 @@ dispatch.on({
             var index = $(this).index();
             isDispatchFromList = true;
             if (getLastShipmentStatus() == "in progress" || getLastShipmentStatus == "paused") {
+                if(index >=selectedMarkerIndex){
+                    index++;
+                }
                 navigator.notification.confirm("You already have a delivery in progress, are you sure you want to cancel it?",
                     function (button) {
                         if (button == 1) {
