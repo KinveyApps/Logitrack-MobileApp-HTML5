@@ -30,7 +30,9 @@ var last_time = [0, 0, 0];
 var bounds = new google.maps.LatLngBounds();
 var geocoder = new google.maps.Geocoder();
 var rboxer = new RouteBoxer();
-var restaurantDistance = 2; // km
+var restaurantDistance = 1; // km
+var searchRadius = 0.5;
+var locationCheckTimeInterval = 60000; //1 minute
 var isFirstStart;
 
 //Pickup route page
@@ -360,7 +362,7 @@ function pickupRoutePagePreload() {
 var activeWatch;
 //sets update driver position timer
 function startTrackingUserPosition() {
-    setupWatch(5000);
+    setupWatch(locationCheckTimeInterval);
 
     function setupWatch(freq) {
         activeWatch = setInterval(watchLocation, freq);
@@ -435,6 +437,16 @@ var onSuccessGetUserPosition = function (position) {
         suppressMarkers: true
     });
 
+    //google.maps.event.addListener(map, 'zoom_changed', function() {
+    //    var zoom = map.getZoom();
+    //
+    //    if (zoom <= 10) {
+    //        hideRestaurantMarkers();
+    //    } else {
+    //        showRestaurantMarkers();
+    //    }
+    //});
+
     //user marker creation
     user_marker = new google.maps.Marker({
         position: user,
@@ -504,7 +516,7 @@ function calcRoute(updateMarkers) {
                     var coord = [lat, lng];
 
                     if (getRestaurantMarkerStatus() == "enabled") {
-                        query.near('_geoloc', coord, 1);
+                        query.near('_geoloc', coord, searchRadius);
                         var promise = Kinvey.DataStore.find('restaurants', query, {
                             success: function (response) {
                                 console.log("restaurants " + JSON.stringify(response));
