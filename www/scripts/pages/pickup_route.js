@@ -199,11 +199,6 @@ pickup.on({
             });
         });
 
-        pickup.on("click", "#done-btn", function (){
-            $("#alertcontainer").css("display", "none");
-            $("#dispatches-modal").css("display", "none");
-        });
-
         if(currentShipment) {
             var userRoute = currentShipment.route;
         }
@@ -222,26 +217,19 @@ pickup.on({
             setTripToStartState();
         }
 
-        if ((getLastShipmentStatus() != "paused" && getLastShipmentStatus() != "in progress") && isFirstStart && shipments.length > 0) {
-            var items = [];
-
-            $('#dispatch-list-modal li').remove();
-            for (var i = 0; i < shipments.length; i++) {
-                items.push('<li><p> Begin: ' + shipments[i].route.start + '</br>Finish: ' + shipments[i].route.finish + '</p></li>');
+        if ((getLastShipmentStatus() != "paused" && getLastShipmentStatus() != "in progress") && isFirstStart) {
+            if(shipments.length > 1) {
+                navigator.notification.alert("You have multiple pickups available, please go to the dispatch screen to select one.", function () {
+                }, 'Multiple dispatches', 'OK');
+            }else if(shipments.length == 1){
+                currentShipment = shipments[0];
+                selectedMarkerIndex = 0;
+                console.log("adresses " + JSON.stringify(addresses));
+                $("#confirm-start-address").html(addressFormat(currentShipment.route.start));
+                $("#confirm-finish-address").html(addressFormat(currentShipment.route.finish));
+                $("#alertcontainer").css("display", "block");
+                $("#message-confirm").css("display", "block");
             }
-
-            $('#dispatch-list-modal').append(items.join(''));
-
-            $("#alertcontainer").css("display", "block");
-            $("#dispatches-modal").css("display", "block");
-            $("#dispatch-list-modal li").click(function () {
-                var index = $(this).index();
-                currentShipment = shipments[index];
-                selectedMarkerIndex = index;
-                $("#alertcontainer").css("display", "none");
-                $("#dispatches-modal").css("display", "none");
-                setTripToStartState();
-            });
         }
         isFirstStart = false;
     }

@@ -124,7 +124,7 @@ function rejectRoute() {
     navigator.notification.confirm("Do you really want to reject route",
         function (button) {
             if (button == 1) {
-                currentShipment.user_status = "rejected";
+                currentShipment.user_status = "open";
                 saveShipment(JSON.parse(JSON.stringify(currentShipment)), function (data) {
                     $("#tracking-state").css("visibility", "hidden");
                     $("#green-circle-right").css("visibility", "hidden");
@@ -134,6 +134,9 @@ function rejectRoute() {
                     confirm_infobox.close();
                     confirm_infobox.setMap(null);
                     isConfirmBoxOpen = false;
+                    isFirstStart = true;
+                    setLastShipmentStatus("open");
+                    clearRestaurantMarkers();
                     directionsDisplay.setMap(null);
                     console.log("changePage pickup 3");
                     current_page = pickup_route_page;
