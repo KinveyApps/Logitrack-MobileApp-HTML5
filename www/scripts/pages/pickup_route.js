@@ -305,7 +305,6 @@ function resumeTracking() {
 //tracking page initialization
 function beginTrackingPagePreload() {
     console.log("begin tracking preload");
-    $('#checkin-tap-div').text("Tap map to send check-in update");
     last_time = [0, 0, 0];
     my_timer = setInterval(function () {
         setTimerValue();
@@ -342,7 +341,6 @@ function beginTrackingPagePreload() {
 //pickup route page initialization
 function pickupRoutePagePreload() {
     console.log("pickup route pleload");
-    $('#checkin-tap-div').text("");
     $("#step-name-label").text("Tap to see pending pickups");
     $("#step-number-label").text("Waiting for Delivery");
     $("#next-div").css("visibility", "hidden");
@@ -445,9 +443,6 @@ var onSuccessGetUserPosition = function (position) {
     });
     addAllStartMarkers(map);
     $('#map_canvas').gmap('refresh');
-    google.maps.event.addListener(map, 'click', function () {
-        updateCheckin();
-    });
     
     if(getLastShipmentStatus() == "in progress" || getLastShipmentStatus() == "paused"){
         current_page = travel_page;
@@ -467,67 +462,6 @@ var onSuccessGetUserPosition = function (position) {
             if (s < 10) s = "0" + s;
             $("#timer").text(h + ':' + m + ':' + s);
         }
-    }
-};
-
-//creates checkin each time when user click on map on travel page
-function updateCheckin() {
-    if (current_page == travel_page) {
-        navigator.geolocation.getCurrentPosition(function (position) {
-
-            //gets address by position
-            geocoder.geocode({'latLng': new google.maps.LatLng(position.coords.latitude, position.coords.longitude)}, function (results, status) {
-                if (status == google.maps.GeocoderStatus.OK) {
-                    $.mobile.loading("show");
-                    console.log("position " + JSON.stringify(results[0]));
-                    Kinvey.DataStore.save('shipment-checkins', {
-                        address: results[0].formatted_address,
-                        shipment_id: currentShipment._id,
-                        position: {
-                            lat: results[0].geometry.location.k,
-                            lon: results[0].geometry.location.D
-                        }
-                    }, {
-                        success: function (response) {
-                            console.log("save shipment checkin success");
-                        },
-                        error: function (error) {
-                            console.log("sava shipment checkin error " + JSON.stringify(error));
-                        }
-                    }).then(loadingHide, loadingHide);
-                } else {
-                    console.log('Geocoder failed due to: ' + status);
-                }
-            });
-
-            //updates shipment percentage complete, calculates distance between last checkin and finish point
-            //var origin = new google.maps.LatLng(currentShipment.route.start_lat, currentShipment.route.start_long);
-            var origin = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-            var destination = new google.maps.LatLng(currentShipment.route.finish_lat, currentShipment.route.finish_long);
-            var service = new google.maps.DistanceMatrixService();
-            service.getDistanceMatrix(
-                {
-                    origins: [origin],
-                    destinations: [destination],
-                    travelMode: google.maps.TravelMode.DRIVING,
-                    avoidHighways: false,
-                    avoidTolls: false
-                }, callback);
-
-            function callback(response, status) {
-                if (status == google.maps.DistanceMatrixStatus.OK) {
-                    var checkin_distance = response.rows[0].elements[0].distance.value;
-                    console.log("checkin distance " + checkin_distance);
-                    if (currentShipment.route.distance > checkin_distance) {
-                        currentShipment.status = ((1 - checkin_distance / currentShipment.route.distance) * 100).toFixed(0) + "%";
-                    }else{
-                        currentShipment.status = "0%";
-                    }
-                    saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
-                    });
-                }
-            }
-        });
     }
 };
 
