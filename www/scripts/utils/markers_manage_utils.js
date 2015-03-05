@@ -15,6 +15,8 @@
  */
 
 //add all start markers on map
+var activeInfoWindow;
+
 function addAllStartMarkers(map) {
     console.log("add all markers");
     var start_marker;
@@ -123,10 +125,41 @@ function clearRestaurantMarkers() {
 
 function createRestaurantMarker(place){
     var placeLoc = place.fullResults.geometry.location;
+    var result = place.fullResults;
     var marker=new google.maps.Marker({
         map:map,
-        position: placeLoc
+        position: placeLoc,
+        clickable: true
     });
+
+    var name = "";
+    var address = "";
+    var phoneNumber = "";
+
+    if(result.name){
+        name = result.name;
+    }
+
+    if(result.vicinity){
+        address = result.vicinity;
+    }
+
+    if(result.international_phone_number){
+        phoneNumber = result.international_phone_number;
+    }
+
+    marker.info = new google.maps.InfoWindow({
+        content:  '<p>' + name + '<br/> ' +address+'<br/>' + phoneNumber + '</p>'
+    });
+
+    google.maps.event.addListener(marker, 'click', function() {
+        if(activeInfoWindow){
+            activeInfoWindow.close();
+        }
+        activeInfoWindow = marker.info;
+        marker.info.open(map, marker);
+    });
+
 
     restaurantMarkers.push(marker);
     return marker;
@@ -134,14 +167,14 @@ function createRestaurantMarker(place){
 
 
 function showRestaurantMarkers(){
-    console.log("restaraunt markers " + JSON.stringify(restaurantMarkers));
     for (var i = 0; i < restaurantMarkers.length; i++) {
-        restaurantMarkers[i].setMap(map);
+        restaurantMarkers[i].setVisible(true);
     }
 }
 
 function hideRestaurantMarkers(){
     for (var i = 0; i < restaurantMarkers.length; i++) {
-        restaurantMarkers[i].setMap(null);
+        restaurantMarkers[i].setVisible(false);
+        restaurantMarkers[i].info.close();
     }
 }
