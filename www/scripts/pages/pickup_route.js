@@ -149,6 +149,7 @@ pickup.on({
         });
 
         pickup.on('click', '#cancel-btn', function () {
+            $("#step-name-label").text("Tap to see pending pickups");
             $("#alertcontainer").css("display", "none");
             $("#message-confirm").css("display", "none");
             showMarkers();
