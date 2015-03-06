@@ -502,7 +502,6 @@ function calcRoute(updateMarkers) {
             // Box the overview path of the first route
             console.log("restaurant status " + getRestaurantMarkerStatus());
             if (getRestaurantMarkerStatus() == "enabled") {
-                console.log("zoom "  + map.getZoom());
                 var path = response.routes[0].overview_path;
                 var boxes = rboxer.box(path, restaurantDistance);
                 for (var i = 0; i < boxes.length; i++) {
@@ -522,7 +521,6 @@ function calcRoute(updateMarkers) {
                         query.near('_geoloc', coord, searchRadius);
                         var promise = Kinvey.DataStore.find('restaurants', query, {
                             success: function (response) {
-                                console.log("zoom "+ map.getZoom());
                                 for (var i = 0; i < response.length; i++) {
                                     if (response[i]) {
                                         var marker = createRestaurantMarker(response[i]);
