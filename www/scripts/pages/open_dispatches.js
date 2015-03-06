@@ -18,38 +18,7 @@ dispatch.on({
         }
 
         $('#dispatch-list').append(items.join(''));
-        $("#dispatch-list li").click(function () {
-            var index = $(this).index();
-            isDispatchFromList = true;
-            if (getLastShipmentStatus() == "in progress" || getLastShipmentStatus == "paused") {
-                if(index >=selectedMarkerIndex){
-                    index++;
-                }
-                navigator.notification.confirm("You already have a delivery in progress, are you sure you want to cancel it?",
-                    function (button) {
-                        if (button == 1) {
-                            current_page = pickup_route_page;
-                            var oldShipment = JSON.parse(JSON.stringify(currentShipment));
-                            oldShipment.user_status = "open";
-                            setLastShipmentStatus("open");
-                            clearTimer();
-                            clearRestaurantMarkers();
-                            directionsDisplay.setMap(null);
-                            currentShipment = shipments[index];
-                            selectedMarkerIndex = index;
-                            saveShipment(oldShipment, function (data) {
-                                $.mobile.changePage(pickup, {transition: "slide"});
-                            });
-                        }
-                    },
-                    "Cancel current route", ["Yes", "No"]);
-            } else {
-                currentShipment = shipments[index];
-                selectedMarkerIndex = index;
-                isDispatchFromList = true;
-                $.mobile.changePage(pickup, {transition: "slide"});
-            }
-        });
+        $("#dispatch-list li").click(clickDispatch);
     },
     pageinit: function () {
         dispatch.on('click', '#dispatch-back', function () {
@@ -65,3 +34,36 @@ dispatch.on({
 
     }
 });
+
+var clickDispatch = function(){
+    var index = $(this).index();
+    isDispatchFromList = true;
+    if (getLastShipmentStatus() == "in progress" || getLastShipmentStatus == "paused") {
+        if(index >=selectedMarkerIndex){
+            index++;
+        }
+        navigator.notification.confirm("You already have a delivery in progress, are you sure you want to cancel it?",
+            function (button) {
+                if (button == 1) {
+                    current_page = pickup_route_page;
+                    var oldShipment = JSON.parse(JSON.stringify(currentShipment));
+                    oldShipment.user_status = "open";
+                    setLastShipmentStatus("open");
+                    clearTimer();
+                    clearRestaurantMarkers();
+                    directionsDisplay.setMap(null);
+                    currentShipment = shipments[index];
+                    selectedMarkerIndex = index;
+                    saveShipment(oldShipment, function (data) {
+                        $.mobile.changePage(pickup, {transition: "slide"});
+                    });
+                }
+            },
+            "Cancel current route", ["Yes", "No"]);
+    } else {
+        currentShipment = shipments[index];
+        selectedMarkerIndex = index;
+        isDispatchFromList = true;
+        $.mobile.changePage(pickup, {transition: "slide"});
+    }
+}

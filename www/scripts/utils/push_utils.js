@@ -146,7 +146,13 @@ function processMessage(){
                 });
                 finish_marker.setMap(null);
                 finish_markers.unshift(finish_marker);
-                newShipment.notification_status = true;
+                if (current_page == open_dispatches_page) {
+                    $("#dispatch-list").append('<li><p> Begin: ' + newShipment.route.start + '</br>Finish: ' + newShipment.route.finish + '</p></li>');
+                    $("#dispatch-list li").click(clickDispatch);
+                    if(getLastShipmentStatus() == "paused" || getLastShipmentStatus() == "in progress") {
+                        selectedMarkerIndex++;
+                    }
+                }
             }
         }
 
