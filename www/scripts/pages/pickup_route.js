@@ -339,7 +339,11 @@ function beginTrackingPagePreload() {
         return ((this.getHours() < 10) ? "0" : "") + this.getHours() + ":" + ((this.getMinutes() < 10) ? "0" : "") + this.getMinutes() + ":" + ((this.getSeconds() < 10) ? "0" : "") + this.getSeconds();
     };
     currentShipment.start_time = new Date().timeNow();
-    currentShipment.status = "0%";
+    if(user_marker) {
+        currentShipment.status = "0%";
+    }else{
+        currentShipment.status = "Not tracked";
+    }
     saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
     });
     calcRoute();
@@ -414,8 +418,9 @@ function startTrackingUserPosition() {
     }
 
     function onLocationError(error) {
-        console.log('code: ' + error.code + '\n' +
-            'message: ' + error.message + '\n');
+        currentShipment.status == "Not tracked";
+        saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
+        });
     }
 }
 
@@ -486,7 +491,52 @@ var onSuccessGetUserPosition = function (position) {
 
 // onError Callback receives a PositionError object
 function onErrorGetUserPosition(error) {
-    console.log("on error getUser position " + error.message);
+    //map creation
+    var mapOptions = {
+        center: mapCenter,
+        zoom: 3,
+        disableDefaultUI: true
+    };
+    map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+    directionsDisplay = new google.maps.DirectionsRenderer();
+    directionsDisplay.setMap(map);
+    directionsDisplay.setOptions({
+        suppressMarkers: true
+    });
+
+    google.maps.event.addListener(map, 'zoom_changed', function() {
+        var zoom = map.getZoom();
+
+        if (zoom <= zoomLevel) {
+            hideRestaurantMarkers();
+        } else {
+            console.log("call show restaurant marker");
+            showRestaurantMarkers();
+        }
+    });
+
+    addAllStartMarkers(map);
+    $('#map_canvas').gmap('refresh');
+
+    if(getLastShipmentStatus() == "in progress" || getLastShipmentStatus() == "paused"){
+        current_page = travel_page;
+        beginTrackingPagePreload();
+        startTrackingUserPosition();
+        last_time = getTimer();
+        hideMarkers(map);
+        $("#next-div").css("visibility","visible");
+        console.log("status " + getLastShipmentStatus());
+        if(getLastShipmentStatus() == "paused"){
+            pauseTracking();
+            var h = last_time[0];
+            var m = last_time[1];
+            var s = last_time[2];
+            if (h < 10) h = "0" + h;
+            if (m < 10) m = "0" + m;
+            if (s < 10) s = "0" + s;
+            $("#timer").text(h + ':' + m + ':' + s);
+        }
+    }
 }
 
 //builds route between markers
