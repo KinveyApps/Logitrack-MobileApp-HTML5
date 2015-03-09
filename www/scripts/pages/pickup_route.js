@@ -339,6 +339,7 @@ function beginTrackingPagePreload() {
         return ((this.getHours() < 10) ? "0" : "") + this.getHours() + ":" + ((this.getMinutes() < 10) ? "0" : "") + this.getMinutes() + ":" + ((this.getSeconds() < 10) ? "0" : "") + this.getSeconds();
     };
     currentShipment.start_time = new Date().timeNow();
+    currentShipment.status = "0%";
     saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
     });
     calcRoute();
@@ -409,6 +410,7 @@ function startTrackingUserPosition() {
                 console.log("update driver position with error " + JSON.stringify(error.description));
             }
         });
+      calcShipmentStatus(position);
     }
 
     function onLocationError(error) {
@@ -624,3 +626,60 @@ function addressFormat(address) {
     }
     return result;
 }
+
+
+function calcShipmentStatus(position) {
+
+    //gets address by position
+    geocoder.geocode({'latLng': new google.maps.LatLng(position.coords.latitude, position.coords.longitude)}, function (results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+            $.mobile.loading("show");
+            console.log("position " + JSON.stringify(results[0]));
+            Kinvey.DataStore.save('shipment-checkins', {
+                address: results[0].formatted_address,
+                shipment_id: currentShipment._id,
+                position: {
+                    lat: results[0].geometry.location.k,
+                    lon: results[0].geometry.location.D
+                }
+            }, {
+                success: function (response) {
+                    console.log("save shipment checkin success");
+                },
+                error: function (error) {
+                    console.log("sava shipment checkin error " + JSON.stringify(error));
+                }
+            }).then(loadingHide, loadingHide);
+        } else {
+            console.log('Geocoder failed due to: ' + status);
+        }
+    });
+
+    //updates shipment percentage complete, calculates distance between last checkin and finish point
+    //var origin = new google.maps.LatLng(currentShipment.route.start_lat, currentShipment.route.start_long);
+    var origin = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+    var destination = new google.maps.LatLng(currentShipment.route.finish_lat, currentShipment.route.finish_long);
+    var service = new google.maps.DistanceMatrixService();
+    service.getDistanceMatrix(
+        {
+            origins: [origin],
+            destinations: [destination],
+            travelMode: google.maps.TravelMode.DRIVING,
+            avoidHighways: false,
+            avoidTolls: false
+        }, callback);
+
+    function callback(response, status) {
+        if (status == google.maps.DistanceMatrixStatus.OK) {
+            var checkin_distance = response.rows[0].elements[0].distance.value;
+            console.log("checkin distance " + checkin_distance);
+            if (currentShipment.route.distance > checkin_distance) {
+                currentShipment.status = ((1 - checkin_distance / currentShipment.route.distance) * 100).toFixed(0) + "%";
+            } else {
+                currentShipment.status = "0%";
+            }
+            saveShipment(JSON.parse(JSON.stringify(currentShipment)), function () {
+            });
+        }
+    }
+};
