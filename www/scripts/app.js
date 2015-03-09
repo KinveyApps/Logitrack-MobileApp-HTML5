@@ -194,7 +194,6 @@ function saveShipment(shipment, cb) {
     Kinvey.DataStore.save('shipment',
         shipment, {
             relations: {
-                'checkins': 'shipment-checkins',
                 'route': 'route'
             },
             success: function (response) {
@@ -224,7 +223,7 @@ var loadShipment = function() {
     //Kinvey get shipments that have route starts
     Kinvey.DataStore.find('shipment', query, {
         relations: {
-            'checkins': 'shipment-checkins',
+            //'checkins': 'shipment-checkins',
             'route': 'route'
         },
         success: function (data) {
@@ -309,5 +308,6 @@ var loadShipment = function() {
             }
         }
     }).then(loadingHide, loadingHide);
-}
+};
+
 

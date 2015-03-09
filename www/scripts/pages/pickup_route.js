@@ -160,6 +160,9 @@ pickup.on({
         });
 
         pickup.on('click', '#confirm-btn', function () {
+            if(shipments.length == 1) {
+                finish_markers[0].setMap(map);
+            }
             $("#alertcontainer").css("display", "none");
             $("#message-confirm").css("display", "none");
             $("#step-name-label").text("En Route to Pickup");
