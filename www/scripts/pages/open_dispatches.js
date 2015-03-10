@@ -38,7 +38,7 @@ dispatch.on({
 var clickDispatch = function(){
     var index = $(this).index();
     isDispatchFromList = true;
-    if (getLastShipmentStatus() == "in progress" || getLastShipmentStatus == "paused") {
+    if (getLastShipmentStatus() == "in progress" || getLastShipmentStatus() == "paused") {
         if(index >=selectedMarkerIndex){
             index++;
         }
