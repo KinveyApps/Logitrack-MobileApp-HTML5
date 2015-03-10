@@ -1,5 +1,3 @@
-var notificationShipmentId;
-
 
 function registerPushNotifications() {
     if ('android' === device.platform.toLowerCase()) {
@@ -24,6 +22,8 @@ function registerPushNotifications() {
     }
 }
 
+
+var isGotMessage = false;
 // Method to handle device registration for Android.
 var onNotificationGCM = function (e) {
     console.log("register push " + JSON.stringify(e));
@@ -32,7 +32,13 @@ var onNotificationGCM = function (e) {
         registrationHandler(e.regid);// Register with Kinvey.
     }
     else if ('message' === e.event) {
-      processMessage(e);
+        if(!isGotMessage) {
+            processMessage(e);
+            isGotMessage = true;
+            setTimeout(function(){
+                isGotMessage = false;
+            },2000);
+        }
     }
     else if ('error' === e.event) {
         console.log("push notification error");
@@ -99,7 +105,6 @@ function processMessage(){
     //Kinvey get shipments that have route starts
     Kinvey.DataStore.find('shipment', query, {
         relations: {
-            'checkins': 'shipment-checkins',
             'route': 'route'
         }, success: function (data) {
             var newShipment = data[0];
@@ -118,6 +123,9 @@ function processMessage(){
                     map: map,
                     icon: 'images/start_marker.png'
                 });
+                if(getLastShipmentStatus() == "paused" || getLastShipmentStatus() == "in progress"){
+                    start_marker.setMap(null)
+                }
                 start_markers.unshift(start_marker);
 
                 //add start marker click listener
@@ -136,7 +144,6 @@ function processMessage(){
                 });
 
                 navigator.notification.alert("You have a new pickup. Please go to your dispatch list to accept.",function(){},'New pickup','OK');
-                showMarkers();
 
                 //creates finish marker
                 var finish_marker = new google.maps.Marker({
@@ -152,6 +159,9 @@ function processMessage(){
                     if(getLastShipmentStatus() == "paused" || getLastShipmentStatus() == "in progress") {
                         selectedMarkerIndex++;
                     }
+                }
+                if(getLastShipmentStatus() != "paused" && getLastShipmentStatus() != "in progress"){
+                    showMarkers();
                 }
             }
         }
