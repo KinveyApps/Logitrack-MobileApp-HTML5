@@ -570,7 +570,7 @@ br {
     /*height:30px;*/
 /*}*/
 
-#menu-btn:active,#signature-arrow-btn:active,#profile-edit:active, #next-div:active #next-btn, #next-div:active #next-label, #step-name-label:active{
+#menu-btn:active,#signature-arrow-btn:active,#profile-edit:active, #next-div:active #next-btn, #next-div:active #next-label, #step-name-label-wrapper:active *{
     opacity: 0.5;
 }
 

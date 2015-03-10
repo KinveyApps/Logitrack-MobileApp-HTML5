@@ -200,10 +200,12 @@ pickup.on({
             }
         });
 
-        pickup.on("click", "#step-name-label", function () {
-            $.mobile.changePage(dispatch, {
-                transition: "slide"
-            });
+        pickup.on("click", "#step-name-label-wrapper", function () {
+            if (getLastShipmentStatus() != "paused" && getLastShipmentStatus() != "in progress") {
+                $.mobile.changePage(dispatch, {
+                    transition: "slide"
+                });
+            }
         });
 
         if(currentShipment) {
@@ -721,6 +723,7 @@ function calcShipmentStatus(position) {
 
     function callback(response, status) {
         if (status == google.maps.DistanceMatrixStatus.OK) {
+            console.log("response " + JSON.stringify(response));
             var checkin_distance = response.rows[0].elements[0].distance.value;
             console.log("checkin distance " + checkin_distance);
             if (currentShipment.route.distance > checkin_distance) {
