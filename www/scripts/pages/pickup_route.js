@@ -153,6 +153,7 @@ pickup.on({
 
         pickup.on('click', '#cancel-btn', function () {
             $("#step-name-label").text("Tap to see pending pickups");
+            $("#step-number-label").text("Waiting for delivery");
             $("#alertcontainer").css("display", "none");
             $("#message-confirm").css("display", "none");
             showMarkers();
@@ -578,7 +579,8 @@ function calcRoute(updateMarkers) {
                         query.near('_geoloc', coord, searchRadius);
                         var promise = Kinvey.DataStore.find('restaurants', query, {
                             success: function (response) {
-                                for (var i = 0; i < response.length && i < 5; i++) {
+                                console.log("restaurant");
+                                for (var i = 0; i < response.length && i < 4; i++) {
                                     if (response[i]) {
                                         var marker = createRestaurantMarker(response[i]);
                                     }
