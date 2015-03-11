@@ -578,7 +578,7 @@ function calcRoute(updateMarkers) {
                         query.near('_geoloc', coord, searchRadius);
                         var promise = Kinvey.DataStore.find('restaurants', query, {
                             success: function (response) {
-                                for (var i = 0; i < response.length; i++) {
+                                for (var i = 0; i < response.length && i < 5; i++) {
                                     if (response[i]) {
                                         var marker = createRestaurantMarker(response[i]);
                                     }
