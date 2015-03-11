@@ -202,7 +202,7 @@ function saveShipment(shipment, cb) {
             error: function (error) {
                 console.log("save shipment with error " + JSON.stringify(error));
             }
-        }).then(loadingHide, loadingHide);
+        }).then();
 }
 
 //Load route
