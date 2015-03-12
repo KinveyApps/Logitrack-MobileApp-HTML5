@@ -120,10 +120,12 @@ function setAllMap(map) {
 
 function clearRestaurantMarkers() {
     hideRestaurantMarkers();
+    google.maps.event.clearListeners(map, 'idle');
+    google.maps.event.clearListeners(map, 'zoom_change');
     restaurantMarkers = [];
 }
 
-function createRestaurantMarker(place){
+function createRestaurantMarker(place, index){
     var placeLoc = place.fullResults.geometry.location;
     var result = place.fullResults;
     var marker=new google.maps.Marker({
@@ -164,20 +166,80 @@ function createRestaurantMarker(place){
     if(map.getZoom() < zoomLevel){
         marker.setVisible(false);
     }
-    restaurantMarkers.push(marker);
+    restaurantMarkers[index].push(marker);
     return marker;
 }
 
 
+function showPOIbyIndex(index) {
+    for (var j = 0; j < restaurantMarkers[index].length; j++) {
+        if (restaurantMarkers[index][j]) {
+            restaurantMarkers[index][j].setVisible(true);
+        }
+    }
+}
+
+function hidePOIbyIndex(index) {
+    for (var j = 0; j < restaurantMarkers[index].length; j++) {
+        if (restaurantMarkers[index][j]) {
+            restaurantMarkers[index][j].setVisible(false);
+        }
+    }
+}
+
 function showRestaurantMarkers(){
     for (var i = 0; i < restaurantMarkers.length; i++) {
-        restaurantMarkers[i].setVisible(true);
+        for(var j=0;j < restaurantMarkers[i].length;j++) {
+            restaurantMarkers[i][j].setVisible(true);
+        }
     }
 }
 
 function hideRestaurantMarkers(){
+    console.log("hide restaurant markers");
     for (var i = 0; i < restaurantMarkers.length; i++) {
-        restaurantMarkers[i].setVisible(false);
-        restaurantMarkers[i].info.close();
+        if(restaurantMarkers[i]) {
+            for (var j = 0; j < restaurantMarkers[i].length; j++) {
+                if (restaurantMarkers[i][j]) {
+                    restaurantMarkers[i][j].setVisible(false);
+                    restaurantMarkers[i][j].info.close();
+                }
+            }
+        }
     }
+}
+
+function createPOIMarkers(boundsLatLng, index){
+        var bounds = boundsLatLng.toString();
+        var c = bounds.replace(/[\s()]/g, '').split(',');
+        var query = new Kinvey.Query();
+        var lat = (parseFloat(c[1]) + parseFloat(c[3])) / 2;
+        var lng = (parseFloat(c[0]) + parseFloat(c[2])) / 2;
+        var coord = [lat, lng];
+
+
+        if (getRestaurantMarkerStatus() == "enabled") {
+            query.near('_geoloc', coord, searchRadius);
+            var promise = Kinvey.DataStore.find('restaurants', query, {
+                success: function (response) {
+                    var markerCount = 4;
+                    if(response.length < 4) {
+                        markerCount = response.length;
+                    }
+                    if(!restaurantMarkers[index]){
+                        restaurantMarkers[index] = new Array(markerCount);
+                    }
+                    console.log("marker count " + markerCount);
+                    for (var i = 0; i < markerCount; i++) {
+                        if (response[i]) {
+                            createRestaurantMarker(response[i], index);
+                        }
+                    }
+                },
+                error: function (error) {
+                    console.log("restaurant error " + JSON.stringify(error));
+                }
+            });
+        }
+
 }

@@ -18,7 +18,7 @@ var lastUserPosition = null;
 var shipments = null;
 var start_markers = [];
 var finish_markers = [];
-var restaurantMarkers = [];
+var restaurantMarkers;
 var addresses = [];
 var selectedMarkerIndex = 0;
 var map;
@@ -445,21 +445,11 @@ var onSuccessGetUserPosition = function (position) {
         disableDefaultUI: true
     };
     map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+
     directionsDisplay = new google.maps.DirectionsRenderer();
     directionsDisplay.setMap(map);
     directionsDisplay.setOptions({
         suppressMarkers: true
-    });
-
-    google.maps.event.addListener(map, 'zoom_changed', function() {
-        var zoom = map.getZoom();
-
-        if (zoom <= zoomLevel) {
-            hideRestaurantMarkers();
-        } else {
-            console.log("call show restaurant marker");
-            showRestaurantMarkers();
-        }
     });
 
     //user marker creation
@@ -507,17 +497,6 @@ function onErrorGetUserPosition(error) {
         suppressMarkers: true
     });
 
-    google.maps.event.addListener(map, 'zoom_changed', function() {
-        var zoom = map.getZoom();
-
-        if (zoom <= zoomLevel) {
-            hideRestaurantMarkers();
-        } else {
-            console.log("call show restaurant marker");
-            showRestaurantMarkers();
-        }
-    });
-
     addAllStartMarkers(map);
     $('#map_canvas').gmap('refresh');
 
@@ -542,6 +521,8 @@ function onErrorGetUserPosition(error) {
     }
 }
 
+var boxes;
+
 //builds route between markers
 function calcRoute(updateMarkers) {
     console.log("calc route");
@@ -552,51 +533,53 @@ function calcRoute(updateMarkers) {
     };
     directionsService.route(request, function (response, status) {
         if (status == google.maps.DirectionsStatus.OK) {
-            if(!updateMarkers) {
+            if (!updateMarkers) {
                 current_direction_route = response;
                 directionsDisplay.setDirections(response);
                 directionsDisplay.setMap(map);
             }
             // Box the overview path of the first route
             console.log("restaurant status " + getRestaurantMarkerStatus());
+            var path = response.routes[0].overview_path;
+            boxes = rboxer.box(path, restaurantDistance);
+            restaurantMarkers = new Array(boxes.length);
             if (getRestaurantMarkerStatus() == "enabled") {
-                var path = response.routes[0].overview_path;
-                var boxes = rboxer.box(path, restaurantDistance);
-                for (var i = 0; i < boxes.length; i++) {
-                    var bounds = boxes[i].toString();
-                    var c = bounds.replace(/[\s()]/g, '').split(',');
-
-                    // Query for restaurants close by.
-
-
-                    var query = new Kinvey.Query();
-                    var lat = (parseFloat(c[1]) + parseFloat(c[3])) / 2;
-                    var lng = (parseFloat(c[0]) + parseFloat(c[2])) / 2;
-                    var coord = [lat, lng];
-
-
-                    if (getRestaurantMarkerStatus() == "enabled") {
-                        query.near('_geoloc', coord, searchRadius);
-                        var promise = Kinvey.DataStore.find('restaurants', query, {
-                            success: function (response) {
-                                console.log("restaurant");
-                                for (var i = 0; i < response.length && i < 4; i++) {
-                                    if (response[i]) {
-                                        var marker = createRestaurantMarker(response[i]);
-                                    }
-                                }
-                            },
-                            error: function (error) {
-                                console.log("restaurant error " + JSON.stringify(error));
-                            }
-                        });
-                    }
-
-                }
+                google.maps.event.addListener(map, 'idle', mapIdleListener);
+                google.maps.event.addListener(map, 'zoom_changed', mapZoomListener);
             }
         }
     });
 }
+
+var mapIdleListener = function(){
+    var zoom = map.getZoom();
+
+    if(boxes && zoom > zoomLevel) {
+        var mapBounds = map.getBounds();
+        for (var i = 0; i < boxes.length; i++) {
+            var bounds = boxes[i];
+            if (mapBounds.intersects(bounds)) {
+                if (restaurantMarkers[i]) {
+                    showPOIbyIndex(i);
+                } else {
+                    createPOIMarkers(bounds, i);
+                }
+            }else{
+                if (restaurantMarkers[i] !== undefined) {
+                    hidePOIbyIndex(i);
+                }
+            }
+        }
+    }
+};
+
+var mapZoomListener = function () {
+    var zoom = map.getZoom();
+    console.log("zoom level " + zoom);
+    if (zoom <= zoomLevel) {
+        hideRestaurantMarkers();
+    }
+};
 
 //sets timers value
 function setTimerValue() {

@@ -149,14 +149,15 @@ user_profile.on({
             var status = $('#restaurant-checkbox').prop('checked');
             if (status) {
                 saveRestaurantMarkerStatus("enabled");
-                if(restaurantMarkers.length == 0){
-                    calcRoute(true);
-                }else {
-                    showRestaurantMarkers();
-                }
+                google.maps.event.addListener(map, 'idle', mapIdleListener);
+                google.maps.event.addListener(map, 'zoom_changed', mapZoomListener);
+                mapIdleListener();
+
             } else {
                 saveRestaurantMarkerStatus("disabled");
                 hideRestaurantMarkers();
+                google.maps.event.clearListeners(map, 'idle');
+                google.maps.event.clearListeners(map, 'zoom_change');
             }
         });
     },
