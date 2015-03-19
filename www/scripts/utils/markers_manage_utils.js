@@ -126,8 +126,7 @@ function clearRestaurantMarkers() {
 }
 
 function createRestaurantMarker(place, index){
-    var placeLoc = place.fullResults.geometry.location;
-    var result = place.fullResults;
+    var placeLoc = place.geometry.location;
     var marker=new google.maps.Marker({
         map: map,
         position: placeLoc,
@@ -138,16 +137,16 @@ function createRestaurantMarker(place, index){
     var address = "";
     var phoneNumber = "";
 
-    if(result.name){
-        name = result.name;
+    if(place.name){
+        name = place.name;
     }
 
-    if(result.vicinity){
-        address = result.vicinity;
+    if(place.vicinity){
+        address = place.vicinity;
     }
 
-    if(result.international_phone_number){
-        phoneNumber = result.international_phone_number;
+    if(place.international_phone_number){
+        phoneNumber = place.international_phone_number;
     }
 
     marker.info = new google.maps.InfoWindow({
@@ -209,37 +208,31 @@ function hideRestaurantMarkers(){
     }
 }
 
-function createPOIMarkers(boundsLatLng, index){
-        var bounds = boundsLatLng.toString();
-        var c = bounds.replace(/[\s()]/g, '').split(',');
-        var query = new Kinvey.Query();
-        var lat = (parseFloat(c[1]) + parseFloat(c[3])) / 2;
-        var lng = (parseFloat(c[0]) + parseFloat(c[2])) / 2;
-        var coord = [lat, lng];
+function createPOIMarkers(boundsLatLng, index) {
+    var request = {
+        bounds: boundsLatLng,
+        types: ['airport', 'bank', "department_store", "embassy", "gas_station",
+            "hospital", "library", "pharmacy", "post_office", "university"]
+    };
 
-
-        if (getRestaurantMarkerStatus() == "enabled") {
-            query.near('_geoloc', coord, searchRadius);
-            var promise = Kinvey.DataStore.find('restaurants', query, {
-                success: function (response) {
-                    var markerCount = 4;
-                    if(response.length < 4) {
-                        markerCount = response.length;
-                    }
-                    if(!restaurantMarkers[index]){
-                        restaurantMarkers[index] = new Array(markerCount);
-                    }
-                    console.log("marker count " + markerCount);
-                    for (var i = 0; i < markerCount; i++) {
-                        if (response[i]) {
-                            createRestaurantMarker(response[i], index);
-                        }
-                    }
-                },
-                error: function (error) {
-                    console.log("restaurant error " + JSON.stringify(error));
+    if (getRestaurantMarkerStatus() == "enabled") {
+        service.search(request, function (results, status) {
+            console.log("status " + status);
+            if (status == google.maps.places.PlacesServiceStatus.OK) {
+                var markerCount = 4;
+                if (results.length < 4) {
+                    markerCount = results.length;
                 }
-            });
-        }
-
+                if (!restaurantMarkers[index]) {
+                    restaurantMarkers[index] = new Array(markerCount);
+                }
+                console.log("marker count " + markerCount);
+                for (var i = 0; i < markerCount; i++) {
+                    if (results[i]) {
+                        createRestaurantMarker(results[i], index);
+                    }
+                }
+            }
+        });
+    }
 }

@@ -29,6 +29,7 @@ var my_timer;
 var last_time = [0, 0, 0];
 var bounds = new google.maps.LatLngBounds();
 var geocoder = new google.maps.Geocoder();
+var placesService;
 var rboxer = new RouteBoxer();
 var restaurantDistance = 0.5; // km
 var searchRadius = 0.5;
@@ -445,6 +446,7 @@ var onSuccessGetUserPosition = function (position) {
         disableDefaultUI: true
     };
     map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+    service = new google.maps.places.PlacesService(map);
 
     directionsDisplay = new google.maps.DirectionsRenderer();
     directionsDisplay.setMap(map);
@@ -491,6 +493,7 @@ function onErrorGetUserPosition(error) {
         disableDefaultUI: true
     };
     map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+    service = new google.maps.places.PlacesService(map);
     directionsDisplay = new google.maps.DirectionsRenderer();
     directionsDisplay.setMap(map);
     directionsDisplay.setOptions({
