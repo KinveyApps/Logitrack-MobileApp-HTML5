@@ -14,6 +14,7 @@
     <link href="styles/main.css" rel="stylesheet"/>
     <link href="styles/login.css" rel="stylesheet"/>
     <link href="styles/dialogs.css" rel="stylesheet">
+    <link href="styles/jquery.signaturepad.css" rel="stylesheet">
 </head>
 <body>
 
@@ -23,8 +24,8 @@
 <div data-role="page" data-title="Login" id="login" align="center">
     <div data-role="content" id="login-content">
         <h1 id="title">LOGITRACK</h1>
-        <input id="username-input" class="login-input" placeholder="username"></input>
-        <input id="password-input" type="password" class="login-input" placeholder="password"></input>
+        <input id="username-input" class="login-input" placeholder="username"/>
+        <input id="password-input" type="password" class="login-input" placeholder="password"/>
 
         <h3 id="login-label">Log in</h3>
 
@@ -306,14 +307,17 @@
 
             <p id="signature-title">SIGNATURE</p>
         </div>
-        <div id="textarea-div">
-            <textarea id="signature-textarea" rows="10" cols="50" placeholder="Tap to sign"></textarea>
-        </div>
-        <p class="signature-label">Placeholder screen for signature page</p>
+        <div class="sigPad">
+            <div class="sigNav">
+                <div class="clearButton"><a href="#clear">Clear</a></div>
+            </div>
+            <div class="sig sigWrapper">
+                <div class="typed"></div>
+                <canvas id="canvasPad" class="pad" width="300" height="100"></canvas>
+                <input type="hidden" name="output" class="output">
+            </div>
 
-        <div align="center" id="email-div">
-            <div id="email-icon"></div>
-            <p id="email-title">Email</p>
+            <div id="save-signature-btn">Save signature</div>
         </div>
 
     </div>
@@ -336,7 +340,9 @@
 <script type="text/javascript"
         src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobox/src/infobox.js"></script>
 <script src="scripts/libs/jquery.ui.map.full.min.js"></script>
-<script src="scripts/libs/jquery.mobile-1.4.0.min.js"></script>
+<script src="scripts/libs/jquery.mobile-1.4.4.min.js"></script>
+<script src="scripts/libs/jquery.signaturepad.min.js"></script>
+<script src="scripts/libs/json2.min.js"></script>
 <script src="https://da189i1jfloii.cloudfront.net/js/kinvey-phonegap-1.1.10.min.js"></script>
 <script src="scripts/app.js"></script>
 <script src="scripts/pages/login.js"></script>

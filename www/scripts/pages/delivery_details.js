@@ -86,30 +86,34 @@ delivery_details.on({
                     $.mobile.changePage(pickup);
                     break;
                 case "Delivery Complete":
-                    navigator.notification.confirm("Do you really want to mark route as \"Done\"",
-                        function (button) {
-                            if (button == 1) {
-                                current_page = pickup_route_page;
-                                currentShipment.user_status = "done";
-                                setLastShipmentStatus("done");
-                                clearTimer();
-                                clearRestaurantMarkers();
-                                $("#timer").text('00:00:00');
-                                saveShipment(JSON.parse(JSON.stringify(currentShipment)), function (data) {
-                                    $("#tracking-state").css("visibility", "hidden");
-                                    $("#green-circle-right").css("visibility", "hidden");
-                                    $("#green-circle-left").css("visibility", "visible");
-                                    clearInterval(my_timer);
-                                    confirm_infobox.close();
-                                    confirm_infobox.setMap(null);
-                                    isConfirmBoxOpen = false;
-                                    isFirstStart = true;
-                                    loadShipment();
-                                    isDeliveryComplitedClicked = true;
-                                });
-                            }
-                        },
-                        "Change route status", ["OK", "Cancel"]);
+                    if(currentShipment.signature && currentShipment.signature._id) {
+                        navigator.notification.confirm("Do you really want to mark route as \"Done\"",
+                            function (button) {
+                                if (button == 1) {
+                                    current_page = pickup_route_page;
+                                    currentShipment.user_status = "done";
+                                    setLastShipmentStatus("done");
+                                    clearTimer();
+                                    clearRestaurantMarkers();
+                                    $("#timer").text('00:00:00');
+                                    saveShipment(JSON.parse(JSON.stringify(currentShipment)), function (data) {
+                                        $("#tracking-state").css("visibility", "hidden");
+                                        $("#green-circle-right").css("visibility", "hidden");
+                                        $("#green-circle-left").css("visibility", "visible");
+                                        clearInterval(my_timer);
+                                        confirm_infobox.close();
+                                        confirm_infobox.setMap(null);
+                                        isConfirmBoxOpen = false;
+                                        isFirstStart = true;
+                                        loadShipment();
+                                        isDeliveryComplitedClicked = true;
+                                    });
+                                }
+                            },
+                            "Change route status", ["OK", "Cancel"]);
+                    }else{
+                        navigator.notification.alert("Please sign the delivery",function(){},'','OK');
+                    }
                     break;
             }
 

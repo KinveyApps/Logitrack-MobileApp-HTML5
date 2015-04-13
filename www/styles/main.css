@@ -397,6 +397,18 @@ br {
     font-size: 14px;
 }
 
+#save-signature-btn{
+    background: white;
+    height: 40px;
+    text-align: center;
+    line-height: 40px;
+    font-size: 14px;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin: 20px auto 0;
+    color: rgb(0, 122, 255);
+}
+
 #begin-tracking-btn {
     float: right;
     color: rgb(0, 122, 255);
