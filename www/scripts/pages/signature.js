@@ -42,6 +42,9 @@ signature.on({
                             _id: file._id
                         };
                         saveShipment(JSON.parse(JSON.stringify(currentShipment)), function (data) {
+                            $.mobile.back({
+                                transition: "slide"
+                            });
                         });
                     },
                     error: function (error) {
