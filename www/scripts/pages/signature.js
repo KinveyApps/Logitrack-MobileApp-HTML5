@@ -23,13 +23,11 @@ signature.on({
 
         signature.on('click', "#save-signature-btn", function () {
             if (sigWrapper.validateForm()) {
-
                 var signatureBase64 = sigWrapper.getSignatureImage();
                 signatureBase64 = signatureBase64.substr(signatureBase64.indexOf(',') + 1);
                 console.log("start update " + signatureBase64);
                 var signatureArrayBuffer = _base64ToArrayBuffer(signatureBase64);
                 $.mobile.loading("show");
-
                 //Kinvey save avatar image file starts
                 var promise = Kinvey.File.upload(signatureArrayBuffer, {
                     mimeType: 'image/png',
@@ -50,6 +48,21 @@ signature.on({
                     error: function (error) {
                         console.log("error " + JSON.stringify(error));
                     }
+                }).then(loadingHide, loadingHide);
+            }
+            ;
+        });
+
+        signature.on('click', ".clearButton", function () {
+            if (currentShipment.signature && currentShipment.signature._id) {
+                $.mobile.loading("show");
+                var promise = Kinvey.File.destroy(currentShipment.signature._id);
+                promise.then(function () {
+                    delete currentShipment.signature;
+                    saveShipment(JSON.parse(JSON.stringify(currentShipment)), function (data) {
+                    });
+                }, function (err) {
+                    console.log("delete signature error");
                 }).then(loadingHide, loadingHide);
             }
         });
