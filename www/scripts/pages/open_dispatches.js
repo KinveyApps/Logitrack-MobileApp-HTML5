@@ -9,16 +9,22 @@ dispatch.on({
         current_page = open_dispatches_page;
         var items = [];
         $('#dispatch-list li').remove();
-        for(var i=0;i<shipments.length;i++){
-            if(currentShipment._id != shipments[i]._id) {
-                items.push('<li><p> Begin: ' + shipments[i].route.start + '</br>Finish: ' + shipments[i].route.finish + '</p></li>');
-            }else if(getLastShipmentStatus() != "paused" && getLastShipmentStatus() != "in progress"){
-                items.push('<li><p> Begin: ' + shipments[i].route.start + '</br>Finish: ' + shipments[i].route.finish + '</p></li>');
-            }
-        }
+        getOpenShipments(function(err){
+            if(err){
+                navigator.notification.alert("Error",function(){},'Fetching shipment query failed with error ' + JSON.stringify(err) ,'OK');
+            }else {
+                for (var i = 0; i < shipments.length; i++) {
+                    if (currentShipment._id != shipments[i]._id) {
+                        items.push('<li><p> Begin: ' + shipments[i].route.start + '</br>Finish: ' + shipments[i].route.finish + '</p></li>');
+                    } else if (getLastShipmentStatus() != "paused" && getLastShipmentStatus() != "in progress") {
+                        items.push('<li><p> Begin: ' + shipments[i].route.start + '</br>Finish: ' + shipments[i].route.finish + '</p></li>');
+                    }
+                }
 
-        $('#dispatch-list').append(items.join(''));
-        $("#dispatch-list li").click(clickDispatch);
+                $('#dispatch-list').append(items.join(''));
+                $("#dispatch-list li").click(clickDispatch);
+            }
+        });
     },
     pageinit: function () {
         dispatch.on('click', '#dispatch-back', function () {
@@ -66,4 +72,36 @@ var clickDispatch = function(){
         isDispatchFromList = true;
         $.mobile.changePage(pickup, {transition: "slide"});
     }
-}
+};
+
+var getOpenShipments = function(callback){
+    var user = Kinvey.getActiveUser();
+    var query = new Kinvey.Query();
+    query.equalTo('user_status', 'open').or().equalTo('user_status', 'in progress').or().equalTo('user_status', 'paused');
+    query.equalTo("driver._id", user._id);
+    query.exists('route');
+    query.descending("_kmd.ect");
+    Kinvey.DataStore.find('shipment', query, {
+        relations: {
+            //'checkins': 'shipment-checkins',
+            'route': 'route'
+        },
+        success: function (data) {
+            console.log("get shipments " + JSON.stringify(data));
+            shipments = data;
+            clearMarkers();
+            start_markers = [];
+            finish_markers = [];
+            addAllStartMarkers(map);
+            isStartMarkerSelected = false;
+            if(infobox) {
+                infobox.close();
+                infobox.setMap(null);
+            }
+            return callback();
+        },
+        error: function(err){
+            return callback(err);
+        }
+    });
+};
