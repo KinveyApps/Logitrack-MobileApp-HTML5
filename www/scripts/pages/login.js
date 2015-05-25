@@ -46,6 +46,10 @@ login.on({
                 alert(error.description);
             }).then(loadingHide, loadingHide);
         });
+
+        login.on('click','#registration-label',function(){
+            $.mobile.changePage(registration, {transition: "slide"});
+        });
     },
     pagebeforeshow: function () {
         $("#username-input").val("");

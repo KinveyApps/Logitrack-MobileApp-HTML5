@@ -18,23 +18,44 @@
 </head>
 <body>
 
-
 <!-- Login. -->
 
 <div data-role="page" data-title="Login" id="login" align="center">
-    <div data-role="content" id="login-content">
-        <h1 id="title">LOGITRACK</h1>
+    <div data-role="content" class="login-content">
+        <h1 class="title">LOGITRACK</h1>
         <input id="username-input" class="login-input" placeholder="username"/>
         <input id="password-input" type="password" class="login-input" placeholder="password"/>
 
-        <h3 id="login-label">Log in</h3>
+        <h3 id="login-label" class="action-button">Log in</h3>
 
         <div id="separator-line">
         </div>
-        <h4 id="registration-label">New to Logitrack?<br/>Register.</h4>
+        <h4 id="registration-label" class="action-button">New to Logitrack?<br/>Register.</h4>
     </div>
 </div>
 
+<!--Registration-->
+
+<div data-role="page" data-title="Registration" id="registration" align="center">
+
+    <div class="arrow-wrapper">
+        <div class="back-arrow" id="registration-back"></div>
+    </div>
+    <div class="form-wrapper">
+        <div data-role="content" class="login-content">
+            <h1 class="title">REGISTRATION</h1>
+            <input id="registration-username" class="login-input" placeholder="username"/>
+            <input id="registration-password" type="password" class="login-input" placeholder="password"/>
+            <input id="registration-email" type="email" class="login-input" placeholder="email"/>
+            <input id="registration-first-name" class="login-input" placeholder="first name"/>
+            <input id="registration-last-name" class="login-input" placeholder="last name"/>
+            <input id="registration-mobile-number" class="login-input" placeholder="mobile number"/>
+
+            <h3 id="register-label" class="action-button">Sign up</h3>
+
+        </div>
+    </div>
+</div>
 
 <!-- Pickup Route. -->
 <div data-role="page" data-title="Logitrack - Route" id="pickup-route">
@@ -220,12 +241,12 @@
         </div>
     </div>
 
-        <div class="checkbox-wrapper">
-            <input id="push-checkbox" type="checkbox" /> <span class="push-label">Push notifications</span>
-        </div>
+    <div class="checkbox-wrapper">
+        <input id="push-checkbox" type="checkbox"/> <span class="push-label">Push notifications</span>
+    </div>
 
     <div class="checkbox-wrapper">
-        <input id="restaurant-checkbox" type="checkbox" /> <span class="push-label">Show POI markers</span>
+        <input id="restaurant-checkbox" type="checkbox"/> <span class="push-label">Show POI markers</span>
     </div>
 
     <div id="sign-out-btn">
@@ -346,6 +367,7 @@
 <script src="https://da189i1jfloii.cloudfront.net/js/kinvey-phonegap-1.1.10.min.js"></script>
 <script src="scripts/app.js"></script>
 <script src="scripts/pages/login.js"></script>
+<script src="scripts/pages/registration.js"></script>
 <script src="scripts/pages/pickup_route.js"></script>
 <script src="scripts/pages/user_profile.js"></script>
 <script src="scripts/pages/delivery_details.js"></script>

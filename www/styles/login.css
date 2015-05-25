@@ -1,6 +1,6 @@
 @charset "utf-8";
 
-#login-content{
+.login-content{
     width: 90%;
     height: 70%;
     overflow: auto;
@@ -21,20 +21,27 @@
     background-color:gray;,
 }
 
-#title{
+.title{
     font-family:"Walkway"
 }
 
-#login-label{
+.action-button{
     color:#4095FB;
+}
+
+.action-button:active{
+    color: gray;
+}
+
+#login-label{
     margin-top:20px;
     margin-bottom:30px;
 }
-#login-label:active{
-    color:grey;
-}
 
 #registration-label{
-    color:#4095FB;
     margin-top:30px;
+}
+
+#registration-back{
+    top:28px;
 }
