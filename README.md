@@ -7,17 +7,18 @@ Logitrack-HTML5
 2. Choose the "Get started" option that suits you best. 
 3. Name your app, choose app platform and click "Create app backend".
 4. On the app dashboard page, you will find your App Key and App Secret. 
-5. Specify your app key and secret in `scripts/pages/splash.js` constant variables
+5. Specify your app key and secret in `scripts/app.js` constant variables
 
 ```javascript
 var promise = Kinvey.init({
-            appKey: 'MY_APP_KEY',
-            appSecret: 'MY_APP_SECRET',
-            sync: {
-                enable: true,
-                online: navigator.onLine
-            }
-        });
+        appKey: 'MY_APP_KEY',
+        appSecret: 'MY_APP_SECRET',
+        refresh: navigator.onLine,
+        sync: {
+            enable: true,
+            online: navigator.onLine
+        }
+    });
 ```
 
 
@@ -44,6 +45,7 @@ var promise = Kinvey.init({
    cordova plugin add org.apache.cordova.dialogs
    cordova plugin add org.apache.cordova.camera
    cordova plugin add org.apache.cordova.vibration
+   cordova plugin add org.apache.cordova.network-information
    cordova plugin add "https://github.com/phonegap-build/PushPlugin.git"
 
 ```
