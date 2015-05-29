@@ -15,6 +15,10 @@
  */
 var signature = $('#signature');
 var sigWrapper;
+var offlineSignatures = getOfflineSignatures();
+offlineSignatures = (offlineSignatures) ? offlineSignatures : {};
+var clearedSignatures = getClearedSignatures();
+clearedSignatures = (clearedSignatures) ? clearedSignatures : {};
 
 signature.on({
     pageinit: function () {
@@ -23,47 +27,76 @@ signature.on({
 
         signature.on('click', "#save-signature-btn", function () {
             if (sigWrapper.validateForm()) {
+                console.log("get signagure" + JSON.stringify(sigWrapper.getSignature()));
                 var signatureBase64 = sigWrapper.getSignatureImage();
-                signatureBase64 = signatureBase64.substr(signatureBase64.indexOf(',') + 1);
-                console.log("start update " + signatureBase64);
-                var signatureArrayBuffer = _base64ToArrayBuffer(signatureBase64);
-                $.mobile.loading("show");
-                //Kinvey save avatar image file starts
-                var promise = Kinvey.File.upload(signatureArrayBuffer, {
-                    mimeType: 'image/png',
-                    size: signatureBase64.length
-                }, {
-                    success: function (file) {
-                        console.log("success " + JSON.stringify(file));
-                        currentShipment.signature = {
-                            _type: 'KinveyFile',
-                            _id: file._id
-                        };
-                        saveShipment(JSON.parse(JSON.stringify(currentShipment)), function (data) {
-                            $.mobile.back({
-                                transition: "slide"
+                if (navigator.onLine) {
+                    signatureBase64 = signatureBase64.substr(signatureBase64.indexOf(',') + 1);
+                    var signatureArrayBuffer = _base64ToArrayBuffer(signatureBase64);
+                    $.mobile.loading("show");
+                    //Kinvey save avatar image file starts
+                    var promise = Kinvey.File.upload(signatureArrayBuffer, {
+                        mimeType: 'image/png',
+                        size: signatureBase64.length,
+                        sig: sigWrapper.getSignature()
+                    }, {
+                        success: function (file) {
+                            console.log("success " + JSON.stringify(file));
+                            currentShipment.signature = {
+                                _type: 'KinveyFile',
+                                _id: file._id,
+                                sig: file.sig
+                            };
+                            saveShipment(JSON.parse(JSON.stringify(currentShipment)), function (data) {
+                                $.mobile.back({
+                                    transition: "slide"
+                                });
                             });
-                        });
-                    },
-                    error: function (error) {
-                        console.log("error " + JSON.stringify(error));
-                    }
-                }).then(loadingHide, loadingHide);
-            }
-            ;
+                        },
+                        error: function (error) {
+                            console.log("error " + JSON.stringify(error));
+                        }
+                    }).then(loadingHide, loadingHide);
+                } else {
+                    delete clearedSignatures[currentShipment._id];
+                    offlineSignatures[currentShipment._id] = {
+                        signatureBase64: signatureBase64,
+                        shipment: currentShipment,
+                        sig: sigWrapper.getSignature()
+                    };
+                    setOfflineSignatures();
+                    setClearedSignatures();
+                    sigWrapper.clearCanvas();
+                    $.mobile.back({
+                        transition: "slide"
+                    });
+                }
+            };
         });
 
         signature.on('click', ".clearButton", function () {
-            if (currentShipment.signature && currentShipment.signature._id) {
-                $.mobile.loading("show");
-                var promise = Kinvey.File.destroy(currentShipment.signature._id);
-                promise.then(function () {
+            if(navigator.onLine) {
+                if (currentShipment.signature && currentShipment.signature._id) {
+                    $.mobile.loading("show");
+                    var promise = Kinvey.File.destroy(currentShipment.signature._id);
+                    promise.then(function () {
+                        delete currentShipment.signature;
+                        saveShipment(JSON.parse(JSON.stringify(currentShipment)), function (data) {
+                        });
+                    }, function (err) {
+                        console.log("delete signature error");
+                    }).then(loadingHide, loadingHide);
+                }
+            }else{
+                delete offlineSignatures[currentShipment._id];
+                if(currentShipment.signature && currentShipment.signature._id){
+                    clearedSignatures[currentShipment._id] = {
+                        signature_id: currentShipment.signature._id,
+                        shipment: currentShipment
+                    };
                     delete currentShipment.signature;
-                    saveShipment(JSON.parse(JSON.stringify(currentShipment)), function (data) {
-                    });
-                }, function (err) {
-                    console.log("delete signature error");
-                }).then(loadingHide, loadingHide);
+                }
+                setOfflineSignatures();
+                setClearedSignatures();
             }
         });
 
@@ -74,23 +107,16 @@ signature.on({
         });
     },
     pageshow: function(){
-        if(currentShipment.signature && currentShipment.signature._id){
-            $.mobile.loading("show");
-            var promise = Kinvey.File.download(currentShipment.signature._id, {
-                success: function(response) {
-                    var canvas = document.getElementById('canvasPad');
-                    var ctx = canvas.getContext("2d");
-                    var image = new Image();
-                    image.src = response._downloadURL;
-                    image.onload = function() {
-                        ctx.drawImage(image, 0, 0);
-                        loadingHide();
-                    };
-                },
-                error: function (error) {
-                    console.log("error " + JSON.stringify(error));
-                }
-            }).then(loadingHide,loadingHide);
+        if (navigator.onLine) {
+            console.log("start signature " + JSON.stringify(currentShipment.signature));
+            if (currentShipment.signature && currentShipment.signature.sig) {
+                sigWrapper.regenerate(currentShipment.signature.sig);
+            }
+        } else {
+            var offlineSignature = offlineSignatures[currentShipment._id];
+            if (offlineSignature && offlineSignature.sig) {
+                    sigWrapper.regenerate(offlineSignature.sig);
+            }
         }
     }
 });

@@ -41,13 +41,6 @@ function onPostSave(request, response, modules) {
                                                 return response.complete(200);
                                             });
                                         }else{
-                                            var htlmText = getHtmlText(route,body.signature);
-                                            email.send('do-not-reply@kinvey.com',
-                                                driverEmail,
-                                                'Delivery status',
-                                                "Delivery status",
-                                                null,
-                                                htlmText);
                                             return response.complete(200);
                                         }
                                     }

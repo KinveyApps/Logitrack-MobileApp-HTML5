@@ -17,29 +17,6 @@
 var splash = $('#splash');
 splash.on({
     pageinit: function () {
-        // Initialize Kinvey.
-        var promise = Kinvey.init({
-            appKey: 'MY_APP_KEY',
-            appSecret: 'MY_APP_SECRET',
-            sync: {
-                enable: true,
-                online: navigator.onLine
-            }
-        });
-        promise.then(function (activeUser) {
-            active_user = activeUser;
-
-        }).then(function () {
-            if (null !== active_user) {
-                loadShipment();
-            } else {
-                console.log("changePage login");
-                current_page = login_page;
-                $.mobile.changePage(login);
-            }
-        }, function () {
-            navigator.notification.alert("Can't connect to Kinvey server",function(){},'Connection error','OK');
-        });
     }
 });
 

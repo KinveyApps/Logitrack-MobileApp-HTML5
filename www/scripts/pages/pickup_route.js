@@ -18,7 +18,7 @@ var lastUserPosition = null;
 var shipments = null;
 var start_markers = [];
 var finish_markers = [];
-var restaurantMarkers;
+var restaurantMarkers = [];
 var addresses = [];
 var selectedMarkerIndex = 0;
 var map;

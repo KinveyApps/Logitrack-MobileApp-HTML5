@@ -58,15 +58,53 @@ function onDeviceReady() {
 
     document.addEventListener("backbutton", onBackKeyDown, false);
     createInfoboxes();
-    // On/offline hooks.
+
+    var promise = Kinvey.init({
+        appKey: 'MY_APP_KEY',
+        appSecret: 'MY_APP_SECRET',
+        refresh: navigator.onLine,
+        sync: {
+            enable: true,
+            online: navigator.onLine
+        }
+    });
+
+    promise.then(function (activeUser) {
+            active_user = activeUser;
+            console.log("init active user " + JSON.stringify(activeUser));
+            if (null !== active_user) {
+                loadShipment();
+            } else {
+                console.log("changePage login");
+                current_page = login_page;
+                $.mobile.changePage(login);
+            }
+        },
+        function (error) {
+            navigator.notification.alert(error.description, function () {
+            }, 'Kinvey initialization failed', 'OK');
+        });
+
     $(window).on({
         offline: Kinvey.Sync.offline,
         online: function () {
-            // Some browsers fire the online event before the connection is available
-            // again, so set a timeout here.
-            setTimeout(function () {
-                Kinvey.Sync.online();
-            }, 10000);
+            if (navigator.onLine) {
+                setTimeout(function () {
+                    Kinvey.Sync.online({
+                        conflict: Kinvey.Sync.clientAlwaysWins
+                    });
+                    uploadOfflineSignatures(function () {
+                        offlineSignatures = [];
+                        setOfflineSignatures();
+                    });
+                    clearedOfflineSignatures(function () {
+                        clearedSignatures = [];
+                        setClearedSignatures();
+                    });
+                }, 2000);
+            } else {
+                Kinvey.Sync.offline();
+            }
         }
     });
 }
@@ -206,7 +244,7 @@ function saveShipment(shipment, cb) {
 }
 
 //Load route
-var loadShipment = function() {
+function loadShipment() {
     if(getPushStatus() == 'enabled') {
     //if(getDeviceId() == null && getPushStatus() == 'enabled') {
         registerPushNotifications();
@@ -308,6 +346,61 @@ var loadShipment = function() {
             }
         }
     }).then(loadingHide, loadingHide);
-};
+}
 
 
+function uploadOfflineSignatures(callback) {
+    console.log("offline signatures " + JSON.stringify(offlineSignatures));
+    for (var id in offlineSignatures) {
+        if (offlineSignatures.hasOwnProperty(id)) {
+            (function (id) {
+                var offlineSignature = offlineSignatures[id];
+                var signatureBase64 = offlineSignature.signatureBase64;
+                signatureBase64 = signatureBase64.substr(signatureBase64.indexOf(',') + 1);
+                console.log("start update " + signatureBase64);
+                var signatureArrayBuffer = _base64ToArrayBuffer(signatureBase64);
+                $.mobile.loading("show");
+                //Kinvey save avatar image file starts
+                var promise = Kinvey.File.upload(signatureArrayBuffer, {
+                    mimeType: 'image/png',
+                    size: signatureBase64.length,
+                    sig: offlineSignature.sig
+                }, {
+                    success: function (file) {
+                        offlineSignature.shipment.signature = {
+                            _type: 'KinveyFile',
+                            _id: file._id,
+                            sig: file.sig
+                        };
+                        saveShipment(JSON.parse(JSON.stringify(offlineSignature.shipment)), function (data) {
+                        });
+                    },
+                    error: function (error) {
+                        console.log("error " + JSON.stringify(error));
+                    }
+                }).then(loadingHide, loadingHide);
+            })(id)
+        }
+    }
+    callback();
+}
+
+function clearedOfflineSignatures(callback) {
+    for (var id in clearedSignatures) {
+        if (clearedSignatures.hasOwnProperty(id)) {
+            (function (id) {
+                var offlineSignature = clearedSignatures[id];
+                $.mobile.loading("show");
+                var promise = Kinvey.File.destroy(offlineSignature.signature_id);
+                promise.then(function () {
+                    delete offlineSignature.shipment.signature;
+                    saveShipment(JSON.parse(JSON.stringify(offlineSignature.shipment)), function (data) {
+                    });
+                }, function (err) {
+                    console.log("delete signature error");
+                }).then(loadingHide, loadingHide);
+            })(id)
+        }
+    }
+    callback();
+}

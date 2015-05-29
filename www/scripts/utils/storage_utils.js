@@ -110,3 +110,19 @@ function getRestaurantMarkerStatus() {
 function saveRestaurantMarkerStatus(status) {
     localStorage.setItem("restaurant", status);
 }
+
+function setOfflineSignatures() {
+    localStorage.setItem('offlineSignatures', JSON.stringify(offlineSignatures));
+}
+
+function getOfflineSignatures() {
+    return JSON.parse(localStorage.getItem('offlineSignatures'));
+}
+
+function setClearedSignatures() {
+    localStorage.setItem('clearedSignatures', JSON.stringify(clearedSignatures));
+}
+
+function getClearedSignatures() {
+    return JSON.parse(localStorage.getItem('clearedSignatures'));
+}

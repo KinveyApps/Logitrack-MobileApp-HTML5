@@ -86,7 +86,7 @@ delivery_details.on({
                     $.mobile.changePage(pickup);
                     break;
                 case "Delivery Complete":
-                    if(currentShipment.signature && currentShipment.signature._id) {
+                    if((currentShipment.signature && currentShipment.signature._id) || offlineSignatures[currentShipment._id]) {
                         navigator.notification.confirm("Do you really want to mark route as \"Done\"",
                             function (button) {
                                 if (button == 1) {

@@ -420,7 +420,7 @@ br {
     margin-left: 5%;
 }
 
-#begin-tracking-btn:active,#cancel-pickup-btn:active{
+#begin-tracking-btn:active,#cancel-pickup-btn:active, #save-signature-btn:active{
     color:gray;
 }
 
