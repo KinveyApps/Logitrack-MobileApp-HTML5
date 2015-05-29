@@ -46,8 +46,13 @@ registration.on({
                         map = null;
                         loadShipment();
                     }, function (error) {
-                        navigator.notification.alert(error.description, function () {
-                        }, 'Registration failed', 'OK');
+                        if (navigator.onLine) {
+                            navigator.notification.alert(error.description, function () {
+                            }, 'Registration failed', 'OK');
+                        } else {
+                            navigator.notification.alert("Please check your internet collection", function () {
+                            }, 'Registration failed', 'OK');
+                        }
                     }).then(loadingHide, loadingHide);
                 }
             });

@@ -32,6 +32,7 @@ user_profile.on({
                         //Kinvey user logout starts
                         var promise = Kinvey.User.logout({});
                         promise.then(function (response) {
+                            Kinvey.Sync.destruct();
                             console.log("logout with success");
                             isNewLogin = true;
                             $.mobile.changePage(login, {transition: "slide"});
@@ -197,7 +198,13 @@ function updateUserInfo(user) {
             $("#profile-password-div").css("display", "block");
         },
         error: function (error) {
-            console.log("user info update error " + JSON.stringify(error.description));
+            if(navigator.onLine){
+                navigator.notification.alert(error.description, function () {
+                }, 'Update user failed', 'OK');
+            }else {
+                navigator.notification.alert("Please check your internet collection", function () {
+                }, 'Update user failed', 'OK');
+            }
         }
     }).then(loadingHide, loadingHide);
 }

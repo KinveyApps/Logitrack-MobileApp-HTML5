@@ -30,8 +30,8 @@ login.on({
                     map = null;
                     loadShipment();
                 } else {
-                    alert("You don't have required permissions");
-
+                    navigator.notification.alert("You don't have required permissions", function () {
+                    }, 'Login failed', 'OK');
                     //Kinvey user logout starts
                     var promise = Kinvey.User.logout({
                     });
@@ -43,7 +43,13 @@ login.on({
                 }
             }, function (error) {
                 console.log("login error " + JSON.stringify(error));
-                alert(error.description);
+                if(navigator.onLine) {
+                    navigator.notification.alert(error.description, function () {
+                    }, 'Login failed', 'OK');
+                }else{
+                    navigator.notification.alert("Please check your internet collection", function () {
+                    }, 'Login failed', 'OK');
+                }
             }).then(loadingHide, loadingHide);
         });
 
