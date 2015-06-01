@@ -16,20 +16,19 @@
 
 var lastUserPosition = null;
 var shipments = null;
-var start_markers = [];
-var finish_markers = [];
+var startMarkers = [];
+var finishMarkers = [];
 var restaurantMarkers = [];
 var addresses = [];
 var selectedMarkerIndex = 0;
 var map;
 var directionsDisplay;
 var directionsService = new google.maps.DirectionsService();
-var user_marker;
-var my_timer;
-var last_time = [0, 0, 0];
+var userMarker;
+var timer;
+var lastTime = [0, 0, 0];
 var bounds = new google.maps.LatLngBounds();
 var geocoder = new google.maps.Geocoder();
-var placesService;
 var rboxer = new RouteBoxer();
 var restaurantDistance = 0.5; // km
 var searchRadius = 0.5;
@@ -42,32 +41,32 @@ var pickup = $('#pickup-route');
 pickup.on({
     pagebeforeshow: function (event, data) {
         console.log("page before show pickup");
-        switch (current_page) {
-            case pickup_route_page:
+        switch (currentPage) {
+            case PICKUP_ROUTE_PAGE:
                 pickupRoutePagePreload();
                 break;
-            case travel_page:
+            case TRAVEL_PAGE:
                 beginTrackingPagePreload();
                 startTrackingUserPosition();
                 break;
         }
         if (isBackPressed) {
-            switch (current_page) {
-                case delivery_details_begin_tracking_page:
-                    current_page = pickup_route_page;
+            switch (currentPage) {
+                case DELIVERY_DETAILS_BEGIN_TRACKING_PAGE:
+                    currentPage = PICKUP_ROUTE_PAGE;
                     break;
-                case delivery_details_confirm_delivery_page:
-                    current_page = travel_page;
+                case DELIVERY_DETAILS_CONFIRM_DELIVERY_PAGE:
+                    currentPage = TRAVEL_PAGE;
                     break;
-                case user_profile_page:
+                case USER_PROFILE_PAGE:
                     if ($("#step-number-label").text() == "Step 2" || $("#step-number-label").text() == "Step 3") {
-                        current_page = travel_page;
+                        currentPage = TRAVEL_PAGE;
                     } else {
-                        current_page = pickup_route_page;
+                        currentPage = PICKUP_ROUTE_PAGE;
                     }
                     break;
-                case open_dispatches_page:
-                    current_page = previous_page;
+                case OPEN_DISPATCHES_PAGE:
+                    currentPage = previousPage;
             }
             isBackPressed = false;
         }
@@ -75,7 +74,7 @@ pickup.on({
     pageinit: function () {
         console.log("pickup page init");
         isFirstStart = true;
-        current_page = pickup_route_page;
+        currentPage = PICKUP_ROUTE_PAGE;
         $('#green-circle-left').css('visibility', "visible");
         $('#map_canvas').gmap({
             'zoom': 10,
@@ -89,9 +88,9 @@ pickup.on({
         });
 
         pickup.on('click', "#menu-btn", function () {
-            current_page = user_profile_page;
+            currentPage = USER_PROFILE_PAGE;
             console.log("click user profile");
-            $.mobile.changePage(user_profile, {transition: "slide"});
+            $.mobile.changePage(userProfilePage, {transition: "slide"});
         });
 
         pickup.on('click', '#play-btn', function () {
@@ -106,15 +105,15 @@ pickup.on({
                 console.log("last time " + getTimer());
             },5000);
             if (isStartMarkerSelected) {
-                switch (current_page) {
-                    case travel_page:
+                switch (currentPage) {
+                    case TRAVEL_PAGE:
                         if(getLastShipmentStatus() == "paused"){
                             navigator.notification.alert("Please resume delivery before continuing.",function(){},'Warning','OK');
                         }else {
                             if (isConfirmBoxOpen) {
                                 console.log("changePage delivery details 3");
-                                current_page = delivery_details_confirm_delivery_page;
-                                $.mobile.changePage(delivery_details, {
+                                currentPage = DELIVERY_DETAILS_CONFIRM_DELIVERY_PAGE;
+                                $.mobile.changePage(deliveryDetailsPage, {
                                     transition: "slide"
                                 });
                             } else {
@@ -123,10 +122,10 @@ pickup.on({
                             }
                         }
                         break;
-                    case pickup_route_page:
+                    case PICKUP_ROUTE_PAGE:
                         console.log("changePage delivery details 1");
-                        current_page = delivery_details_begin_tracking_page;
-                        $.mobile.changePage(delivery_details, {
+                        currentPage = DELIVERY_DETAILS_BEGIN_TRACKING_PAGE;
+                        $.mobile.changePage(deliveryDetailsPage, {
                             transition: "slide"
                         });
                         break;
@@ -163,14 +162,14 @@ pickup.on({
 
         pickup.on('click', '#confirm-btn', function () {
             if(shipments.length == 1) {
-                finish_markers[0].setMap(map);
+                finishMarkers[0].setMap(map);
             }
             $("#alertcontainer").css("display", "none");
             $("#message-confirm").css("display", "none");
             $("#step-name-label").text("En Route to Pickup");
             $("#next-div").css("visibility", "visible");
             google.maps.event.clearListeners($("#infobox-arrow-btn"), 'click');
-            infobox.open(map, start_markers[selectedMarkerIndex]);
+            infobox.open(map, startMarkers[selectedMarkerIndex]);
         });
 
         pickup.on("click", "#circle-central", function () {
@@ -179,8 +178,8 @@ pickup.on({
             }
             if ($("#green-circle-left").css("visibility") == "visible") {
                 if (isStartMarkerSelected) {
-                    current_page = delivery_details_begin_tracking_page;
-                    $.mobile.changePage(delivery_details, {
+                    currentPage = DELIVERY_DETAILS_BEGIN_TRACKING_PAGE;
+                    $.mobile.changePage(deliveryDetailsPage, {
                         transition: "slide"
                     });
                 }
@@ -204,7 +203,7 @@ pickup.on({
 
         pickup.on("click", "#step-name-label-wrapper", function () {
             if (getLastShipmentStatus() != "paused" && getLastShipmentStatus() != "in progress") {
-                $.mobile.changePage(dispatch, {
+                $.mobile.changePage(dispatchPage, {
                     transition: "slide"
                 });
             }
@@ -256,7 +255,7 @@ function setTripToStartState(){
     setConfirmAddressText();
     hideMarkers(map);
     isStartMarkerSelected = true;
-    current_page = pickup_route_page;
+    currentPage = PICKUP_ROUTE_PAGE;
     isDispatchFromList = false;
     $("#timer").text('00:00:00');
     $("#tracking-state").css("visibility", "hidden");
@@ -269,19 +268,19 @@ function setTripToStartState(){
     $("#pause-btn").css("visibility", "hidden");
     $("#play-btn").css("visibility", "hidden");
     $("#green-circle-central").css("background", "rgba(69,191,69,0.8)");
-    confirm_infobox.close();
-    confirm_infobox.setMap(null);
+    confirmInfobox.close();
+    confirmInfobox.setMap(null);
     infobox.close();
     infobox.setMap(null);
-    last_time = [0, 0, 0];
-    clearInterval(my_timer);
+    lastTime = [0, 0, 0];
+    clearInterval(timer);
     isConfirmBoxOpen = false;
     isDeliveryComplitedClicked = true;
 }
 
 function pauseTracking(){
     console.log("pause tracking");
-    clearInterval(my_timer);
+    clearInterval(timer);
     stopTrackingUserPosition();
     $("#tracking-state").text("PAUSED");
     $("#tracking-state").css("color", "red");
@@ -297,7 +296,7 @@ function pauseTracking(){
 
 function resumeTracking() {
     startTrackingUserPosition();
-    my_timer = setInterval(function () {
+    timer = setInterval(function () {
         setTimerValue()
     }, 1000);
     $("#tracking-state").text("TRACKING ON");
@@ -315,8 +314,8 @@ function resumeTracking() {
 //tracking page initialization
 function beginTrackingPagePreload() {
     console.log("begin tracking preload");
-    last_time = [0, 0, 0];
-    my_timer = setInterval(function () {
+    lastTime = [0, 0, 0];
+    timer = setInterval(function () {
         setTimerValue();
     }, 1000);
     $('#tracking-state').css('visibility', "visible");
@@ -343,7 +342,7 @@ function beginTrackingPagePreload() {
         return ((this.getHours() < 10) ? "0" : "") + this.getHours() + ":" + ((this.getMinutes() < 10) ? "0" : "") + this.getMinutes() + ":" + ((this.getSeconds() < 10) ? "0" : "") + this.getSeconds();
     };
     currentShipment.start_time = new Date().timeNow();
-    if(user_marker) {
+    if(userMarker) {
         currentShipment.status = "0%";
     }else{
         currentShipment.status = "Not tracked";
@@ -394,10 +393,10 @@ function startTrackingUserPosition() {
         console.log("last user position " + JSON.stringify(position));
 
         //updates user marker location
-        if (user_marker) {
-            user_marker.setPosition(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
+        if (userMarker) {
+            userMarker.setPosition(new google.maps.LatLng(position.coords.latitude, position.coords.longitude));
         } else {
-            user_marker = new google.maps.Marker({
+            userMarker = new google.maps.Marker({
                 position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
                 map: map,
                 icon: 'images/user_marker.png'
@@ -455,7 +454,7 @@ var onSuccessGetUserPosition = function (position) {
     });
 
     //user marker creation
-    user_marker = new google.maps.Marker({
+    userMarker = new google.maps.Marker({
         position: user,
         map: map,
         icon: 'images/user_marker.png'
@@ -464,18 +463,18 @@ var onSuccessGetUserPosition = function (position) {
     $('#map_canvas').gmap('refresh');
     
     if(getLastShipmentStatus() == "in progress" || getLastShipmentStatus() == "paused"){
-        current_page = travel_page;
+        currentPage = TRAVEL_PAGE;
         beginTrackingPagePreload();
         startTrackingUserPosition();
-        last_time = getTimer();
+        lastTime = getTimer();
         hideMarkers(map);
         $("#next-div").css("visibility","visible");
         console.log("status " + getLastShipmentStatus());
         if(getLastShipmentStatus() == "paused"){
             pauseTracking();
-            var h = last_time[0];
-            var m = last_time[1];
-            var s = last_time[2];
+            var h = lastTime[0];
+            var m = lastTime[1];
+            var s = lastTime[2];
             if (h < 10) h = "0" + h;
             if (m < 10) m = "0" + m;
             if (s < 10) s = "0" + s;
@@ -504,18 +503,18 @@ function onErrorGetUserPosition(error) {
     $('#map_canvas').gmap('refresh');
 
     if(getLastShipmentStatus() == "in progress" || getLastShipmentStatus() == "paused"){
-        current_page = travel_page;
+        currentPage = TRAVEL_PAGE;
         beginTrackingPagePreload();
         startTrackingUserPosition();
-        last_time = getTimer();
+        lastTime = getTimer();
         hideMarkers(map);
         $("#next-div").css("visibility","visible");
         console.log("status " + getLastShipmentStatus());
         if(getLastShipmentStatus() == "paused"){
             pauseTracking();
-            var h = last_time[0];
-            var m = last_time[1];
-            var s = last_time[2];
+            var h = lastTime[0];
+            var m = lastTime[1];
+            var s = lastTime[2];
             if (h < 10) h = "0" + h;
             if (m < 10) m = "0" + m;
             if (s < 10) s = "0" + s;
@@ -530,14 +529,14 @@ var boxes;
 function calcRoute(updateMarkers) {
     console.log("calc route");
     var request = {
-        origin: new google.maps.LatLng(start_markers[selectedMarkerIndex].getPosition().lat(), start_markers[selectedMarkerIndex].getPosition().lng()),
-        destination: new google.maps.LatLng(finish_markers[selectedMarkerIndex].getPosition().lat(), finish_markers[selectedMarkerIndex].getPosition().lng()),
+        origin: new google.maps.LatLng(startMarkers[selectedMarkerIndex].getPosition().lat(), startMarkers[selectedMarkerIndex].getPosition().lng()),
+        destination: new google.maps.LatLng(finishMarkers[selectedMarkerIndex].getPosition().lat(), finishMarkers[selectedMarkerIndex].getPosition().lng()),
         travelMode: google.maps.DirectionsTravelMode.DRIVING
     };
     directionsService.route(request, function (response, status) {
         if (status == google.maps.DirectionsStatus.OK) {
             if (!updateMarkers) {
-                current_direction_route = response;
+                currentDirectionRoute = response;
                 directionsDisplay.setDirections(response);
                 directionsDisplay.setMap(map);
             }
@@ -586,23 +585,23 @@ var mapZoomListener = function () {
 
 //sets timers value
 function setTimerValue() {
-    last_time[2]++;
-    if (last_time[2] == 59) {
-        last_time[2] = 0;
-        last_time[1]++;
-        if (last_time[1] == 59) {
-            last_time[1] = 0;
-            last_time[0]++;
+    lastTime[2]++;
+    if (lastTime[2] == 59) {
+        lastTime[2] = 0;
+        lastTime[1]++;
+        if (lastTime[1] == 59) {
+            lastTime[1] = 0;
+            lastTime[0]++;
         }
     }
-    var h = last_time[0];
-    var m = last_time[1];
-    var s = last_time[2];
+    var h = lastTime[0];
+    var m = lastTime[1];
+    var s = lastTime[2];
     if (h < 10) h = "0" + h;
     if (m < 10) m = "0" + m;
     if (s < 10) s = "0" + s;
     $("#timer").text(h + ':' + m + ':' + s);
-    saveTimer(last_time,new Date().getTime());
+    saveTimer(lastTime,new Date().getTime());
 }
 
 function stopTrackStartConfirm() {
@@ -618,7 +617,7 @@ function stopTrackStartConfirm() {
     $("#timer").css("visibility", "hidden");
     directionsDisplay.setMap(null);
     google.maps.event.clearListeners($("#confirm-infobox-arrow-btn"), 'click');
-    confirm_infobox.open(map, finish_markers[selectedMarkerIndex]);
+    confirmInfobox.open(map, finishMarkers[selectedMarkerIndex]);
     isConfirmBoxOpen = true;
 };
 
@@ -635,10 +634,10 @@ function stopConfirmStartTrack() {
     }
     $("#green-circle-central").css("visibility", "visible");
     $("#timer").css("visibility", "visible");
-    directionsDisplay.setDirections(current_direction_route);
+    directionsDisplay.setDirections(currentDirectionRoute);
     directionsDisplay.setMap(map);
-    confirm_infobox.close();
-    confirm_infobox.setMap(null);
+    confirmInfobox.close();
+    confirmInfobox.setMap(null);
     isConfirmBoxOpen = false;
 }
 

@@ -15,19 +15,19 @@
  */
 
 // Login Page
-var registration = $('#registration');
-registration.on({
+var registrationPage = $('#registration');
+registrationPage.on({
     pageinit: function () {
-            registration.on('click', '#register-label', function () {
+            registrationPage.on('click', '#register-label', function () {
 
                 var username = $('#registration-username').val();
                 var password = $('#registration-password').val();
                 var email = $('#registration-email').val();
-                var first_name = $('#registration-first-name').val();
-                var last_name = $('#registration-last-name').val();
-                var mobile_number = $('#registration-mobile-number').val();
+                var firstName = $('#registration-first-name').val();
+                var lastName = $('#registration-last-name').val();
+                var mobileNumber = $('#registration-mobile-number').val();
 
-                if (isEmpty(username) || isEmpty(password) || isEmpty(email) || isEmpty(first_name) || isEmpty(last_name) || isEmpty(mobile_number)) {
+                if (isEmpty(username) || isEmpty(password) || isEmpty(email) || isEmpty(firstName) || isEmpty(lastName) || isEmpty(mobileNumber)) {
                     navigator.notification.alert("Please fill all fields", function () {
                     }, 'Invalid form', 'OK');
                 } else {
@@ -37,9 +37,9 @@ registration.on({
                         username: username,
                         password: password,
                         email: email,
-                        first_name: first_name,
-                        last_name: last_name,
-                        mobile_number: mobile_number,
+                        first_name: firstName,
+                        last_name: lastName,
+                        mobile_number: mobileNumber,
                         status: "driver"
                     });
                     promise.then(function (response) {
@@ -56,7 +56,7 @@ registration.on({
                     }).then(loadingHide, loadingHide);
                 }
             });
-        registration.on('click', '#registration-back', function () {
+        registrationPage.on('click', '#registration-back', function () {
             $.mobile.back({
                 transition: "slide"
             });

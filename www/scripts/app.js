@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-var active_user;
-var current_page = 1;
-var pickup_route_page = 1;
-var travel_page = 2;
-var delivery_details_begin_tracking_page = 3;
-var delivery_details_confirm_delivery_page = 4;
-var login_page = 5;
-var signature_page = 6;
-var user_profile_page = 7;
-var open_dispatches_page = 8;
+var activeUser;
+var currentPage = 1;
+var PICKUP_ROUTE_PAGE = 1;
+var TRAVEL_PAGE = 2;
+var DELIVERY_DETAILS_BEGIN_TRACKING_PAGE = 3;
+var DELIVERY_DETAILS_CONFIRM_DELIVERY_PAGE = 4;
+var LOGIN_PAGE = 5;
+var SIGNATURE_PAGE = 6;
+var USER_PROFILE_PAGE = 7;
+var OPEN_DISPATCHES_PAGE = 8;
 var currentShipment = null;
 var isStartMarkerSelected = false;
 var isConfirmDeliveryPage = false;
@@ -31,8 +31,8 @@ var isDeliveryComplitedClicked = false;
 var isBackPressed = false;
 var isConfirmBoxOpen = false;
 var infobox;
-var confirm_infobox;
-var current_direction_route = null;
+var confirmInfobox;
+var currentDirectionRoute = null;
 var isNewLogin = false;
 var mapCenter = new google.maps.LatLng(40.111689,-96.943359);
 
@@ -69,15 +69,15 @@ function onDeviceReady() {
         }
     });
 
-    promise.then(function (activeUser) {
-            active_user = activeUser;
-            console.log("init active user " + JSON.stringify(activeUser));
-            if (null !== active_user) {
+    promise.then(function (user) {
+            activeUser = user;
+            console.log("init active user " + JSON.stringify(user));
+            if (null !== activeUser) {
                 loadShipment();
             } else {
                 console.log("changePage login");
-                current_page = login_page;
-                $.mobile.changePage(login);
+                currentPage = LOGIN_PAGE;
+                $.mobile.changePage(loginPage);
             }
         },
         function (error) {
@@ -115,12 +115,12 @@ var loadingHide = function () {
 
 //Android back button listener
 function onBackKeyDown() {
-    switch (current_page) {
-        case travel_page:
+    switch (currentPage) {
+        case TRAVEL_PAGE:
             rejectRoute();
             isBackPressed = true;
             break;
-        case pickup_route_page:
+        case PICKUP_ROUTE_PAGE:
             if ($('#alertcontainer').css('display') == 'block') {
                 $('#alertcontainer').css('display', "none");
                 if ($("#messagefg").css("display") == "block") {
@@ -134,30 +134,30 @@ function onBackKeyDown() {
                 navigator.app.exitApp();
             }
             break;
-        case login_page:
+        case LOGIN_PAGE:
             navigator.app.exitApp();
             break;
-        case delivery_details_begin_tracking_page:
+        case DELIVERY_DETAILS_BEGIN_TRACKING_PAGE:
             $.mobile.back({
                 transition: "slide"
             });
             isBackPressed = true;
             break;
-        case delivery_details_confirm_delivery_page:
+        case DELIVERY_DETAILS_CONFIRM_DELIVERY_PAGE:
             $.mobile.back({
                 transition: "slide"
             });
             isBackPressed = true;
             break;
-        case signature_page:
+        case SIGNATURE_PAGE:
             $.mobile.back({
                 transition: "slide"
             });
             break;
-        case user_profile_page:
+        case USER_PROFILE_PAGE:
             userProfileBack();
             break;
-        case open_dispatches_page:
+        case OPEN_DISPATCHES_PAGE:
             $.mobile.back({
                 transition: "slide"
             });
@@ -167,7 +167,7 @@ function onBackKeyDown() {
 
 //infoboxes initialization
 function createInfoboxes() {
-    confirm_infobox = new InfoBox({
+    confirmInfobox = new InfoBox({
         content: document.getElementById("confirm-infobox"),
         maxWidth: 200,
         pane: "floatPane",
@@ -182,17 +182,17 @@ function createInfoboxes() {
         closeBoxURL: "",
         infoBoxClearance: new google.maps.Size(1, 1)
     });
-    google.maps.event.addListener(confirm_infobox, 'domready', function (e) {
+    google.maps.event.addListener(confirmInfobox, 'domready', function (e) {
         $("#confirm-infobox-arrow-btn").on("click", function (e) {
             e.preventDefault();
             e.stopPropagation();
             console.log("changePage delivery details 3");
-            current_page = delivery_details_confirm_delivery_page;
-            $.mobile.changePage(delivery_details, {
+            currentPage = DELIVERY_DETAILS_CONFIRM_DELIVERY_PAGE;
+            $.mobile.changePage(deliveryDetailsPage, {
                 transition: "slide"
             });
         });
-        google.maps.event.clearListeners(confirm_infobox, 'domready');
+        google.maps.event.clearListeners(confirmInfobox, 'domready');
     });
 
     infobox = new InfoBox({
@@ -214,8 +214,8 @@ function createInfoboxes() {
             e.preventDefault();
             e.stopPropagation();
             console.log("changePage delivery details 2");
-            current_page = delivery_details_begin_tracking_page;
-            $.mobile.changePage(delivery_details, {
+            currentPage = DELIVERY_DETAILS_BEGIN_TRACKING_PAGE;
+            $.mobile.changePage(deliveryDetailsPage, {
                 transition: "slide"
             });
         });
@@ -269,26 +269,26 @@ function loadShipment() {
                 shipments = [];
                 currentShipment = {};
                 clearMarkers();
-                finish_markers = [];
-                start_markers = [];
+                finishMarkers = [];
+                startMarkers = [];
                 addresses = [];
                 selectedMarkerIndex = 0;
                 isStartMarkerSelected = false;
                 lastUserPosition = null;
-                last_time = [0, 0, 0];
+                lastTime = [0, 0, 0];
                 isConfirmDeliveryPage = false;
                 isBackPressed = false;
                 isConfirmBoxOpen = false;
-                current_avatar_data_uri = null;
-                start_avatar_data_uri = null;
-                current_direction_route = null;
+                currentAvatarDataUri = null;
+                startAvatarDataUri = null;
+                currentDirectionRoute = null;
                 navigator.geolocation.getCurrentPosition(onSuccessGetUserPosition, onErrorGetUserPosition);
                 $('#green-circle-left').css('visibility', "visible");
                 $('#green-circle-central').css('visibility', "hidden");
                 $('#green-circle-right').css('visibility', "hidden");
                 $('#play-btn').css('visibility', "hidden");
                 $('#pause-btn').css('visibility', "hidden");
-                clearInterval(my_timer);
+                clearInterval(timer);
                 stopTrackingUserPosition();
                 $("#timer").css('visibility', "hidden");
                 $("#tracking-state").css('visibility', "hidden");
@@ -302,11 +302,11 @@ function loadShipment() {
                 //reinitialization main pickup screen variables
                 shipments = data;
                 currentShipment = data[0];
-                current_page = pickup_route_page;
+                currentPage = PICKUP_ROUTE_PAGE;
                 if (isDeliveryComplitedClicked || isNewLogin) {
                     clearMarkers();
-                    finish_markers = [];
-                    start_markers = [];
+                    finishMarkers = [];
+                    startMarkers = [];
                     addresses = [];
                     selectedMarkerIndex = 0;
                     isStartMarkerSelected = false;
@@ -320,20 +320,20 @@ function loadShipment() {
                 if (isNewLogin) {
                     lastUserPosition = null;
                     directionsDisplay.setMap(null);
-                    last_time = [0, 0, 0];
+                    lastTime = [0, 0, 0];
                     isConfirmDeliveryPage = false;
                     isBackPressed = false;
                     isConfirmBoxOpen = false;
-                    current_avatar_data_uri = null;
-                    start_avatar_data_uri = null;
-                    current_direction_route = null;
+                    currentAvatarDataUri = null;
+                    startAvatarDataUri = null;
+                    currentDirectionRoute = null;
                     navigator.geolocation.getCurrentPosition(onSuccessGetUserPosition, onErrorGetUserPosition);
                     $('#green-circle-left').css('visibility', "visible");
                     $('#green-circle-central').css('visibility', "hidden");
                     $('#green-circle-right').css('visibility', "hidden");
                     $('#play-btn').css('visibility', "hidden");
                     $('#pause-btn').css('visibility', "hidden");
-                    clearInterval(my_timer);
+                    clearInterval(timer);
                     stopTrackingUserPosition();
                     $("#timer").css('visibility', "hidden");
                     $("#tracking-state").css('visibility', "hidden");

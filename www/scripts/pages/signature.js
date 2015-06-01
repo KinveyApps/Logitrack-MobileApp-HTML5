@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var signature = $('#signature');
+var signaturePage = $('#signature');
 var sigWrapper;
 var offlineSignatures = getOfflineSignatures();
 offlineSignatures = (offlineSignatures) ? offlineSignatures : {};
 var clearedSignatures = getClearedSignatures();
 clearedSignatures = (clearedSignatures) ? clearedSignatures : {};
 
-signature.on({
+signaturePage.on({
     pageinit: function () {
 
         sigWrapper = $(".sigPad").signaturePad({drawOnly: true, lineTop: 90000});
 
-        signature.on('click', "#save-signature-btn", function () {
+        signaturePage.on('click', "#save-signature-btn", function () {
             if (sigWrapper.validateForm()) {
-                console.log("get signagure" + JSON.stringify(sigWrapper.getSignature()));
                 var signatureBase64 = sigWrapper.getSignatureImage();
                 if (navigator.onLine) {
                     signatureBase64 = signatureBase64.substr(signatureBase64.indexOf(',') + 1);
@@ -40,7 +39,6 @@ signature.on({
                         sig: sigWrapper.getSignature()
                     }, {
                         success: function (file) {
-                            console.log("success " + JSON.stringify(file));
                             currentShipment.signature = {
                                 _type: 'KinveyFile',
                                 _id: file._id,
@@ -73,7 +71,7 @@ signature.on({
             };
         });
 
-        signature.on('click', ".clearButton", function () {
+        signaturePage.on('click', ".clearButton", function () {
             if(navigator.onLine) {
                 if (currentShipment.signature && currentShipment.signature._id) {
                     $.mobile.loading("show");
@@ -100,7 +98,7 @@ signature.on({
             }
         });
 
-        signature.on('click', '#signature-back', function () {
+        signaturePage.on('click', '#signature-back', function () {
             $.mobile.back({
                 transition: "slide"
             });
@@ -108,14 +106,13 @@ signature.on({
     },
     pageshow: function(){
         if (navigator.onLine) {
-            console.log("start signature " + JSON.stringify(currentShipment.signature));
             if (currentShipment.signature && currentShipment.signature.sig) {
                 sigWrapper.regenerate(currentShipment.signature.sig);
             }
         } else {
             var offlineSignature = offlineSignatures[currentShipment._id];
             if (offlineSignature && offlineSignature.sig) {
-                    sigWrapper.regenerate(offlineSignature.sig);
+                sigWrapper.regenerate(offlineSignature.sig);
             }
         }
     }

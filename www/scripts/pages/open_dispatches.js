@@ -1,12 +1,12 @@
 
 var isDispatchFromList = false;
-var previous_page;
+var previousPage;
 //dispatch page
-var dispatch = $('#open-dispatch');
-dispatch.on({
+var dispatchPage = $('#open-dispatch');
+dispatchPage.on({
     pagebeforeshow: function (event, data) {
-        previous_page = current_page;
-        current_page = open_dispatches_page;
+        previousPage = currentPage;
+        currentPage = OPEN_DISPATCHES_PAGE;
         var items = [];
         $('#dispatch-list li').remove();
         getOpenShipments(function(err){
@@ -27,7 +27,7 @@ dispatch.on({
         });
     },
     pageinit: function () {
-        dispatch.on('click', '#dispatch-back', function () {
+        dispatchPage.on('click', '#dispatch-back', function () {
             isBackPressed = true;
             $.mobile.back({
                 transition: "slide"
@@ -51,7 +51,7 @@ var clickDispatch = function(){
         navigator.notification.confirm("You already have a delivery in progress, are you sure you want to cancel it?",
             function (button) {
                 if (button == 1) {
-                    current_page = pickup_route_page;
+                    currentPage = PICKUP_ROUTE_PAGE;
                     var oldShipment = JSON.parse(JSON.stringify(currentShipment));
                     oldShipment.user_status = "open";
                     setLastShipmentStatus("open");
@@ -90,8 +90,8 @@ var getOpenShipments = function(callback){
             console.log("get shipments " + JSON.stringify(data));
             shipments = data;
             clearMarkers();
-            start_markers = [];
-            finish_markers = [];
+            startMarkers = [];
+            finishMarkers = [];
             addAllStartMarkers(map);
             isStartMarkerSelected = false;
             if(infobox) {

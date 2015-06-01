@@ -126,7 +126,7 @@ function processMessage(){
                 if(getLastShipmentStatus() == "paused" || getLastShipmentStatus() == "in progress"){
                     start_marker.setMap(null)
                 }
-                start_markers.unshift(start_marker);
+                startMarkers.unshift(start_marker);
 
                 //add start marker click listener
                 google.maps.event.addListener(start_marker, 'click', function () {
@@ -135,7 +135,7 @@ function processMessage(){
                         $("#message-confirm").css("display", "block");
                         $("#step-number-label").text("Step 1");
                         $("#step-name-label").text("Pickup");
-                        selectedMarkerIndex = start_markers.indexOf(this);
+                        selectedMarkerIndex = startMarkers.indexOf(this);
                         currentShipment = shipments[selectedMarkerIndex];
                         setConfirmAddressText();
                         hideMarkers(map);
@@ -152,8 +152,8 @@ function processMessage(){
                     icon: 'images/finish_marker.png'
                 });
                 finish_marker.setMap(null);
-                finish_markers.unshift(finish_marker);
-                if (current_page == open_dispatches_page) {
+                finishMarkers.unshift(finish_marker);
+                if (currentPage == OPEN_DISPATCHES_PAGE) {
                     $("#dispatch-list").append('<li><p> Begin: ' + newShipment.route.start + '</br>Finish: ' + newShipment.route.finish + '</p></li>');
                     $("#dispatch-list li").click(clickDispatch);
                     if(getLastShipmentStatus() == "paused" || getLastShipmentStatus() == "in progress") {

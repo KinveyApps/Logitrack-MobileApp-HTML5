@@ -15,10 +15,10 @@
  */
 
 // Login Page
-var login = $('#login');
-login.on({
+var loginPage = $('#login');
+loginPage.on({
     pageinit: function () {
-        login.on('click', '#login-label', function () {
+        loginPage.on('click', '#login-label', function () {
 
             //Kinvey user login starts
             var promise = Kinvey.User.login({
@@ -42,7 +42,6 @@ login.on({
                     });
                 }
             }, function (error) {
-                console.log("login error " + JSON.stringify(error));
                 if(navigator.onLine) {
                     navigator.notification.alert(error.description, function () {
                     }, 'Login failed', 'OK');
@@ -53,8 +52,8 @@ login.on({
             }).then(loadingHide, loadingHide);
         });
 
-        login.on('click','#registration-label',function(){
-            $.mobile.changePage(registration, {transition: "slide"});
+        loginPage.on('click','#registration-label',function(){
+            $.mobile.changePage(registrationPage, {transition: "slide"});
         });
     },
     pagebeforeshow: function () {

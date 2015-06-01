@@ -129,10 +129,9 @@ br {
 
 #step-name-label {
     line-height: 20px;
-    margin: 0 auto;
     font-size: 12px;
     color: rgb(97, 102, 102);
-    margin-top: -3px;
+    margin: -3px auto 0;
 }
 
 #step-number-label {
@@ -338,9 +337,8 @@ br {
 
 .delivery-listitem-title {
     line-height: 35px;
-    margin: 0 auto;
     display: inline-block;
-    margin-left: 10px;
+    margin: 0 auto 0 10px;
 }
 
 .delivery-icon-yes-circle, .delivery-icon-empty-circle, .delivery-icon-arrow, .delivery-icon-arrow-enable {
@@ -427,10 +425,7 @@ br {
 #textarea-div {
     background: rgb(229, 229, 229);
     margin-top: 70px;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding: 10px 20px;
 }
 
 #signature-back {

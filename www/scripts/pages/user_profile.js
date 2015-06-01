@@ -14,57 +14,55 @@
  * limitations under the License.
  */
 
-var current_avatar_data_uri = null;
-var start_avatar_data_uri = null;
+var currentAvatarDataUri = null;
+var startAvatarDataUri = null;
 
 //User Profile Page
-var user_profile = $("#user-profile");
-user_profile.on({
+var userProfilePage = $("#user-profile");
+userProfilePage.on({
     pageinit: function () {
         $("#sign-out-btn").text("SIGN OUT");
-        user_profile.on('click', '#sign-out-btn', function () {
+        userProfilePage.on('click', '#sign-out-btn', function () {
+            var user = Kinvey.getActiveUser();
             switch ($('#sign-out-btn').text()) {
                 case "SIGN OUT":
-                    var user = Kinvey.getActiveUser();
-                    console.log("active user " + JSON.stringify(user));
                     if (null !== user) {
                         $.mobile.loading("show");
                         //Kinvey user logout starts
                         var promise = Kinvey.User.logout({});
                         promise.then(function (response) {
                             Kinvey.Sync.destruct();
-                            console.log("logout with success");
                             isNewLogin = true;
-                            $.mobile.changePage(login, {transition: "slide"});
+                            $.mobile.changePage(loginPage, {transition: "slide"});
                         }, function (error) {
-                            console.log("logout with error " + JSON.stringify(error));
+                            navigator.notification.alert(error.description, function () {
+                            }, 'Logout failed', 'OK');
                         }).then(loadingHide, loadingHide);
                     }
                     break;
                 case "SAVE":
-                    var user = Kinvey.getActiveUser();
                     user.mobile_number = $('#user-mobile-number').text();
                     user.first_name = $('#first-name').text();
                     user.last_name = $('#last-name').text();
-                    if (current_avatar_data_uri != null) {
+                    if (currentAvatarDataUri != null) {
                         $.mobile.loading("show");
-                        var array_buffer = _base64ToArrayBuffer(current_avatar_data_uri)
+                        var arrayBuffer = _base64ToArrayBuffer(currentAvatarDataUri)
 
                         //Kinvey save avatar image file starts
-                        var promise = Kinvey.File.upload(array_buffer, {
+                        var promise = Kinvey.File.upload(arrayBuffer, {
                             mimeType: 'image/jpeg',
-                            size: current_avatar_data_uri.length
+                            size: currentAvatarDataUri.length
                         }, {
                             success: function (file) {
-                                console.log("success " + JSON.stringify(file));
                                 user.avatar = {
                                     _type: 'KinveyFile',
                                     _id: file._id
-                                }
+                                };
                                 updateUserInfo(user);
                             },
                             error: function (error) {
-                                console.log("error " + JSON.stringify(error));
+                                navigator.notification.alert(error.description, function () {
+                                }, 'Upload avatar failed', 'OK');
                             }
                         }).then(loadingHide, loadingHide);
                     } else {
@@ -74,11 +72,11 @@ user_profile.on({
             }
         });
 
-        user_profile.on('click', '#profile-back', function () {
+        userProfilePage.on('click', '#profile-back', function () {
             userProfileBack();
         });
 
-        user_profile.on('click', '#profile-edit', function () {
+        userProfilePage.on('click', '#profile-edit', function () {
             console.log("profile edit");
             $("#profile-edit").css("visibility", "hidden");
             $("#sign-out-btn").text("SAVE");
@@ -86,7 +84,7 @@ user_profile.on({
             $("#profile-password-div").css("display", "none");
         });
 
-        user_profile.on('click', '#first-name-div', function () {
+        userProfilePage.on('click', '#first-name-div', function () {
             if ($('#sign-out-btn').text() === "SAVE") {
                 navigator.notification.prompt("Name editing", function (results) {
                     if (results.input1 != null) {
@@ -97,7 +95,7 @@ user_profile.on({
             }
         });
 
-        user_profile.on('click', '#last-name-div', function () {
+        userProfilePage.on('click', '#last-name-div', function () {
             if ($('#sign-out-btn').text() === "SAVE") {
                 navigator.notification.prompt("Surname editing", function (results) {
                     if (results.input1 != null) {
@@ -107,7 +105,7 @@ user_profile.on({
             }
         });
 
-        user_profile.on('click', '#profile-mobile-div', function () {
+        userProfilePage.on('click', '#profile-mobile-div', function () {
             if ($('#sign-out-btn').text() === "SAVE") {
                 navigator.notification.prompt("Mobile number editing", function (results) {
                     if (results.input1 != null) {
@@ -117,7 +115,7 @@ user_profile.on({
             }
         });
 
-        user_profile.on('click', '#user-avatar', function () {
+        userProfilePage.on('click', '#user-avatar', function () {
             if ($('#sign-out-btn').text() === "SAVE") {
                 console.log("User avatar clicked");
                 getPhoto();
@@ -136,7 +134,7 @@ user_profile.on({
             $('#restaurant-checkbox').attr('checked', false);
         }
 
-        user_profile.on('click', "#push-checkbox", function () {
+        userProfilePage.on('click', "#push-checkbox", function () {
             console.log("checkbox click");
             var status = $('#push-checkbox').prop('checked');
             if (status) {
@@ -146,7 +144,7 @@ user_profile.on({
             }
         });
 
-        user_profile.on('click', "#restaurant-checkbox", function () {
+        userProfilePage.on('click', "#restaurant-checkbox", function () {
             var status = $('#restaurant-checkbox').prop('checked');
             if (status) {
                 saveRestaurantMarkerStatus("enabled");
@@ -163,25 +161,22 @@ user_profile.on({
         });
     },
     pagebeforeshow: function () {
-        active_user = Kinvey.getActiveUser();
-        console.log("active user " + JSON.stringify(active_user));
-        $("#first-name").text(active_user.first_name);
-        $("#last-name").text(active_user.last_name);
-        $("#user-email").text(active_user.email);
-        $("#user-mobile-number").text(active_user.mobile_number);
-        var user_avatar = document.getElementById('user-avatar');
-        console.log("avatar id " + JSON.stringify(active_user.avatar));
-        if (active_user.avatar) {
+        activeUser = Kinvey.getActiveUser();
+        $("#first-name").text(activeUser.first_name);
+        $("#last-name").text(activeUser.last_name);
+        $("#user-email").text(activeUser.email);
+        $("#user-mobile-number").text(activeUser.mobile_number);
+        var userAvatar = document.getElementById('user-avatar');
+        if (activeUser.avatar) {
             //Kinvey stream user avatar starts
-            var promise = Kinvey.File.stream(active_user.avatar._id);
+            var promise = Kinvey.File.stream(activeUser.avatar._id);
             promise.then(function (response) {
-                console.log("photo url " + JSON.stringify(response));
                 var url = response._downloadURL;
-                user_avatar.setAttribute('src', url);
-                start_avatar_data_uri = url;
+                userAvatar.setAttribute('src', url);
+                startAvatarDataUri = url;
             });
         } else {
-            user_avatar.src = "./images/default_avatar.png";
+            userAvatar.src = "./images/default_avatar.png";
         }
 
     }
@@ -211,11 +206,11 @@ function updateUserInfo(user) {
 
 //converts base64 to bytes
 function _base64ToArrayBuffer(base64) {
-    var binary_string = window.atob(base64);
-    var len = binary_string.length;
+    var binaryString = window.atob(base64);
+    var len = binaryString.length;
     var bytes = new Uint8Array(len);
     for (var i = 0; i < len; i++) {
-        var ascii = binary_string.charCodeAt(i);
+        var ascii = binaryString.charCodeAt(i);
         bytes[i] = ascii;
     }
     return bytes.buffer;
@@ -225,10 +220,9 @@ function getPhoto() {
     // Retrieve image file location from specified source
     navigator.camera.getPicture(function (dataURI) {
         setTimeout(function () {
-            console.log("get photo success " + dataURI);
-            var user_avatar = document.getElementById('user-avatar');
-            user_avatar.src = "data:image/jpeg;base64," + dataURI;
-            current_avatar_data_uri = dataURI;
+            var userAvatar = document.getElementById('user-avatar');
+            userAvatar.src = "data:image/jpeg;base64," + dataURI;
+            currentAvatarDataUri = dataURI;
         }, 0);
 
     }, function (message) {
@@ -244,10 +238,9 @@ function getPhoto() {
 function userProfileBack() {
     switch ($('#sign-out-btn').text()) {
         case "SIGN OUT":
-            console.log("profile back");
             isBackPressed = true;
-            current_avatar_data_uri = null;
-            start_avatar_data_uri = null;
+            currentAvatarDataUri = null;
+            startAvatarDataUri = null;
             $.mobile.back({transition: "slide"});
             break;
         case "SAVE":
@@ -255,16 +248,16 @@ function userProfileBack() {
             $("#sign-out-btn").text("SIGN OUT");
             $("#profile-email-div").css("display", "block");
             $("#profile-password-div").css("display", "block");
-            $("#first-name").text(active_user.first_name);
-            $("#last-name").text(active_user.last_name);
-            $("#user-email").text(active_user.email);
-            $("#user-mobile-number").text(active_user.mobile_number);
-            var user_avatar = document.getElementById('user-avatar');
-            if (start_avatar_data_uri != null) {
-                user_avatar.setAttribute('src', start_avatar_data_uri);
+            $("#first-name").text(activeUser.first_name);
+            $("#last-name").text(activeUser.last_name);
+            $("#user-email").text(activeUser.email);
+            $("#user-mobile-number").text(activeUser.mobile_number);
+            var userAvatar = document.getElementById('user-avatar');
+            if (startAvatarDataUri != null) {
+                userAvatar.setAttribute('src', startAvatarDataUri);
             } else {
                 console.log("default");
-                user_avatar.src = "./images/default_avatar.png";
+                userAvatar.src = "./images/default_avatar.png";
             }
             break;
     }

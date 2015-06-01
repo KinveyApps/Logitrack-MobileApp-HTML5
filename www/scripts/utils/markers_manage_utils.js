@@ -19,9 +19,9 @@ var activeInfoWindow;
 
 function addAllStartMarkers(map) {
     console.log("add all markers");
-    var start_marker;
-    var finish_marker;
-    var route_addresses;
+    var startMarker;
+    var finishMarker;
+    var routeAddresses;
     for (var i in shipments) {
         if((getLastShipmentStatus() == "in progress"||getLastShipmentStatus() == "paused") && shipments[i]._id == getLastShipmentId()){
             currentShipment = shipments[i];
@@ -29,28 +29,28 @@ function addAllStartMarkers(map) {
             isStartMarkerSelected = true;
         }
         if (!!shipments[i].route) {
-            route_addresses = {
+            routeAddresses = {
                 start: shipments[i].route.start,
                 finish: shipments[i].route.finish
             };
-            addresses.push(route_addresses);
+            addresses.push(routeAddresses);
 
             //creates start marker
-            start_marker = new google.maps.Marker({
+            startMarker = new google.maps.Marker({
                 position: new google.maps.LatLng(shipments[i].route.start_lat, shipments[i].route.start_long),
                 map: map,
                 icon: 'images/start_marker.png'
             });
-            start_markers.push(start_marker);
+            startMarkers.push(startMarker);
 
             //add start marker click listener
-            google.maps.event.addListener(start_marker, 'click', function () {
+            google.maps.event.addListener(startMarker, 'click', function () {
                 if (!isStartMarkerSelected) {
                     $("#alertcontainer").css("display", "block");
                     $("#message-confirm").css("display", "block");
                     $("#step-number-label").text("Step 1");
                     $("#step-name-label").text("Pickup");
-                    selectedMarkerIndex = start_markers.indexOf(this);
+                    selectedMarkerIndex = startMarkers.indexOf(this);
                     currentShipment = shipments[selectedMarkerIndex];
                     setConfirmAddressText();
                     hideMarkers(map);
@@ -67,13 +67,13 @@ function addAllStartMarkers(map) {
             showMarkers();
 
             //creates finish marker
-            finish_marker = new google.maps.Marker({
+            finishMarker = new google.maps.Marker({
                 position: new google.maps.LatLng(shipments[i].route.finish_lat, shipments[i].route.finish_long),
                 map: map,
                 icon: 'images/finish_marker.png'
             });
-            finish_marker.setMap(null);
-            finish_markers.push(finish_marker);
+            finishMarker.setMap(null);
+            finishMarkers.push(finishMarker);
         }
     }
 }
@@ -81,8 +81,8 @@ function addAllStartMarkers(map) {
 //hides all markers on map except selected
 function hideMarkers(map) {
     clearMarkers();
-    start_markers[selectedMarkerIndex].setMap(map);
-    finish_markers[selectedMarkerIndex].setMap(map);
+    startMarkers[selectedMarkerIndex].setMap(map);
+    finishMarkers[selectedMarkerIndex].setMap(map);
 }
 
 //hides all markers
@@ -93,9 +93,9 @@ function clearMarkers() {
 
 //hides finish markers
 function clearFinishMarkers() {
-    for (var i = 0; i < finish_markers.length; i++) {
-        if (!!finish_markers[i]) {
-            finish_markers[i].setMap(null);
+    for (var i = 0; i < finishMarkers.length; i++) {
+        if (!!finishMarkers[i]) {
+            finishMarkers[i].setMap(null);
         }
     }
 }
@@ -110,10 +110,10 @@ function showMarkers() {
 
 //set visibility of start markers
 function setAllMap(map) {
-    console.log("markers count " + start_markers.length);
-    for (var i = 0; i < start_markers.length; i++) {
-        if (!!start_markers[i]) {
-            start_markers[i].setMap(map);
+    console.log("markers count " + startMarkers.length);
+    for (var i = 0; i < startMarkers.length; i++) {
+        if (!!startMarkers[i]) {
+            startMarkers[i].setMap(map);
         }
     }
 }
@@ -217,7 +217,6 @@ function createPOIMarkers(boundsLatLng, index) {
 
     if (getRestaurantMarkerStatus() == "enabled") {
         service.search(request, function (results, status) {
-            console.log("status " + status);
             if (status == google.maps.places.PlacesServiceStatus.OK) {
                 var markerCount = 4;
                 if (results.length < 4) {

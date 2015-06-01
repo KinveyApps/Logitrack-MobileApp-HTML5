@@ -15,15 +15,15 @@
  */
 
 //Delivery Details Page
-var delivery_details = $('#delivery-details');
-delivery_details.on({
+var deliveryDetailsPage = $('#delivery-details');
+deliveryDetailsPage.on({
     pagebeforeshow: function (event, data) {
         $("#delivery-start-address").html(addressFormat(addresses[selectedMarkerIndex].start));
         $("#delivery-finish-address").html(addressFormat(addresses[selectedMarkerIndex].finish));
         var user = Kinvey.getActiveUser();
         $("#delivery-agent").html("DELIVERY AGENT: " + user.first_name + " " + user.last_name);
-        switch (current_page) {
-            case delivery_details_confirm_delivery_page:
+        switch (currentPage) {
+            case DELIVERY_DETAILS_CONFIRM_DELIVERY_PAGE:
                 $("#delivered-state").removeClass("delivery-icon-empty-circle");
                 $("#delivered-state").addClass("delivery-icon-yes-circle");
                 $("#signature-arrow-btn").removeClass("delivery-icon-arrow");
@@ -31,7 +31,7 @@ delivery_details.on({
                 $("#begin-tracking-btn").text("Delivery Complete");
                 $("#cancel-pickup-btn").text("Cancel Delivery");
                 break;
-            case delivery_details_begin_tracking_page:
+            case DELIVERY_DETAILS_BEGIN_TRACKING_PAGE:
                 $("#delivered-state").removeClass("delivery-icon-yes-circle");
                 $("#delivered-state").addClass("delivery-icon-empty-circle");
                 $("#begin-tracking-btn").text("Begin Tracking");
@@ -39,13 +39,13 @@ delivery_details.on({
                 $("#signature-arrow-btn").removeClass("delivery-icon-arrow-enable");
                 $("#signature-arrow-btn").addClass("delivery-icon-arrow");
                 break;
-            case signature_page:
-                current_page = delivery_details_confirm_delivery_page;
+            case SIGNATURE_PAGE:
+                currentPage = DELIVERY_DETAILS_CONFIRM_DELIVERY_PAGE;
                 break;
         }
     },
     pageinit: function () {
-        delivery_details.on('click', '#delivery-details-back', function () {
+        deliveryDetailsPage.on('click', '#delivery-details-back', function () {
             isBackPressed = true;
             console.log("changePage pickup 2 ");
             $.mobile.back({
@@ -53,23 +53,23 @@ delivery_details.on({
             });
         });
 
-        delivery_details.on('click', '#signature-arrow-btn', function () {
+        deliveryDetailsPage.on('click', '#signature-arrow-btn', function () {
             if ($(this).hasClass("delivery-icon-arrow-enable")) {
                 console.log("changePage signature");
-                current_page = signature_page;
-                $.mobile.changePage(signature, {
+                currentPage = SIGNATURE_PAGE;
+                $.mobile.changePage(signaturePage, {
                     transition: "slide"
                 });
             }
         });
 
-        delivery_details.on('click', '#cancel-pickup-btn', function () {
-            switch (current_page) {
-                case delivery_details_confirm_delivery_page:
+        deliveryDetailsPage.on('click', '#cancel-pickup-btn', function () {
+            switch (currentPage) {
+                case DELIVERY_DETAILS_CONFIRM_DELIVERY_PAGE:
                     rejectRoute();
                     break;
-                case delivery_details_begin_tracking_page:
-                    current_page = pickup_route_page;
+                case DELIVERY_DETAILS_BEGIN_TRACKING_PAGE:
+                    currentPage = PICKUP_ROUTE_PAGE;
                     console.log("changePage pickup 4");
                     $.mobile.back({
                         transition: "slide"
@@ -78,10 +78,10 @@ delivery_details.on({
             }
         });
 
-        delivery_details.on('click', '#begin-tracking-btn', function () {
+        deliveryDetailsPage.on('click', '#begin-tracking-btn', function () {
             switch ($('#begin-tracking-btn').text()) {
                 case "Begin Tracking":
-                    current_page = travel_page;
+                    currentPage = TRAVEL_PAGE;
                     console.log("changePage pickup 5");
                     $.mobile.changePage(pickup);
                     break;
@@ -90,7 +90,7 @@ delivery_details.on({
                         navigator.notification.confirm("Do you really want to mark route as \"Done\"",
                             function (button) {
                                 if (button == 1) {
-                                    current_page = pickup_route_page;
+                                    currentPage = PICKUP_ROUTE_PAGE;
                                     currentShipment.user_status = "done";
                                     setLastShipmentStatus("done");
                                     clearTimer();
@@ -100,9 +100,9 @@ delivery_details.on({
                                         $("#tracking-state").css("visibility", "hidden");
                                         $("#green-circle-right").css("visibility", "hidden");
                                         $("#green-circle-left").css("visibility", "visible");
-                                        clearInterval(my_timer);
-                                        confirm_infobox.close();
-                                        confirm_infobox.setMap(null);
+                                        clearInterval(timer);
+                                        confirmInfobox.close();
+                                        confirmInfobox.setMap(null);
                                         isConfirmBoxOpen = false;
                                         isFirstStart = true;
                                         loadShipment();
@@ -134,16 +134,16 @@ function rejectRoute() {
                     $("#green-circle-right").css("visibility", "hidden");
                     $("#green-circle-left").css("visibility", "visible");
 
-                    clearInterval(my_timer);
-                    confirm_infobox.close();
-                    confirm_infobox.setMap(null);
+                    clearInterval(timer);
+                    confirmInfobox.close();
+                    confirmInfobox.setMap(null);
                     isConfirmBoxOpen = false;
                     isFirstStart = true;
                     setLastShipmentStatus("open");
                     clearRestaurantMarkers();
                     directionsDisplay.setMap(null);
                     console.log("changePage pickup 3");
-                    current_page = pickup_route_page;
+                    currentPage = PICKUP_ROUTE_PAGE;
                     if (isBackPressed) {
                         $("#green-circle-central").css("visibility", "hidden");
                         $("#pause-btn").css("visibility", "hidden");

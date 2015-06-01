@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 //Splash screen
-var splash = $('#splash');
-splash.on({
+var splashPage = $('#splash');
+splashPage.on({
     pageinit: function () {
     }
 });
