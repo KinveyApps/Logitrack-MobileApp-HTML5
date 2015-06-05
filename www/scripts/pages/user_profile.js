@@ -162,10 +162,10 @@ userProfilePage.on({
     },
     pagebeforeshow: function () {
         activeUser = Kinvey.getActiveUser();
-        $("#first-name").text(activeUser.first_name);
-        $("#last-name").text(activeUser.last_name);
-        $("#user-email").text(activeUser.email);
-        $("#user-mobile-number").text(activeUser.mobile_number);
+        $("#first-name").text(activeUser.first_name ? activeUser.first_name : "");
+        $("#last-name").text(activeUser.last_name ? activeUser.last_name : "");
+        $("#user-mobile-number").text(activeUser.mobile_number ? activeUser.mobile_number : "");
+        $("#user-email").text(activeUser.email ? activeUser.email: "");
         var userAvatar = document.getElementById('user-avatar');
         if (activeUser.avatar) {
             //Kinvey stream user avatar starts

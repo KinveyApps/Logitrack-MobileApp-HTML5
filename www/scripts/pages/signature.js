@@ -104,7 +104,8 @@ signaturePage.on({
             });
         });
     },
-    pageshow: function(){
+    pagebeforeshow: function(){
+        sigWrapper.clearCanvas();
         if (navigator.onLine) {
             if (currentShipment.signature && currentShipment.signature.sig) {
                 sigWrapper.regenerate(currentShipment.signature.sig);
