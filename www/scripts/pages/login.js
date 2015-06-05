@@ -55,6 +55,18 @@ loginPage.on({
         loginPage.on('click','#registration-label',function(){
             $.mobile.changePage(registrationPage, {transition: "slide"});
         });
+
+        loginPage.on('click','#mic-login',function(){
+            var promise = Kinvey.User.MIC.loginWithAuthorizationCodeLoginPage("http://localhost/callback/");
+            promise.then(function(user) {
+                activeUser = user;
+                map = null;
+                loadShipment();
+            }, function(err) {
+                alert("error " + JSON.stringify(err));
+            });
+        });
+
     },
     pagebeforeshow: function () {
         $("#username-input").val("");
