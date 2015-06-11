@@ -59,11 +59,28 @@ loginPage.on({
         loginPage.on('click','#mic-login',function(){
             var promise = Kinvey.User.MIC.loginWithAuthorizationCodeLoginPage("http://localhost/callback/");
             promise.then(function(user) {
-                activeUser = user;
-                map = null;
-                loadShipment();
+                if (user._socialIdentity && user._socialIdentity.kinveyAuth && user._socialIdentity.kinveyAuth.id.indexOf("admin") == -1) {
+                    activeUser = user;
+                    map = null;
+                    loadShipment();
+                } else {
+                    navigator.notification.alert("You don't have required permissions", function () {
+                    }, 'Login failed', 'OK');
+                    //Kinvey user logout starts
+                    var promise = Kinvey.User.logout({
+                    });
+                    promise.then(function (response) {
+                        console.log("logout with success");
+                        window.cookies.clear(function() {
+                        });
+                    }, function (error) {
+                        navigator.notification.alert(error.description, function () {
+                        }, 'Logout failed', 'OK');
+                    });
+                }
             }, function(err) {
-                alert("error " + JSON.stringify(err));
+                navigator.notification.alert(err.description, function () {
+                }, 'Login failed', 'OK');
             });
         });
 

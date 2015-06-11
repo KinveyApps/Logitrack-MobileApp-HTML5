@@ -29,8 +29,10 @@ userProfilePage.on({
                     if (null !== user) {
                         $.mobile.loading("show");
                         //Kinvey user logout starts
-                        var promise = Kinvey.User.logout({});
+                        var promise = Kinvey.User.logout();
                         promise.then(function (response) {
+                            window.cookies.clear(function() {
+                            });
                             Kinvey.Sync.destruct();
                             isNewLogin = true;
                             $.mobile.changePage(loginPage, {transition: "slide"});
@@ -46,7 +48,7 @@ userProfilePage.on({
                     user.last_name = $('#last-name').text();
                     if (currentAvatarDataUri != null) {
                         $.mobile.loading("show");
-                        var arrayBuffer = _base64ToArrayBuffer(currentAvatarDataUri)
+                        var arrayBuffer = _base64ToArrayBuffer(currentAvatarDataUri);
 
                         //Kinvey save avatar image file starts
                         var promise = Kinvey.File.upload(arrayBuffer, {

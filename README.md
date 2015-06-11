@@ -47,6 +47,7 @@ var promise = Kinvey.init({
    cordova plugin add org.apache.cordova.vibration
    cordova plugin add org.apache.cordova.network-information
    cordova plugin add "https://github.com/phonegap-build/PushPlugin.git"
+   cordova plugin add https://github.com/bez4pieci/Phonegap-Cookies-Plugin.git
 
 ```
 
