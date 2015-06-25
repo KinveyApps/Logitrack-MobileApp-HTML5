@@ -58,12 +58,6 @@ function addAllStartMarkers(map) {
                 }
             });
 
-            //if (shipments[i]._id == notificationShipmentId) {
-            //    $("#alertcontainer").css("display", "block");
-            //    $("#messagefg").css("display", "block");
-            //    setPushNotifiAddressText(i);
-            //    isFirstStart = false;
-            //}
             showMarkers();
 
             //creates finish marker

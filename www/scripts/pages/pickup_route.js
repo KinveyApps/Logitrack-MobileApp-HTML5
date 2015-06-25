@@ -695,7 +695,6 @@ function calcShipmentStatus(position) {
     });
 
     //updates shipment percentage complete, calculates distance between last checkin and finish point
-    //var origin = new google.maps.LatLng(currentShipment.route.start_lat, currentShipment.route.start_long);
     var origin = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
     var destination = new google.maps.LatLng(currentShipment.route.finish_lat, currentShipment.route.finish_long);
     var service = new google.maps.DistanceMatrixService();

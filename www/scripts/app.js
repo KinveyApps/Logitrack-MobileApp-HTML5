@@ -246,7 +246,6 @@ function saveShipment(shipment, cb) {
 //Load route
 function loadShipment() {
     if(getPushStatus() == 'enabled') {
-    //if(getDeviceId() == null && getPushStatus() == 'enabled') {
         registerPushNotifications();
     }
     $.mobile.loading("show");
@@ -261,7 +260,6 @@ function loadShipment() {
     //Kinvey get shipments that have route starts
     Kinvey.DataStore.find('shipment', query, {
         relations: {
-            //'checkins': 'shipment-checkins',
             'route': 'route'
         },
         success: function (data) {

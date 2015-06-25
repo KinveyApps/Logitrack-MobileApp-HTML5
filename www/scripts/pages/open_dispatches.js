@@ -35,9 +35,6 @@ dispatchPage.on({
         });
 
 
-    },
-    pageshow: function () {
-
     }
 });
 
@@ -83,7 +80,6 @@ var getOpenShipments = function(callback){
     query.descending("_kmd.ect");
     Kinvey.DataStore.find('shipment', query, {
         relations: {
-            //'checkins': 'shipment-checkins',
             'route': 'route'
         },
         success: function (data) {

@@ -23,8 +23,6 @@
 
 .ios-full-page-content{
     background: rgb(236, 236, 236);
-    /*overflow: auto;*/
-    /*position: absolute;*/
     margin:auto;
     left: 0;
     bottom: 0;
@@ -570,13 +568,6 @@ br {
     padding-bottom: 0 !important;
 }
 
-/*#user-profile input{*/
-    /*margin-left: 10px;*/
-    /*line-height: 34px;*/
-    /*border:none;*/
-    /*height:30px;*/
-/*}*/
-
 #menu-btn:active,#signature-arrow-btn:active,#profile-edit:active, #next-div:active #next-btn, #next-div:active #next-label, #step-name-label-wrapper:active *{
     opacity: 0.5;
 }
@@ -683,10 +674,6 @@ br {
     padding-right: 10px;
     border-bottom: 1px solid #000000;
 }
-
-/*.dispatch-list li:active{*/
-    /*background-color: #1B7BF9;*/
-/*}*/
 
 .dispatch-list li p{
     margin-top: 0;
