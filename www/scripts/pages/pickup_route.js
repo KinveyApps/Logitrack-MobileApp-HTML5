@@ -678,8 +678,8 @@ function calcShipmentStatus(position) {
                 address: results[0].formatted_address,
                 shipment_id: currentShipment._id,
                 position: {
-                    lat: results[0].geometry.location.k,
-                    lon: results[0].geometry.location.D
+                    lat: results[0].geometry.location.A,
+                    lon: results[0].geometry.location.F
                 }
             }, {
                 success: function (response) {

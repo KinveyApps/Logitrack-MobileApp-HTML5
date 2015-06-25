@@ -92,6 +92,7 @@ var getOpenShipments = function(callback){
             clearMarkers();
             startMarkers = [];
             finishMarkers = [];
+            addresses = [];
             addAllStartMarkers(map);
             isStartMarkerSelected = false;
             if(infobox) {
