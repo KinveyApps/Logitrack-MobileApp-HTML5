@@ -155,7 +155,7 @@ function processMessage(){
                 finishMarkers.unshift(finish_marker);
                 if (currentPage == OPEN_DISPATCHES_PAGE) {
                     $("#dispatch-list").append('<li><p> Begin: ' + newShipment.route.start + '</br>Finish: ' + newShipment.route.finish + '</p></li>');
-                    $("#dispatch-list li").click(clickDispatch);
+                    $("#dispatch-list").find("li").click(clickDispatch);
                     if(getLastShipmentStatus() == "paused" || getLastShipmentStatus() == "in progress") {
                         selectedMarkerIndex++;
                     }

@@ -35,6 +35,8 @@ var searchRadius = 0.5;
 var locationCheckTimeInterval = 60000; //1 minute
 var isFirstStart;
 var zoomLevel = 12;
+var boxes;
+var activeWatch;
 
 //Pickup route page
 var pickup = $('#pickup-route');
@@ -59,7 +61,8 @@ pickup.on({
                     currentPage = TRAVEL_PAGE;
                     break;
                 case USER_PROFILE_PAGE:
-                    if ($("#step-number-label").text() == "Step 2" || $("#step-number-label").text() == "Step 3") {
+                    var stepNumberLabelText = $("#step-number-label").text();
+                    if (stepNumberLabelText == "Step 2" || stepNumberLabelText == "Step 3") {
                         currentPage = TRAVEL_PAGE;
                     } else {
                         currentPage = PICKUP_ROUTE_PAGE;
@@ -257,17 +260,13 @@ function setTripToStartState(){
     isStartMarkerSelected = true;
     currentPage = PICKUP_ROUTE_PAGE;
     isDispatchFromList = false;
-    $("#timer").text('00:00:00');
-    $("#tracking-state").css("visibility", "hidden");
+    $("#timer").text('00:00:00').css('visibility', "hidden");
+    $("#tracking-state").css("visibility", "hidden").text("TRACKING ON").css("color", "rgb(65,226,65)");
     $("#green-circle-right").css("visibility", "hidden");
-    $("#green-circle-central").css("visibility", "hidden");
+    $("#green-circle-central").css("visibility", "hidden").css("background", "rgba(69,191,69,0.8)");
     $("#green-circle-left").css("visibility", "visible");
-    $("#timer").css('visibility', "hidden");
-    $("#tracking-state").text("TRACKING ON");
-    $("#tracking-state").css("color", "rgb(65,226,65)");
     $("#pause-btn").css("visibility", "hidden");
     $("#play-btn").css("visibility", "hidden");
-    $("#green-circle-central").css("background", "rgba(69,191,69,0.8)");
     confirmInfobox.close();
     confirmInfobox.setMap(null);
     infobox.close();
@@ -282,8 +281,7 @@ function pauseTracking(){
     console.log("pause tracking");
     clearInterval(timer);
     stopTrackingUserPosition();
-    $("#tracking-state").text("PAUSED");
-    $("#tracking-state").css("color", "red");
+    $("#tracking-state").text("PAUSED").css("color", "red");
     $("#play-btn").css("visibility", "visible");
     $("#pause-btn").css("visibility", "hidden");
     $("#green-circle-central").css("background", "red");
@@ -299,8 +297,7 @@ function resumeTracking() {
     timer = setInterval(function () {
         setTimerValue()
     }, 1000);
-    $("#tracking-state").text("TRACKING ON");
-    $("#tracking-state").css("color", "rgb(65,226,65)");
+    $("#tracking-state").text("TRACKING ON").css("color", "rgb(65,226,65)");
     $("#pause-btn").css("visibility", "visible");
     $("#play-btn").css("visibility", "hidden");
     $("#green-circle-central").css("background", "rgba(69,191,69,0.8)");
@@ -371,7 +368,6 @@ function pickupRoutePagePreload() {
 };
 
 
-var activeWatch;
 //sets update driver position timer
 function startTrackingUserPosition() {
     setupWatch(locationCheckTimeInterval);
@@ -432,9 +428,31 @@ function stopTrackingUserPosition() {
     clearInterval(activeWatch);
 }
 
+//initialize variables if we continue trip
+function continueTrackingLastShipment(){
+    if(getLastShipmentStatus() == "in progress" || getLastShipmentStatus() == "paused"){
+        currentPage = TRAVEL_PAGE;
+        beginTrackingPagePreload();
+        startTrackingUserPosition();
+        lastTime = getTimer();
+        hideMarkers(map);
+        $("#next-div").css("visibility","visible");
+        console.log("status " + getLastShipmentStatus());
+        if(getLastShipmentStatus() == "paused"){
+            pauseTracking();
+            var h = lastTime[0];
+            var m = lastTime[1];
+            var s = lastTime[2];
+            if (h < 10) h = "0" + h;
+            if (m < 10) m = "0" + m;
+            if (s < 10) s = "0" + s;
+            $("#timer").text(h + ':' + m + ':' + s);
+        }
+    }
+}
 
 //creates map when user login in app
-var onSuccessGetUserPosition = function (position) {
+function onSuccessGetUserPosition (position) {
     var user = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
     bounds.extend(user);
 
@@ -462,26 +480,8 @@ var onSuccessGetUserPosition = function (position) {
     addAllStartMarkers(map);
     $('#map_canvas').gmap('refresh');
     
-    if(getLastShipmentStatus() == "in progress" || getLastShipmentStatus() == "paused"){
-        currentPage = TRAVEL_PAGE;
-        beginTrackingPagePreload();
-        startTrackingUserPosition();
-        lastTime = getTimer();
-        hideMarkers(map);
-        $("#next-div").css("visibility","visible");
-        console.log("status " + getLastShipmentStatus());
-        if(getLastShipmentStatus() == "paused"){
-            pauseTracking();
-            var h = lastTime[0];
-            var m = lastTime[1];
-            var s = lastTime[2];
-            if (h < 10) h = "0" + h;
-            if (m < 10) m = "0" + m;
-            if (s < 10) s = "0" + s;
-            $("#timer").text(h + ':' + m + ':' + s);
-        }
-    }
-};
+    continueTrackingLastShipment();
+}
 
 // onError Callback receives a PositionError object
 function onErrorGetUserPosition(error) {
@@ -502,28 +502,8 @@ function onErrorGetUserPosition(error) {
     addAllStartMarkers(map);
     $('#map_canvas').gmap('refresh');
 
-    if(getLastShipmentStatus() == "in progress" || getLastShipmentStatus() == "paused"){
-        currentPage = TRAVEL_PAGE;
-        beginTrackingPagePreload();
-        startTrackingUserPosition();
-        lastTime = getTimer();
-        hideMarkers(map);
-        $("#next-div").css("visibility","visible");
-        console.log("status " + getLastShipmentStatus());
-        if(getLastShipmentStatus() == "paused"){
-            pauseTracking();
-            var h = lastTime[0];
-            var m = lastTime[1];
-            var s = lastTime[2];
-            if (h < 10) h = "0" + h;
-            if (m < 10) m = "0" + m;
-            if (s < 10) s = "0" + s;
-            $("#timer").text(h + ':' + m + ':' + s);
-        }
-    }
+    continueTrackingLastShipment();
 }
-
-var boxes;
 
 //builds route between markers
 function calcRoute(updateMarkers) {
@@ -619,7 +599,7 @@ function stopTrackStartConfirm() {
     google.maps.event.clearListeners($("#confirm-infobox-arrow-btn"), 'click');
     confirmInfobox.open(map, finishMarkers[selectedMarkerIndex]);
     isConfirmBoxOpen = true;
-};
+}
 
 function stopConfirmStartTrack() {
     isConfirmDeliveryPage = false;
@@ -666,7 +646,6 @@ function addressFormat(address) {
     return result;
 }
 
-
 function calcShipmentStatus(position) {
 
     //gets address by position
@@ -678,8 +657,8 @@ function calcShipmentStatus(position) {
                 address: results[0].formatted_address,
                 shipment_id: currentShipment._id,
                 position: {
-                    lat: results[0].geometry.location.A,
-                    lon: results[0].geometry.location.F
+                    lat: results[0].geometry.location.lat(),
+                    lon: results[0].geometry.location.lng()
                 }
             }, {
                 success: function (response) {

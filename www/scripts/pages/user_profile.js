@@ -212,8 +212,7 @@ function _base64ToArrayBuffer(base64) {
     var len = binaryString.length;
     var bytes = new Uint8Array(len);
     for (var i = 0; i < len; i++) {
-        var ascii = binaryString.charCodeAt(i);
-        bytes[i] = ascii;
+        bytes[i] = binaryString.charCodeAt(i);
     }
     return bytes.buffer;
 }

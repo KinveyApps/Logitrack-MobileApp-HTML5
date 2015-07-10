@@ -8,7 +8,8 @@ dispatchPage.on({
         previousPage = currentPage;
         currentPage = OPEN_DISPATCHES_PAGE;
         var items = [];
-        $('#dispatch-list li').remove();
+        var dispatchList = $('#dispatch-list');
+        dispatchList.find('li').remove();
         getOpenShipments(function(err){
             if(err){
                 navigator.notification.alert("Error",function(){},'Fetching shipment query failed with error ' + JSON.stringify(err) ,'OK');
@@ -21,8 +22,8 @@ dispatchPage.on({
                     }
                 }
 
-                $('#dispatch-list').append(items.join(''));
-                $("#dispatch-list li").click(clickDispatch);
+                dispatchList.append(items.join(''));
+                dispatchList.find("li").click(clickDispatch);
             }
         });
     },
