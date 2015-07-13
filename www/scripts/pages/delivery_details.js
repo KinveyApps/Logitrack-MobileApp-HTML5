@@ -125,6 +125,7 @@ function rejectRoute() {
         function (button) {
             if (button == 1) {
                 currentShipment.user_status = "open";
+                delete currentShipment.signature;
                 saveShipment(JSON.parse(JSON.stringify(currentShipment)), function (data) {
                     $("#tracking-state").css("visibility", "hidden");
                     $("#green-circle-right").css("visibility", "hidden");
